@@ -1,22 +1,20 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@/utils/useAuth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Page() {
-  const { isSignedIn, isLoaded } = useUser();
+  const { isAuthenticated } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoaded) return;
-
-    if (isSignedIn) {
+    if (isAuthenticated) {
       router.push("/signin"); // if signed in
     } else {
       router.push("/home"); // if NOT signed in
     }
-  }, [isSignedIn, isLoaded, router]);
+  }, [isAuthenticated, router]);
 
   return null;
 }

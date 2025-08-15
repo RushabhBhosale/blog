@@ -1,38 +1,40 @@
 "use client";
 
-import { useSignIn, useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useRouter } from "next/navigation";
+import axios from "axios";
+import { useAuth } from "@/utils/useAuth";
 
 export default function SignInPage() {
-  const { isSignedIn } = useUser();
   const router = useRouter();
-  const { signIn, isLoaded } = useSignIn();
+  const { user, isAuthenticated } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (isSignedIn) {
-      router.push("/home");
-    }
-  }, [isSignedIn]);
+    if (isAuthenticated) router.push("/home");
+  }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLoaded) return;
+    setError("");
+    setLoading(true);
 
     try {
-      await signIn.create({
-        identifier: email,
-        password,
-      });
-      await signIn.reload();
+      const res = await axios.post("/api/auth/signin", { email, password });
+      if (res.status === 200) {
+        router.push("/home");
+      }
     } catch (err: any) {
-      setError(err.errors?.[0]?.message || "Something went wrong");
+      setError(err.response?.data?.error || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,8 +66,8 @@ export default function SignInPage() {
               placeholder="••••••••"
             />
           </div>
-          <Button type="submit" className="w-full">
-            Sign In
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Signing in..." : "Sign In"}
           </Button>
         </form>
       </div>

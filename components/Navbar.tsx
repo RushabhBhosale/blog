@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useState } from "react";
 import { Menu, X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useUser, UserButton } from "@clerk/nextjs";
+import { useAuth } from "@/utils/useAuth";
 
 export default function BlogNavbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { isSignedIn } = useUser();
+  const { isAuthenticated, user, signOut } = useAuth();
 
   const categories = [
     { name: "Home", href: "/" },
@@ -39,11 +39,15 @@ export default function BlogNavbar() {
             <Search size={20} />
           </button>
 
-          {isSignedIn ? (
-            <UserButton afterSignOutUrl="/" />
+          {isAuthenticated ? (
+            <div className="flex items-center space-x-2">
+              <Button size="sm" onClick={signOut}>
+                Sign Out
+              </Button>
+            </div>
           ) : (
             <Button asChild variant="secondary" size="sm">
-              <Link href="/sign-in">Sign In</Link>
+              <Link href="/signin">Sign In</Link>
             </Button>
           )}
         </div>
@@ -77,8 +81,12 @@ export default function BlogNavbar() {
             <Search size={20} className="mr-2" /> Search
           </button>
 
-          {isSignedIn ? (
-            <UserButton afterSignOutUrl="/" />
+          {isAuthenticated ? (
+            <div className="flex items-center space-x-2">
+              <Button size="sm" onClick={signOut} className="w-full">
+                Sign Out
+              </Button>
+            </div>
           ) : (
             <Button asChild variant="secondary" size="sm" className="w-full">
               <Link href="/sign-in">Sign In</Link>

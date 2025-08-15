@@ -1,29 +1,65 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { useUser } from "@clerk/nextjs";
+import { Badge } from "@/components/ui/badge";
+import { X } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ImageUploader } from "@/components/ImageUploader";
+import { useAuth } from "@/utils/useAuth";
 
 export default function AddBlogPage() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
+  const [categories, setCategories] = useState<any[]>([]);
   const [content, setContent] = useState("");
-  const [tags, setTags] = useState("");
-  const [image, setImage] = useState("");
+  const [tagInput, setTagInput] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { user, isSignedIn } = useUser();
   const router = useRouter();
+  const { user, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get("/api/category");
+        setCategories(res.data.category || []);
+      } catch (err) {
+        console.error("Error fetching categories", err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && tagInput.trim() !== "") {
+      e.preventDefault();
+      if (!tags.includes(tagInput.trim())) setTags([...tags, tagInput.trim()]);
+      setTagInput("");
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setTags(tags.filter((t) => t !== tagToRemove));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!isSignedIn) {
+    if (!isAuthenticated) {
       alert("You must be signed in to add a blog");
       return;
     }
@@ -31,14 +67,18 @@ export default function AddBlogPage() {
     setLoading(true);
 
     try {
-      await axios.post("/api/blog", {
-        title,
-        category,
-        content,
-        tags,
-        image,
-        author: user?.fullName || user?.primaryEmailAddress?.emailAddress,
-      });
+      await axios.post(
+        "/api/blog",
+        {
+          title,
+          category,
+          content,
+          tags,
+          image: imageUrl,
+          author: user?.name || user?.email,
+        },
+        { withCredentials: true }
+      );
 
       router.push("/");
     } catch (err) {
@@ -53,8 +93,11 @@ export default function AddBlogPage() {
     <div className="max-w-2xl mx-auto py-10">
       <h1 className="text-2xl font-bold mb-6">Add New Blog</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Title */}
         <div>
-          <Label htmlFor="title">Title</Label>
+          <Label htmlFor="title" className="mb-1">
+            Title
+          </Label>
           <Input
             id="title"
             placeholder="Enter blog title"
@@ -64,45 +107,77 @@ export default function AddBlogPage() {
           />
         </div>
 
+        {/* Category */}
         <div>
-          <Label htmlFor="category">Category</Label>
-          <Input
-            id="category"
-            placeholder="e.g. Tech, Travel, Lifestyle"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            required
-          />
+          <Label htmlFor="category" className="mb-1">
+            Category
+          </Label>
+          <Select value={category} onValueChange={setCategory}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((cat) => (
+                <SelectItem key={cat._id} value={cat.title}>
+                  {cat.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
+        {/* Tags */}
         <div>
-          <Label htmlFor="tags">Tags</Label>
+          <Label htmlFor="tags" className="mb-1">
+            Tags
+          </Label>
           <Input
             id="tags"
-            placeholder="Comma separated tags"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
+            placeholder="Type a tag and press Enter"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={handleTagKeyDown}
           />
+          <div className="flex flex-wrap gap-2 mt-2">
+            {tags.map((tag) => (
+              <Badge
+                key={tag}
+                variant="secondary"
+                className="flex items-center gap-1"
+              >
+                {tag}
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => removeTag(tag)}
+                >
+                  <X />
+                </Button>
+              </Badge>
+            ))}
+          </div>
         </div>
 
+        {/* Image */}
         <div>
-          <Label htmlFor="image">Image URL</Label>
-          <Input
-            id="image"
-            placeholder="Paste image link"
-            value={image}
-            onChange={(e) => setImage(e.target.value)}
-          />
+          <Label htmlFor="image" className="mb-1">
+            Upload Image
+          </Label>
+          <ImageUploader onUpload={(url) => setImageUrl(url)} />
+          <input type="hidden" name="image" value={imageUrl} />
         </div>
 
+        {/* Content */}
         <div>
-          <Label htmlFor="content">Content</Label>
+          <Label htmlFor="content" className="mb-1">
+            Content
+          </Label>
           <Textarea
             id="content"
             placeholder="Write your blog content..."
             rows={6}
             value={content}
-            onChange={(e: any) => setContent(e.target.value)}
+            onChange={(e) => setContent(e.target.value)}
             required
           />
         </div>

@@ -1,8 +1,6 @@
 import { connectDB } from "@/lib/db";
 import Blog from "@/models/blog";
-import User from "@/models/user";
-import { NextResponse } from "next/server";
-import { currentUser } from "@clerk/nextjs/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
   await connectDB();
@@ -10,31 +8,11 @@ export async function GET() {
   return NextResponse.json(blogs);
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     await connectDB();
 
-    const user = await currentUser();
-    if (!user) {
-      return NextResponse.json({ error: "Not signed in" }, { status: 401 });
-    }
-
-    const dbUser = await User.findOneAndUpdate(
-      { clerkId: user.id },
-      {
-        clerkId: user.id,
-        name: user.fullName,
-        email: user.primaryEmailAddress?.emailAddress,
-        imageUrl: user.imageUrl,
-      },
-      { upsert: true, new: true }
-    );
-
-    if (!dbUser) {
-      return NextResponse.json({ error: "User not found" });
-    }
-
-    const { title, content, category, tags, image } = await req.json();
+    const { title, content, category, tags, image, author } = await req.json();
 
     if (!title || !content || !category) {
       return NextResponse.json(
@@ -49,7 +27,7 @@ export async function POST(req: Request) {
       category,
       tags,
       image,
-      author: dbUser._id,
+      author,
     });
 
     return NextResponse.json(newBlog, { status: 201 });
