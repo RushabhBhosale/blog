@@ -12,8 +12,8 @@ export default function BlogNavbar() {
 
   const categories = [
     { name: "Home", href: "/" },
-    { name: "Tech", href: "/category/tech" },
-    { name: "Lifestyle", href: "/category/lifestyle" },
+    { name: "Anime", href: "/category/tech" },
+    { name: "Tech", href: "/category/lifestyle" },
     { name: "Travel", href: "/category/travel" },
   ];
 
