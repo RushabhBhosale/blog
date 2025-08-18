@@ -12,8 +12,14 @@ export function useAuth() {
       const res = await axios.get("/api/auth/me", {
         withCredentials: true,
       });
-      setUser(res.data.user || null);
-    } catch {
+
+      if (res.data.user) {
+        setUser(res.data.user);
+      } else {
+        setUser(null);
+      }
+    } catch (err) {
+      console.error("Error fetching user:", err);
       setUser(null);
     } finally {
       setLoading(false);
@@ -29,7 +35,7 @@ export function useAuth() {
       await axios.post("/api/auth/signout", {}, { withCredentials: true });
       setUser(null);
     } catch (err) {
-      console.error("Error signing out", err);
+      console.error("Error signing out:", err);
     }
   };
 

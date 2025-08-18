@@ -9,6 +9,7 @@ export async function GET(
   try {
     await connectDB();
     const { blogId } = await context.params;
+    console.log("blgp", blogId);
 
     const comments = await Comment.find({ blogId })
       .sort({ createdAt: -1 })
@@ -17,7 +18,7 @@ export async function GET(
     if (!comments || comments.length === 0) {
       return NextResponse.json(
         { error: "No comments found for this blog" },
-        { status: 404 }
+        { status: 200 }
       );
     }
 
@@ -35,28 +36,18 @@ export async function POST(
   req: NextRequest,
   context: { params: Promise<{ blogId: string }> }
 ) {
+  await connectDB();
+  const { blogId } = await context.params;
+  const body = await req.json();
+
   try {
-    await connectDB();
-
-    const { blogId } = await context.params;
-    const { comment, userId } = await req.json();
-
-    if (!comment || !userId) {
-      return NextResponse.json(
-        { error: "Please provide all the required fields" },
-        { status: 400 }
-      );
-    }
-
-    const createdComment = await Comment.create({
-      comment,
-      user: userId,
+    const newComment = await Comment.create({
       blogId,
+      comment: body.comment,
+      user: body.userId,
     });
-
-    await createdComment.populate("user", "name email imageUrl");
-
-    return NextResponse.json({ comment: createdComment }, { status: 201 });
+    const populated = await newComment.populate("user", "name email imageUrl");
+    return NextResponse.json({ comment: [populated] }, { status: 201 });
   } catch (error) {
     console.error("Error posting comment", error);
     return NextResponse.json(

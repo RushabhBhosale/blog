@@ -5,16 +5,41 @@ import { useParams } from "next/navigation";
 import axiosClient from "@/lib/axiosclient";
 import { BlogInterface } from "../../home/page";
 import Link from "next/link";
+import { useAuth } from "@/utils/useAuth";
+import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
+import Tiptap from "@/components/TipTap";
+import { Button } from "@/components/ui/button";
+
+export interface CommentInterface {
+  _id: string;
+  comment: string;
+  user: {
+    name: string;
+    email: string;
+    imageUrl?: string;
+    _id?: string;
+  };
+  createdAt: string;
+}
 
 const BlogDetails = () => {
+  const { user } = useAuth();
   const [blog, setBlog] = useState<BlogInterface | null>(null);
   const [relatedBlogs, setRelatedBlogs] = useState<BlogInterface[]>([]);
+  const [comments, setComments] = useState<CommentInterface[]>([]);
+  const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
+  const [posting, setPosting] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
+
   const params = useParams();
   const { id } = params;
 
   useEffect(() => {
     fetchBlog();
+    fetchComments();
   }, [id]);
 
   const fetchBlog = async () => {
@@ -24,7 +49,6 @@ const BlogDetails = () => {
       const fetchedBlog = res.data.blog;
       setBlog(fetchedBlog);
 
-      // Fetch related blogs using the dedicated API
       const relatedRes = await axiosClient.get(
         `/blog/related?category=${encodeURIComponent(
           fetchedBlog.category
@@ -38,12 +62,76 @@ const BlogDetails = () => {
     }
   };
 
+  const fetchComments = async () => {
+    try {
+      const res = await axiosClient.get(`/blog/${id}/comment`);
+      setComments(res.data.comments);
+    } catch (err) {
+      console.error("Error fetching comments:", err);
+      setComments([]);
+    }
+  };
+
+  const handleCommentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) {
+      toast.error("You must be logged in to comment");
+      return;
+    }
+
+    if (!newComment.trim()) return;
+
+    try {
+      setPosting(true);
+      const res = await axiosClient.post(`/blog/${id}/comment`, {
+        comment: newComment,
+        userId: user.userId,
+      });
+      fetchComments();
+      setComments((prev) => [res.data.comment, ...prev]);
+      setNewComment("");
+      toast.success("Comment posted successfully");
+    } catch (err: any) {
+      console.error("Error posting comment:", err);
+      toast.error(err?.response?.data?.error || "Something went wrong");
+    } finally {
+      setPosting(false);
+    }
+  };
+
+  const handleUpdate = async (commentId: string) => {
+    try {
+      const res = await axiosClient.put(`/blog/${id}/comment/${commentId}`, {
+        comment: editText,
+      });
+      setComments((prev) =>
+        prev.map((c) => (c?._id === commentId ? res.data.comment : c))
+      );
+      setEditingId(null);
+      setEditText("");
+      toast.success("Comment updated successfully");
+    } catch (err: any) {
+      console.error("Error updating comment:", err);
+      toast.error(err?.response?.data?.error || "Something went wrong");
+    }
+  };
+
+  const handleDelete = async (commentId: string) => {
+    try {
+      await axiosClient.delete(`/blog/${id}/comment/${commentId}`);
+      setComments((prev) => prev.filter((c) => c?._id !== commentId));
+      toast.success("Comment deleted successfully");
+    } catch (err: any) {
+      console.error("Error deleting comment:", err);
+      toast.error(err?.response?.data?.error || "Something went wrong");
+    }
+  };
+
   if (loading) return <div className="text-center py-20">Loading...</div>;
   if (!blog) return <div className="text-center py-20">Blog not found.</div>;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12 flex flex-col md:flex-row gap-8">
-      {/* Main Blog Content */}
       <div className="md:w-3/4 flex flex-col gap-6">
         <img
           src={blog.image}
@@ -79,9 +167,101 @@ const BlogDetails = () => {
             </span>
           ))}
         </div>
+
+        <div className="mt-12">
+          <h3 className="text-xl font-semibold mb-4">Comments</h3>
+
+          <form onSubmit={handleCommentSubmit} className="mb-6">
+            {/* <Textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Write a comment..."
+              className="flex-1 px-4 py-2 border border-border rounded-lg"
+            /> */}
+            <Tiptap content={newComment} onUpdate={setNewComment} />
+            <Button type="submit" disabled={posting}>
+              {posting ? "Posting..." : "Post"}
+            </Button>
+          </form>
+
+          <div className="flex flex-col gap-4">
+            {comments && comments.length > 0 ? (
+              comments.map((c, index) => (
+                <div
+                  key={index}
+                  className="p-3 border border-border rounded-lg bg-card/50"
+                >
+                  <div className="flex items-center gap-3 mb-1">
+                    {c?.user?.imageUrl && (
+                      <img
+                        src={c?.user?.imageUrl}
+                        alt={c?.user?.name}
+                        className="w-8 h-8 rounded-full"
+                      />
+                    )}
+                    <span className="font-medium">{c?.user?.name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(c?.createdAt).toLocaleString()}
+                    </span>
+                  </div>
+
+                  {editingId === c?._id ? (
+                    <div className="flex flex-col gap-2">
+                      {/* <Textarea
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        className="px-2 py-1 border rounded"
+                      /> */}
+                      <Tiptap content={editText} onUpdate={setEditText} />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleUpdate(c?._id)}
+                          className="px-3 py-1 bg-primary text-white rounded"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={() => setEditingId(null)}
+                          className="px-3 py-1 bg-gray-500 text-white rounded"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="prose max-w-full">{c?.comment}</div>
+                  )}
+
+                  {c?.user?._id === user?.userId && editingId !== c?._id && (
+                    <div className="flex gap-2 mt-2 text-xs">
+                      <button
+                        onClick={() => {
+                          setEditingId(c?._id);
+                          setEditText(c?.comment);
+                        }}
+                        className="text-primary hover:underline"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(c?._id)}
+                        className="text-red-500 hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No comments yet. Be the first to comment!
+              </p>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Right Sidebar: Related Blogs */}
       <div className="md:w-1/4 flex flex-col gap-4 sticky top-24 self-start">
         <h3 className="font-semibold text-lg mb-2">More in {blog.category}</h3>
         {relatedBlogs.length ? (
