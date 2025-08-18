@@ -35,7 +35,10 @@ export async function POST(req: NextRequest) {
       JWT_SECRET
     );
 
-    const res = NextResponse.json({ message: "Login successful" });
+    const res = NextResponse.json(
+      { role: user.role, message: "Login successful" },
+      { status: 200 }
+    );
     res.cookies.set("token", token, {
       httpOnly: true,
       path: "/",
