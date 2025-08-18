@@ -27,7 +27,7 @@ const Home = () => {
   }, []);
 
   const getBlogs = async () => {
-    const allBlogs = await axiosClient.get("/blog");
+    const allBlogs = await axiosClient.get("/api/blog");
     setBlogs(allBlogs.data);
   };
 
