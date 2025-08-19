@@ -9,11 +9,8 @@ export async function GET(
   try {
     await connectDB();
     const { blogId } = await context.params;
-    console.log("blgp", blogId);
 
-    const comments = await Comment.find({ blogId })
-      .sort({ createdAt: -1 })
-      .populate("user", "name email imageUrl");
+    const comments = await Comment.find({ blogId }).sort({ createdAt: -1 });
 
     if (!comments || comments.length === 0) {
       return NextResponse.json(
@@ -39,15 +36,16 @@ export async function POST(
   await connectDB();
   const { blogId } = await context.params;
   const body = await req.json();
-
+  console.log("Body", body);
   try {
     const newComment = await Comment.create({
       blogId,
       comment: body.comment,
       user: body.userId,
+      username: body.username,
     });
-    const populated = await newComment.populate("user", "name email imageUrl");
-    return NextResponse.json({ comment: [populated] }, { status: 201 });
+    console.log("New commet", newComment);
+    return NextResponse.json({ comment: newComment }, { status: 201 });
   } catch (error) {
     console.error("Error posting comment", error);
     return NextResponse.json(

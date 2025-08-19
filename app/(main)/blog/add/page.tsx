@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { ImageUploader } from "@/components/ImageUploader";
 import { useAuth } from "@/utils/useAuth";
+import TailwindAdvancedEditor from "@/components/advanced-editor";
 
 export default function AddBlogPage() {
   const [title, setTitle] = useState("");
@@ -31,8 +32,6 @@ export default function AddBlogPage() {
 
   const router = useRouter();
   const { user, isAuthenticated } = useAuth();
-
-  console.log("d", user);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -92,10 +91,9 @@ export default function AddBlogPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-10">
+    <div className="max-w-2xl md:mx-auto m-4 md:my-12 py-4 px-5 md:p-8 rounded-2xl bg-white shadow-2xl/5">
       <h1 className="text-2xl font-bold mb-6">Add New Blog</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Title */}
         <div>
           <Label htmlFor="title" className="mb-1">
             Title
@@ -109,7 +107,6 @@ export default function AddBlogPage() {
           />
         </div>
 
-        {/* Category */}
         <div>
           <Label htmlFor="category" className="mb-1">
             Category
@@ -128,7 +125,6 @@ export default function AddBlogPage() {
           </Select>
         </div>
 
-        {/* Tags */}
         <div>
           <Label htmlFor="tags" className="mb-1">
             Tags
@@ -160,7 +156,6 @@ export default function AddBlogPage() {
           </div>
         </div>
 
-        {/* Image */}
         <div>
           <Label htmlFor="image" className="mb-1">
             Upload Image
@@ -169,7 +164,6 @@ export default function AddBlogPage() {
           <input type="hidden" name="image" value={imageUrl} />
         </div>
 
-        {/* Content */}
         <div>
           <Label htmlFor="content" className="mb-1">
             Content
@@ -182,6 +176,7 @@ export default function AddBlogPage() {
             onChange={(e) => setContent(e.target.value)}
             required
           />
+          <TailwindAdvancedEditor />
         </div>
 
         <Button type="submit" disabled={loading}>

@@ -3,7 +3,6 @@ import {
   FileText,
   FolderOpen,
   LayoutDashboard,
-  MoreHorizontal,
   Plus,
   Settings,
   User,
@@ -18,7 +17,7 @@ import { Button } from "./ui/button";
 const navItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard, badge: null },
   { name: "Posts", href: "/admin/posts", icon: FileText, badge: "12" },
-  { name: "Comments", href: "/admin/category", icon: FileText, badge: "12" },
+  { name: "Comments", href: "/admin/comments", icon: FileText, badge: "12" },
   {
     name: "Categories",
     href: "/admin/categories",
@@ -51,9 +50,10 @@ const AdminSidebar = ({
         className={`
         fixed lg:static inset-y-0 left-0 z-50
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-        w-72 bg-card border-r border-border/60
+        w-72 bg-card
         transition-transform duration-200 ease-out
-        flex flex-col shadow-xl lg:shadow-none
+        flex flex-col shadow-2xl/5
+        m-2 rounded-2xl
       `}
       >
         <div className="flex items-center justify-between p-3 border-b border-border/40">
@@ -81,10 +81,12 @@ const AdminSidebar = ({
         </div>
 
         <div className="p-3 border-b border-border/40">
-          <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground rounded-xl font-medium text-sm">
-            <Plus className="w-4 h-4" />
-            Create New Post
-          </button>
+          <Link href={"/blog/add"}>
+            <Button className="w-full rounded-full">
+              <Plus className="w-4 h-4" />
+              Create New Post
+            </Button>
+          </Link>
         </div>
 
         <nav className="flex-1 p-3 space-y-2">
@@ -118,9 +120,6 @@ const AdminSidebar = ({
                 </div>
                 <div className="flex items-center gap-2">
                   {item.badge && <Badge>{item.badge}</Badge>}
-                  {isActive && (
-                    <ChevronRight className="w-4 h-4 text-primary" />
-                  )}
                 </div>
               </Link>
             );
@@ -138,9 +137,6 @@ const AdminSidebar = ({
               </p>
               <p className="text-xs text-muted-foreground">Admin</p>
             </div>
-            <Button className="p-1 rounded-lg text-muted-foreground">
-              <MoreHorizontal className="w-4 h-4" />
-            </Button>
           </div>
         </div>
       </aside>

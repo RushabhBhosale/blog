@@ -2,18 +2,20 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X, Search } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/utils/useAuth";
+import { usePathname } from "next/navigation";
 
 export default function BlogNavbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { isAuthenticated, user, signOut } = useAuth();
+  const { isAuthenticated, signOut } = useAuth();
+  const pathname = usePathname();
 
   const categories = [
-    { name: "Home", href: "/" },
-    { name: "Anime", href: "/category/tech" },
-    { name: "Tech", href: "/category/lifestyle" },
+    { name: "Home", href: "/home" },
+    { name: "Anime", href: "/category/anime" },
+    { name: "Tech", href: "/category/tech" },
     { name: "Travel", href: "/category/travel" },
   ];
 
@@ -29,22 +31,28 @@ export default function BlogNavbar() {
             <Link
               key={cat.name}
               href={cat.href}
-              className="text-gray-700 hover:text-black transition"
+              className={`transition ${
+                pathname === cat.href
+                  ? "text-black font-semibold"
+                  : "text-gray-600 hover:text-black"
+              }`}
             >
               {cat.name}
             </Link>
           ))}
 
-          <button className="text-gray-600 hover:text-black transition">
-            <Search size={20} />
-          </button>
+          {isAuthenticated && (
+            <Link href="/blog/add">
+              <Button variant="default" size="sm">
+                + Add Blog
+              </Button>
+            </Link>
+          )}
 
           {isAuthenticated ? (
-            <div className="flex items-center space-x-2">
-              <Button size="sm" onClick={signOut}>
-                Sign Out
-              </Button>
-            </div>
+            <Button size="sm" variant="outline" onClick={signOut}>
+              Sign Out
+            </Button>
           ) : (
             <Button asChild variant="secondary" size="sm">
               <Link href="/signin">Sign In</Link>
@@ -61,7 +69,7 @@ export default function BlogNavbar() {
       </div>
 
       <div
-        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`md:hidden transform transition-all duration-300 ease-in-out ${
           isOpen ? "max-h-96 opacity-100 mt-3" : "max-h-0 opacity-0"
         }`}
       >
@@ -70,26 +78,37 @@ export default function BlogNavbar() {
             <Link
               key={cat.name}
               href={cat.href}
-              className="block text-gray-700 hover:text-black transition"
+              className={`block transition rounded px-2 py-1 ${
+                pathname === cat.href
+                  ? "text-black font-semibold bg-gray-100"
+                  : "text-gray-700 hover:text-black hover:bg-gray-100"
+              }`}
               onClick={() => setIsOpen(false)}
             >
               {cat.name}
             </Link>
           ))}
 
-          <button className="flex items-center text-gray-700 hover:text-black transition">
-            <Search size={20} className="mr-2" /> Search
-          </button>
+          {isAuthenticated && (
+            <Link href="/blog/add" className="block">
+              <Button variant="default" className="w-full">
+                + Add Blog
+              </Button>
+            </Link>
+          )}
 
           {isAuthenticated ? (
-            <div className="flex items-center space-x-2">
-              <Button size="sm" onClick={signOut} className="w-full">
-                Sign Out
-              </Button>
-            </div>
+            <Button
+              size="sm"
+              onClick={signOut}
+              className="w-full"
+              variant="outline"
+            >
+              Sign Out
+            </Button>
           ) : (
             <Button asChild variant="secondary" size="sm" className="w-full">
-              <Link href="/sign-in">Sign In</Link>
+              <Link href="/signin">Sign In</Link>
             </Button>
           )}
         </div>

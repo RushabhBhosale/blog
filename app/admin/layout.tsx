@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Menu,
   X,
@@ -19,6 +19,9 @@ import {
 } from "lucide-react";
 import AdminNavbar from "@/components/AdminNavbar";
 import AdminSidebar from "@/components/AdminSidebar";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/utils/useAuth";
+import { toast } from "sonner";
 
 export default function AdminLayout({
   children,
@@ -26,29 +29,33 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user, loading, isAuthenticated } = useAuth();
+  const router = useRouter();
 
-  const navItems = [
-    { name: "Dashboard", href: "/admin", icon: LayoutDashboard, badge: null },
-    { name: "Posts", href: "/admin/posts", icon: FileText, badge: "12" },
-    {
-      name: "Categories",
-      href: "/admin/categories",
-      icon: FolderOpen,
-      badge: null,
-    },
-    { name: "Users", href: "/admin/users", icon: Users, badge: "3" },
-    { name: "Settings", href: "/admin/settings", icon: Settings, badge: null },
-  ];
+  useEffect(() => {
+    if (!loading) {
+      if (!isAuthenticated || user?.role !== "admin") {
+        toast.error("Not authorized");
+        router.push("/home");
+      }
+    }
+  }, [loading, isAuthenticated, user, router]);
+
+  if (loading) return <div>Loading...</div>;
+
+  if (!isAuthenticated || user?.role !== "admin") {
+    return null;
+  }
 
   return (
-    <div className="flex h-screen bg-background antialiased">
+    <div className="flex bg-gray-50 h-screen antialiased">
       <AdminSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       <div className="flex flex-col flex-1 min-w-0">
         <AdminNavbar setSidebarOpen={setSidebarOpen} />
 
-        <main className="flex-1 overflow-y-auto bg-background/50">
-          <div className="p-6 lg:p-8 max-w-7xl mx-auto">{children}</div>
+        <main className="flex-1 overflow-y-auto">
+          <div className="p-4">{children}</div>
         </main>
       </div>
     </div>

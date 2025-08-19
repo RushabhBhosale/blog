@@ -8,8 +8,8 @@ import Link from "next/link";
 import { useAuth } from "@/utils/useAuth";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
-import Tiptap from "@/components/TipTap";
 import { Button } from "@/components/ui/button";
+import { Pencil, Trash } from "lucide-react";
 
 export interface CommentInterface {
   _id: string;
@@ -20,6 +20,7 @@ export interface CommentInterface {
     imageUrl?: string;
     _id?: string;
   };
+  username: string;
   createdAt: string;
 }
 
@@ -82,10 +83,13 @@ const BlogDetails = () => {
     if (!newComment.trim()) return;
 
     try {
+      console.log("user", user);
+
       setPosting(true);
       const res = await axiosClient.post(`/blog/${id}/comment`, {
         comment: newComment,
         userId: user.userId,
+        username: user.name,
       });
       fetchComments();
       setComments((prev) => [res.data.comment, ...prev]);
@@ -171,17 +175,20 @@ const BlogDetails = () => {
         <div className="mt-12">
           <h3 className="text-xl font-semibold mb-4">Comments</h3>
 
-          <form onSubmit={handleCommentSubmit} className="mb-6">
-            {/* <Textarea
+          <form onSubmit={handleCommentSubmit} className="flex gap-2 mb-6">
+            <Textarea
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="Write a comment..."
               className="flex-1 px-4 py-2 border border-border rounded-lg"
-            /> */}
-            <Tiptap content={newComment} onUpdate={setNewComment} />
-            <Button type="submit" disabled={posting}>
+            />
+            <button
+              type="submit"
+              disabled={posting}
+              className="px-4 py-2 bg-foreground text-background rounded-lg disabled:opacity-50"
+            >
               {posting ? "Posting..." : "Post"}
-            </Button>
+            </button>
           </form>
 
           <div className="flex flex-col gap-4">
@@ -189,30 +196,55 @@ const BlogDetails = () => {
               comments.map((c, index) => (
                 <div
                   key={index}
-                  className="p-3 border border-border rounded-lg bg-card/50"
+                  className="px-3 pt-1 pb-3 border border-border rounded-lg bg-card/50"
                 >
-                  <div className="flex items-center gap-3 mb-1">
-                    {c?.user?.imageUrl && (
-                      <img
-                        src={c?.user?.imageUrl}
-                        alt={c?.user?.name}
-                        className="w-8 h-8 rounded-full"
-                      />
-                    )}
-                    <span className="font-medium">{c?.user?.name}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(c?.createdAt).toLocaleString()}
-                    </span>
+                  <div className="flex justify-between">
+                    <div className="flex items-center gap-3 mb-2 pt-1">
+                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-foreground capitalize">
+                        {c?.username?.[0]}
+                      </div>
+
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-foreground capitalize">
+                          {c?.username}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(c?.createdAt).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      {c?.user === user?.userId && editingId !== c?._id && (
+                        <div className="flex gap-2 mt-2 text-xs">
+                          <Button
+                            variant={"outline"}
+                            className="size-6"
+                            onClick={() => {
+                              setEditingId(c?._id);
+                              setEditText(c?.comment);
+                            }}
+                          >
+                            <Pencil className="size-3" />
+                          </Button>
+                          <Button
+                            variant={"destructive"}
+                            className="size-6"
+                            onClick={() => handleDelete(c?._id)}
+                          >
+                            <Trash className="size-3" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {editingId === c?._id ? (
                     <div className="flex flex-col gap-2">
-                      {/* <Textarea
+                      <Textarea
                         value={editText}
                         onChange={(e) => setEditText(e.target.value)}
                         className="px-2 py-1 border rounded"
-                      /> */}
-                      <Tiptap content={editText} onUpdate={setEditText} />
+                      />
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleUpdate(c?._id)}
@@ -229,27 +261,9 @@ const BlogDetails = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="prose max-w-full">{c?.comment}</div>
-                  )}
-
-                  {c?.user?._id === user?.userId && editingId !== c?._id && (
-                    <div className="flex gap-2 mt-2 text-xs">
-                      <button
-                        onClick={() => {
-                          setEditingId(c?._id);
-                          setEditText(c?.comment);
-                        }}
-                        className="text-primary hover:underline"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(c?._id)}
-                        className="text-red-500 hover:underline"
-                      >
-                        Delete
-                      </button>
-                    </div>
+                    <p className="text-sm text-foreground italic">
+                      {c?.comment}
+                    </p>
                   )}
                 </div>
               ))

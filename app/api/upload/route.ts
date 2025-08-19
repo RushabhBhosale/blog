@@ -1,21 +1,31 @@
-import { NextRequest, NextResponse } from "next/server";
-import cloudinary from "@/lib/cloudinary";
+import { put } from "@vercel/blob";
+import { NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
-  try {
-    const { file } = await req.json();
+export const runtime = "edge";
 
-    if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 });
-    }
-
-    const uploadResponse = await cloudinary.uploader.upload(file, {
-      folder: "my_blog",
-    });
-
-    return NextResponse.json({ url: uploadResponse.secure_url });
-  } catch (error) {
-    console.error("Cloudinary upload error:", error);
-    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+export async function POST(req: Request) {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return new Response(
+      "Missing BLOB_READ_WRITE_TOKEN. Don't forget to add that to your .env file.",
+      {
+        status: 401,
+      }
+    );
   }
+
+  const file = req.body || "";
+  const filename = req.headers.get("x-vercel-filename") || "file.txt";
+  const contentType = req.headers.get("content-type") || "text/plain";
+  const fileType = `.${contentType.split("/")[1]}`;
+
+  // construct final filename based on content-type if not provided
+  const finalName = filename.includes(fileType)
+    ? filename
+    : `${filename}${fileType}`;
+  const blob = await put(finalName, file, {
+    contentType,
+    access: "public",
+  });
+
+  return NextResponse.json(blob);
 }

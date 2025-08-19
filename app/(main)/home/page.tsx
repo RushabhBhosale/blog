@@ -27,7 +27,7 @@ const Home = () => {
   }, []);
 
   const getBlogs = async () => {
-    const allBlogs = await axiosClient.get("/api/blog");
+    const allBlogs = await axiosClient.get("/blog");
     setBlogs(allBlogs.data);
   };
 
@@ -83,7 +83,7 @@ const Home = () => {
         )}
 
         <div className="md:w-1/4 flex flex-col gap-4">
-          {blogs.slice(1).map((blog) => (
+          {blogs?.slice(1)?.map((blog) => (
             <Link
               key={blog._id}
               href={`/blog/${blog._id}`}

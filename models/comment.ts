@@ -4,7 +4,8 @@ const commentSchema = new Schema(
   {
     blogId: { type: Schema.Types.ObjectId, required: true },
     comment: { type: String, required: true },
-    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    user: { type: Schema.Types.ObjectId },
+    username: { type: String },
     isOffensive: { type: Boolean },
   },
   {

@@ -1,13 +1,16 @@
+import { useAuth } from "@/utils/useAuth";
 import { LogOut, Menu, Search, User } from "lucide-react";
 import React, { Dispatch, SetStateAction } from "react";
+import { Button } from "./ui/button";
 
 const AdminNavbar = ({
   setSidebarOpen,
 }: {
   setSidebarOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
+  const { user } = useAuth();
   return (
-    <header className="bg-card/80 backdrop-blur-sm border-b border-border/60 px-6 lg:px-8 py-2 sticky top-0 z-30">
+    <header className="bg-card shadow-2xl/5 rounded-2xl md:mt-2 md:mr-2 px-6 lg:px-8 py-2 sticky top-0 z-30">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-6">
           <button
@@ -19,7 +22,7 @@ const AdminNavbar = ({
 
           <div>
             <h1 className="text-xl font-bold text-foreground tracking-tight">
-              Welcome back, Rushabh
+              Welcome back, {user?.name}
             </h1>
           </div>
         </div>
@@ -38,25 +41,13 @@ const AdminNavbar = ({
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="hidden sm:block text-right">
-              <p className="text-sm font-semibold text-foreground">
-                Alex Johnson
-              </p>
-              <p className="text-xs text-muted-foreground font-medium">
-                alex@company.com
-              </p>
-            </div>
-
-            <button className="p-3 rounded-xl bg-muted/50 border border-border/40">
-              <div className="w-6 h-6 bg-primary rounded-lg flex items-center justify-center">
-                <User className="w-4 h-4 text-primary-foreground" />
-              </div>
-            </button>
-
-            <button className="flex items-center gap-3 px-4 py-3 rounded-xl bg-destructive/5 text-destructive border border-destructive/10 font-medium text-sm">
+            <Button
+              variant={"outline"}
+              className="border-red-200 bg-red-200/40"
+            >
               <LogOut className="w-4 h-4" />
               <span className="hidden sm:inline">Sign out</span>
-            </button>
+            </Button>
           </div>
         </div>
       </div>
