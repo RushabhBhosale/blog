@@ -66,7 +66,7 @@ const BlogDetails = () => {
   const fetchComments = async () => {
     try {
       const res = await axiosClient.get(`/blog/${id}/comment`);
-      setComments(res.data.comments);
+      setComments(res.data.comments || []);
     } catch (err) {
       console.error("Error fetching comments:", err);
       setComments([]);
@@ -155,11 +155,10 @@ const BlogDetails = () => {
           {blog.title}
         </h1>
 
-        <div className="prose prose-slate max-w-full text-foreground">
-          {blog.content.split("\n").map((para, idx) => (
-            <p key={idx}>{para}</p>
-          ))}
-        </div>
+        <div
+          dangerouslySetInnerHTML={{ __html: blog.content }}
+          className="prose prose-slate max-w-full text-foreground novel-content"
+        ></div>
 
         <div className="mt-8 flex flex-wrap gap-3">
           {blog.tags.map((tag) => (

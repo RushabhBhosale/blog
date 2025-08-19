@@ -45,10 +45,8 @@ const AISelectorCommands = ({ onSelect }: AISelectorCommandsProps) => {
           <CommandItem
             onSelect={(value) => {
               const slice = editor.state.selection.content();
-              const text = editor.storage.markdown.serializer.serialize(
-                slice.content
-              );
-              onSelect(text, value);
+
+              onSelect(slice, value);
             }}
             className="flex gap-2 px-4"
             key={option.value}

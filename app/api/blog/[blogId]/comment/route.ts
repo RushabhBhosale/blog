@@ -36,7 +36,6 @@ export async function POST(
   await connectDB();
   const { blogId } = await context.params;
   const body = await req.json();
-  console.log("Body", body);
   try {
     const newComment = await Comment.create({
       blogId,

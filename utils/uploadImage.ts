@@ -4,7 +4,7 @@ export async function uploadImageToCloudinary(file: File): Promise<string> {
 
     reader.onload = async () => {
       try {
-        const res = await fetch("/api/upload", {
+        const res = await fetch("/api/cloudinary-upload", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ file: reader.result }),

@@ -28,7 +28,7 @@ const Home = () => {
 
   const getBlogs = async () => {
     const allBlogs = await axiosClient.get("/blog");
-    setBlogs(allBlogs.data);
+    setBlogs(allBlogs.data.blogs);
   };
 
   const formatDate = (dateStr?: string) => {
@@ -62,9 +62,10 @@ const Home = () => {
               <h2 className="text-3xl md:text-4xl font-bold text-white">
                 {featuredBlog.title}
               </h2>
-              <p className="text-sm md:text-base text-gray-200 mt-2 line-clamp-3">
-                {featuredBlog.content}
-              </p>
+              <p
+                className="text-sm md:text-base text-gray-200 mt-2 line-clamp-3 novel-content"
+                dangerouslySetInnerHTML={{ __html: featuredBlog.content }}
+              />
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 {featuredBlog.tags.map((tag) => (
                   <span
@@ -83,7 +84,7 @@ const Home = () => {
         )}
 
         <div className="md:w-1/4 flex flex-col gap-4">
-          {blogs?.slice(1)?.map((blog) => (
+          {blogs.slice(1).map((blog) => (
             <Link
               key={blog._id}
               href={`/blog/${blog._id}`}

@@ -9,7 +9,11 @@ interface GenerativeMenuSwitchProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-const GenerativeMenuSwitch = ({ children, open, onOpenChange }: GenerativeMenuSwitchProps) => {
+const GenerativeMenuSwitch = ({
+  children,
+  open,
+  onOpenChange,
+}: GenerativeMenuSwitchProps) => {
   const { editor } = useEditor();
 
   useEffect(() => {
@@ -29,7 +33,7 @@ const GenerativeMenuSwitch = ({ children, open, onOpenChange }: GenerativeMenuSw
       {open && <AISelector open={open} onOpenChange={onOpenChange} />}
       {!open && (
         <Fragment>
-          <Button
+          {/* <Button
             className="gap-1 rounded-none text-purple-500"
             variant="ghost"
             onClick={() => onOpenChange(true)}
@@ -37,7 +41,7 @@ const GenerativeMenuSwitch = ({ children, open, onOpenChange }: GenerativeMenuSw
           >
             <Magic className="h-5 w-5" />
             Ask AI
-          </Button>
+          </Button> */}
           {children}
         </Fragment>
       )}

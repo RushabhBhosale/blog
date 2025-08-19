@@ -19,6 +19,7 @@ import {
 import { ImageUploader } from "@/components/ImageUploader";
 import { useAuth } from "@/utils/useAuth";
 import TailwindAdvancedEditor from "@/components/advanced-editor";
+import Link from "next/link";
 
 export default function AddBlogPage() {
   const [title, setTitle] = useState("");
@@ -66,6 +67,7 @@ export default function AddBlogPage() {
     }
 
     setLoading(true);
+    const editorContent = window.localStorage.getItem("html-content") || "";
 
     try {
       await axios.post(
@@ -73,7 +75,7 @@ export default function AddBlogPage() {
         {
           title,
           category,
-          content,
+          content: editorContent,
           tags,
           image: imageUrl,
           author: user?.name || user?.email,
@@ -91,52 +93,42 @@ export default function AddBlogPage() {
   };
 
   return (
-    <div className="max-w-2xl md:mx-auto m-4 md:my-12 py-4 px-5 md:p-8 rounded-2xl bg-white shadow-2xl/5">
-      <h1 className="text-2xl font-bold mb-6">Add New Blog</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <Label htmlFor="title" className="mb-1">
-            Title
-          </Label>
-          <Input
-            id="title"
-            placeholder="Enter blog title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
-        </div>
+    <div className="max-w-3xl mx-auto py-12 px-6">
+      {/* {user?.id === blog.authorId && (
+  <Link
+    href={`/blog/edit/${blog._id}`}
+    className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline"
+  >
+    ✏️ Edit
+  </Link>
+)} */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <input
+          type="text"
+          placeholder="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full text-5xl font-bold border-none focus:outline-none placeholder:text-gray-400"
+        />
+
+        <ImageUploader onUpload={(url) => setImageUrl(url)} />
+
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full py-2 px-3 rounded-md text-lg border border-gray-200 focus:outline-none"
+        >
+          <option value="">Select category</option>
+          {categories.map((cat) => (
+            <option key={cat._id} value={cat.title}>
+              {cat.title}
+            </option>
+          ))}
+        </select>
 
         <div>
-          <Label htmlFor="category" className="mb-1">
-            Category
-          </Label>
-          <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a category" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((cat) => (
-                <SelectItem key={cat._id} value={cat.title}>
-                  {cat.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label htmlFor="tags" className="mb-1">
-            Tags
-          </Label>
-          <Input
-            id="tags"
-            placeholder="Type a tag and press Enter"
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            onKeyDown={handleTagKeyDown}
-          />
-          <div className="flex flex-wrap gap-2 mt-2">
+          <Label className="block mb-2 font-medium">Tags</Label>
+          <div className="flex flex-wrap gap-2 mb-2">
             {tags.map((tag) => (
               <Badge
                 key={tag}
@@ -145,42 +137,33 @@ export default function AddBlogPage() {
               >
                 {tag}
                 <Button
-                  size="icon"
-                  variant="ghost"
+                  className="size-4 m-0"
+                  variant={"ghost"}
                   onClick={() => removeTag(tag)}
                 >
-                  <X />
+                  <X className="w-3 h-3 cursor-pointer" />
                 </Button>
               </Badge>
             ))}
           </div>
-        </div>
-
-        <div>
-          <Label htmlFor="image" className="mb-1">
-            Upload Image
-          </Label>
-          <ImageUploader onUpload={(url) => setImageUrl(url)} />
-          <input type="hidden" name="image" value={imageUrl} />
-        </div>
-
-        <div>
-          <Label htmlFor="content" className="mb-1">
-            Content
-          </Label>
-          <Textarea
-            id="content"
-            placeholder="Write your blog content..."
-            rows={6}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            required
+          <Input
+            type="text"
+            placeholder="Type a tag and press Enter"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={handleTagKeyDown}
           />
+        </div>
+        <div className="border rounded-lg shadow-sm">
           <TailwindAdvancedEditor />
         </div>
 
-        <Button type="submit" disabled={loading}>
-          {loading ? "Posting..." : "Post Blog"}
+        <Button
+          type="submit"
+          disabled={loading}
+          className="w-full py-3 text-lg font-medium mt-4"
+        >
+          {loading ? "Posting..." : "Publish"}
         </Button>
       </form>
     </div>
