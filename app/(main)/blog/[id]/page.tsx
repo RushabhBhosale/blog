@@ -89,8 +89,8 @@ const BlogDetails = () => {
       setPosting(true);
       const res = await axiosClient.post(`/blog/${id}/comment`, {
         comment: newComment,
-        userId: user.userId,
-        username: user.name,
+        userId: user?.userId,
+        username: user?.name,
       });
       fetchComments();
       setComments((prev) => [res.data.comment, ...prev]);
@@ -152,7 +152,7 @@ const BlogDetails = () => {
             <span>By {blog.author}</span>
             <span>{new Date(blog.createdAt!).toLocaleDateString()}</span>
           </div>
-          {user.userId === blog.authorId && (
+          {user?.userId === blog.authorId && (
             <div>
               <Link href={`/blog/${blog._id}/edit`}>
                 <Button variant="secondary">
