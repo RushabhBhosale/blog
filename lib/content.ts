@@ -2,10 +2,10 @@ export const defaultEditorContent = {
   type: "doc",
   content: [
     {
-      type: "heading",
-      attrs: { level: 2 },
+      type: "paragraph",
+      attrs: { level: 4 },
       content: [
-        { type: "text", text: "Start writing your blog with novel ai" },
+        { type: "text", text: "Start writing your blog with fresh idea" },
       ],
     },
   ],

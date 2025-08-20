@@ -30,6 +30,8 @@ export function AISelector({ onOpenChange }: AISelectorProps) {
 
   const hasCompletion = completion.length > 0;
 
+  if (!editor) return;
+
   return (
     <Command className="w-[350px]">
       {hasCompletion && (
@@ -74,7 +76,7 @@ export function AISelector({ onOpenChange }: AISelectorProps) {
                     body: { option: "zap", command: inputValue },
                   }).then(() => setInputValue(""));
 
-                const slice = editor.state.selection.content();
+                const slice: any = editor.state.selection.content();
 
                 complete(slice, {
                   body: { option: "zap", command: inputValue },

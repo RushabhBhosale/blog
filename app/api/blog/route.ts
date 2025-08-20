@@ -12,7 +12,8 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
 
-    const { title, content, category, tags, image, author } = await req.json();
+    const { title, content, category, tags, image, author, authorId } =
+      await req.json();
 
     if (!title || !content || !category) {
       return NextResponse.json(
@@ -28,6 +29,7 @@ export async function POST(req: NextRequest) {
       tags,
       image,
       author,
+      authorId,
     });
 
     return NextResponse.json(newBlog, { status: 201 });

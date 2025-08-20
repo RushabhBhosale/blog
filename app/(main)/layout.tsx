@@ -1,3 +1,4 @@
+import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 
 export default function RootLayout({
@@ -6,9 +7,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-gray-50 text-gray-900">
+    <div className="bg-gradient-to-b from-blue-50 via-white to-gray-50 text-gray-900 min-h-screen flex flex-col">
       <Navbar />
-      {children}
+      <main className="flex-grow">{children}</main>
+      <Footer />
     </div>
   );
 }

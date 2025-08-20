@@ -13,6 +13,7 @@ export interface BlogInterface {
   tags: string[];
   content: string;
   author?: string;
+  authorId?: string;
   createdAt?: string;
   likes: any;
   comment: any;
@@ -55,7 +56,7 @@ const Home = () => {
               alt={featuredBlog.title}
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-6">
+            <div className="absolute inset-0 bg-black/70 flex flex-col justify-end p-6">
               <span className="text-sm text-gray-200 mb-1">
                 {featuredBlog.category}
               </span>
@@ -63,7 +64,7 @@ const Home = () => {
                 {featuredBlog.title}
               </h2>
               <p
-                className="text-sm md:text-base text-gray-200 mt-2 line-clamp-3 novel-content"
+                className="text-sm md:text-base text-gray-200! mt-2 line-clamp-3 novel-content"
                 dangerouslySetInnerHTML={{ __html: featuredBlog.content }}
               />
               <div className="mt-2 flex flex-wrap items-center gap-2">

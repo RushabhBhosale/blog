@@ -9,7 +9,7 @@ import { useAuth } from "@/utils/useAuth";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash } from "lucide-react";
+import { Pencil, PencilIcon, Trash } from "lucide-react";
 
 export interface CommentInterface {
   _id: string;
@@ -49,6 +49,7 @@ const BlogDetails = () => {
       const res = await axiosClient.get(`/blog/${id}`);
       const fetchedBlog = res.data.blog;
       setBlog(fetchedBlog);
+      console.log("ss", fetchedBlog);
 
       const relatedRes = await axiosClient.get(
         `/blog/related?category=${encodeURIComponent(
@@ -143,12 +144,23 @@ const BlogDetails = () => {
           className="w-full h-96 object-cover rounded-xl shadow-lg"
         />
 
-        <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-          <span className="px-2 py-1 bg-card/50 rounded-full">
-            {blog.category}
-          </span>
-          <span>By {blog.author}</span>
-          <span>{new Date(blog.createdAt!).toLocaleDateString()}</span>
+        <div className="flex justify-between">
+          <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+            <span className="px-2 py-1 bg-card/50 rounded-full">
+              {blog.category}
+            </span>
+            <span>By {blog.author}</span>
+            <span>{new Date(blog.createdAt!).toLocaleDateString()}</span>
+          </div>
+          {user.userId === blog.authorId && (
+            <div>
+              <Link href={`/blog/${blog._id}/edit`}>
+                <Button variant="secondary">
+                  <PencilIcon size={16} />
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
 
         <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
@@ -174,20 +186,19 @@ const BlogDetails = () => {
         <div className="mt-12">
           <h3 className="text-xl font-semibold mb-4">Comments</h3>
 
-          <form onSubmit={handleCommentSubmit} className="flex gap-2 mb-6">
+          <form
+            onSubmit={handleCommentSubmit}
+            className="flex flex-col gap-2 mb-6"
+          >
             <Textarea
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="Write a comment..."
               className="flex-1 px-4 py-2 border border-border rounded-lg"
             />
-            <button
-              type="submit"
-              disabled={posting}
-              className="px-4 py-2 bg-foreground text-background rounded-lg disabled:opacity-50"
-            >
+            <Button className="w-fit" type="submit" disabled={posting}>
               {posting ? "Posting..." : "Post"}
-            </button>
+            </Button>
           </form>
 
           <div className="flex flex-col gap-4">

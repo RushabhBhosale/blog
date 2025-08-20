@@ -124,11 +124,11 @@
   h4,
   h5,
   h6 {
-    @apply font-bold text-foreground m-0;
+    @apply font-bold text-foreground mt-6 mb-3;
   }
 
   p {
-    @apply text-foreground leading-relaxed;
+    @apply leading-relaxed my-4;
   }
 
   a {
@@ -150,24 +150,28 @@
   }
 
   pre {
-    @apply font-mono bg-muted p-4 rounded overflow-x-auto text-foreground;
+    @apply font-mono bg-muted p-4 rounded overflow-x-auto text-foreground my-4;
   }
 
   blockquote {
-    @apply border-l-4 border-accent pl-4 italic text-muted-foreground;
+    @apply border-l-4 border-accent pl-4 italic text-muted-foreground my-4;
   }
 
   ul,
   ol {
-    @apply pl-6 text-foreground;
+    @apply pl-6 text-foreground my-4 space-y-2;
+  }
+
+  li {
+    @apply leading-relaxed;
   }
 
   hr {
-    @apply border-t border-muted my-4;
+    @apply border-t border-muted my-8;
   }
 
   table {
-    @apply border-collapse w-full;
+    @apply border-collapse w-full my-6;
   }
 
   th {
@@ -179,7 +183,7 @@
   }
 
   img {
-    @apply max-w-full h-auto rounded;
+    @apply max-w-full h-auto rounded my-6;
   }
 
   /* Headings font sizes */

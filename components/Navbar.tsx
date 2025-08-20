@@ -23,7 +23,7 @@ export default function BlogNavbar() {
     <nav className="bg-white border-b border-gray-200 px-4 py-3 shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link href="/" className="text-xl font-bold text-gray-900">
-          MyBlog
+          Daily Sparks
         </Link>
 
         <div className="hidden md:flex items-center space-x-6">

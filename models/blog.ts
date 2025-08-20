@@ -6,6 +6,7 @@ const blogSchema = new Schema(
     content: { type: String, required: true },
     category: { type: String, required: true },
     author: { type: String, required: true },
+    authorId: { type: String, required: true },
     tags: { type: [String] },
     image: { type: String },
     status: { type: String, enum: ["Draft", "Published", "Pending", "Hide"] },

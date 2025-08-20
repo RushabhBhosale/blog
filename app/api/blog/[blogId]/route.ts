@@ -74,10 +74,10 @@ export async function PUT(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { blogId: string } }
+  context: { params: Promise<{ blogId: string }> }
 ) {
   try {
-    const { blogId } = params;
+    const { blogId } = await context.params;
     const foundBlog = await blog.findByIdAndDelete(blogId);
 
     if (!foundBlog) {

@@ -1,55 +1,68 @@
 "use client";
 
 import { useState, useEffect, KeyboardEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ImageUploader } from "@/components/ImageUploader";
 import { useAuth } from "@/utils/useAuth";
 import TailwindAdvancedEditor from "@/components/advanced-editor";
-import Link from "next/link";
 import { toast } from "sonner";
 
-export default function AddBlogPage() {
+export default function EditBlogPage() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [categories, setCategories] = useState<any[]>([]);
-  const [content, setContent] = useState("");
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
+  const params = useParams();
+  const blogId = params?.id as string;
+
   const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    console.log("ys", user);
-  }, [user]);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axios.get("/api/category");
-        setCategories(res.data.category || []);
+        const [catRes, blogRes] = await Promise.all([
+          axios.get("/api/category"),
+          axios.get(`/api/blog/${blogId}`),
+        ]);
+
+        setCategories(catRes.data.category || []);
+
+        const blog = blogRes.data.blog;
+        if (!blog) {
+          toast.error("Blog not found");
+          router.push("/");
+          return;
+        }
+
+        if (user && blog.authorId !== user.userId) {
+          toast.error("You can only edit your own blogs");
+          router.push("/");
+          return;
+        }
+
+        setTitle(blog.title);
+        setCategory(blog.category);
+        setTags(blog.tags || []);
+        setImageUrl(blog.image || "");
+        localStorage.setItem("html-content", blog.content); // preload editor
       } catch (err) {
-        console.error("Error fetching categories", err);
+        console.error(err);
+        toast.error("Error loading blog");
+        router.push("/");
       }
     };
-    fetchCategories();
-  }, []);
+
+    if (blogId && user) fetchData();
+  }, [blogId, user, router]);
 
   const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && tagInput.trim() !== "") {
@@ -67,36 +80,37 @@ export default function AddBlogPage() {
     e.preventDefault();
 
     if (!isAuthenticated) {
-      alert("You must be signed in to add a blog");
+      toast.error("You must be signed in to edit a blog");
       return;
     }
 
     setLoading(true);
     const editorContent = window.localStorage.getItem("html-content") || "";
-    if (!title || !category || !editorContent || !tags || !imageUrl || !user) {
+    if (!title || !category || !editorContent || !tags.length || !imageUrl) {
       toast.error("Please fill all the required fields");
       setLoading(false);
       return;
     }
 
     try {
-      await axios.post(
-        "/api/blog",
+      await axios.put(
+        `/api/blog/${blogId}`,
         {
+          author: user.name,
           title,
           category,
           content: editorContent,
           tags,
           image: imageUrl,
-          author: user?.name || user?.email,
-          authorId: user?.userId,
         },
         { withCredentials: true }
       );
 
-      router.push("/");
+      toast.success("Blog updated successfully");
+      router.push(`/blog/${blogId}`);
     } catch (err) {
       console.error(err);
+      toast.error("Error updating blog");
     } finally {
       setLoading(false);
     }
@@ -105,6 +119,7 @@ export default function AddBlogPage() {
   return (
     <div className="max-w-4xl mx-auto py-12 px-6">
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Title */}
         <input
           type="text"
           placeholder="Title"
@@ -113,8 +128,13 @@ export default function AddBlogPage() {
           className="w-full text-5xl font-bold border-none focus:outline-none placeholder:text-gray-400"
         />
 
-        <ImageUploader onUpload={(url) => setImageUrl(url)} />
+        {/* Image Upload */}
+        <ImageUploader
+          onUpload={(url) => setImageUrl(url)}
+          initialUrl={imageUrl}
+        />
 
+        {/* Category */}
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
@@ -128,6 +148,7 @@ export default function AddBlogPage() {
           ))}
         </select>
 
+        {/* Tags */}
         <div>
           <div className="flex flex-wrap gap-2 mb-2">
             {tags.map((tag) => (
@@ -141,6 +162,7 @@ export default function AddBlogPage() {
                   className="size-4 m-0"
                   variant={"ghost"}
                   onClick={() => removeTag(tag)}
+                  type="button"
                 >
                   <X className="w-3 h-3 cursor-pointer" />
                 </Button>
@@ -156,16 +178,19 @@ export default function AddBlogPage() {
             onKeyDown={handleTagKeyDown}
           />
         </div>
+
+        {/* Editor */}
         <div>
           <TailwindAdvancedEditor />
         </div>
 
+        {/* Submit */}
         <Button
           type="submit"
           disabled={loading}
           className="w-full py-3 text-lg font-medium mt-4"
         >
-          {loading ? "Posting..." : "Publish"}
+          {loading ? "Updating..." : "Update Blog"}
         </Button>
       </form>
     </div>

@@ -15,6 +15,7 @@ const GenerativeMenuSwitch = ({
   onOpenChange,
 }: GenerativeMenuSwitchProps) => {
   const { editor } = useEditor();
+  if (!editor) return;
 
   useEffect(() => {
     if (!open) removeAIHighlight(editor);

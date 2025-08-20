@@ -4,11 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { categoryId: string } }
+  context: { params: Promise<{ categoryId: string }> }
 ) {
   try {
     await connectDB();
-    const { categoryId } = params;
+    const { categoryId } = await context.params;
 
     const foundCategory = await category.findById(categoryId);
     if (!foundCategory) {
@@ -30,11 +30,11 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { categoryId: string } }
+  context: { params: Promise<{ categoryId: string }> }
 ) {
   try {
     await connectDB();
-    const { categoryId } = params;
+    const { categoryId } = await context.params;
     const { title } = await req.json();
 
     if (!categoryId || !title) {
@@ -66,11 +66,11 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { categoryId: string } }
+  context: { params: Promise<{ categoryId: string }> }
 ) {
   try {
     await connectDB();
-    const { categoryId } = params;
+    const { categoryId } = await context.params;
 
     const foundCategory = await category.findByIdAndDelete(categoryId);
     if (!foundCategory) {

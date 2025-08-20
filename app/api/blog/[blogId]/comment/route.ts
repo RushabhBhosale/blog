@@ -43,7 +43,6 @@ export async function POST(
       user: body.userId,
       username: body.username,
     });
-    console.log("New commet", newComment);
     return NextResponse.json({ comment: newComment }, { status: 201 });
   } catch (error) {
     console.error("Error posting comment", error);

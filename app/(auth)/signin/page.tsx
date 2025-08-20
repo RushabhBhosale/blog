@@ -44,7 +44,7 @@ export default function SignInPage() {
         if (res.data.role === "user") {
           router.push("/home");
         } else {
-          router.push("/admin/dashboard");
+          router.push("/admin");
         }
       }
     } catch (err: any) {
