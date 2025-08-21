@@ -137,12 +137,12 @@
 
   strong,
   b {
-    @apply font-bold text-foreground;
+    @apply font-bold;
   }
 
   em,
   i {
-    @apply italic text-foreground;
+    @apply italic;
   }
 
   code {

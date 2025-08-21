@@ -85,9 +85,9 @@ const Home = () => {
         )}
 
         <div className="md:w-1/4 flex flex-col gap-4">
-          {blogs.slice(1).map((blog) => (
+          {blogs.slice(1).map((blog, idx) => (
             <Link
-              key={blog._id}
+              key={idx}
               href={`/blog/${blog._id}`}
               className="flex flex-col bg-card/70 border border-border rounded-lg overflow-hidden shadow-sm"
             >

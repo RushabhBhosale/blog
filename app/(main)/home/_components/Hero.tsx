@@ -38,12 +38,9 @@ const Hero = () => {
               tagline: "Guides, tips & global escapes",
               posts: "10+",
             },
-          ].map((cat) => (
-            <>
-              <div
-                key={cat.name}
-                className="hidden md:block group cursor-pointer transition hover:scale-105 hover:shadow-xl rounded-2xl"
-              >
+          ].map((cat, idx) => (
+            <div key={idx}>
+              <div className="hidden md:block group cursor-pointer transition hover:scale-105 hover:shadow-xl rounded-2xl">
                 <div className="flex flex-col items-center space-y-1 px-6 py-4 bg-card/80 border border-border rounded-2xl">
                   <div className="flex items-center space-x-3">
                     <div className="w-3 h-3 bg-primary rounded-full"></div>
@@ -69,7 +66,7 @@ const Hero = () => {
                   <span className="font-medium">{cat.name}</span>
                 </Badge>
               </div>
-            </>
+            </div>
           ))}
         </div>
       </div>
