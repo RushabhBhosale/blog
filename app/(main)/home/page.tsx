@@ -43,13 +43,13 @@ const Home = () => {
   };
 
   return (
-    <div>
+    <div className="px-3">
       <Hero />
       <div className="flex flex-col md:flex-row gap-6 mt-8 max-w-7xl mx-auto">
         {featuredBlog && (
           <Link
             href={`/blog/${featuredBlog._id}`}
-            className="md:w-3/4 relative h-96 rounded-xl overflow-hidden shadow-lg"
+            className="md:w-3/4 relative h-64 md:h-96 rounded-xl overflow-hidden shadow-lg"
           >
             <img
               src={featuredBlog.image}
@@ -57,27 +57,27 @@ const Home = () => {
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-black/70 flex flex-col justify-end p-6">
-              <span className="text-sm text-gray-200 mb-1">
+              <span className="text-sm text-white mb-1">
                 {featuredBlog.category}
               </span>
-              <h2 className="text-3xl md:text-4xl font-bold text-white">
+              <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-white">
                 {featuredBlog.title}
               </h2>
               <p
-                className="text-sm md:text-base text-gray-200! mt-2 line-clamp-3 novel-content"
+                className="text-sm md:text-base text-white! mt-2 line-clamp-1 novel-content"
                 dangerouslySetInnerHTML={{ __html: featuredBlog.content }}
               />
-              <div className="mt-2 flex flex-wrap items-center gap-2">
+              <div className="hidden mt-2 md:flex flex-wrap items-center gap-2">
                 {featuredBlog.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="text-xs text-black/70 bg-white/50 px-2 py-1 rounded-full"
+                    className="text-xs text-white bg-black/40 px-2 py-1 rounded-full"
                   >
                     #{tag}
                   </span>
                 ))}
               </div>
-              <p className="text-xs text-gray-300 mt-2">
+              <p className="text-xs text-white mt-2">
                 By {featuredBlog.author} • {formatDate(featuredBlog.createdAt)}
               </p>
             </div>

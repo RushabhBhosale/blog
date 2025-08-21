@@ -49,7 +49,6 @@ const BlogDetails = () => {
       const res = await axiosClient.get(`/blog/${id}`);
       const fetchedBlog = res.data.blog;
       setBlog(fetchedBlog);
-      console.log("ss", fetchedBlog);
 
       const relatedRes = await axiosClient.get(
         `/blog/related?category=${encodeURIComponent(
@@ -84,8 +83,6 @@ const BlogDetails = () => {
     if (!newComment.trim()) return;
 
     try {
-      console.log("user", user);
-
       setPosting(true);
       const res = await axiosClient.post(`/blog/${id}/comment`, {
         comment: newComment,
@@ -136,12 +133,12 @@ const BlogDetails = () => {
   if (!blog) return <div className="text-center py-20">Blog not found.</div>;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12 flex flex-col md:flex-row gap-8">
+    <div className="max-w-7xl mx-auto px-4 py-6 md:py-12 flex flex-col md:flex-row gap-8">
       <div className="md:w-3/4 flex flex-col gap-6">
         <img
           src={blog.image}
           alt={blog.title}
-          className="w-full h-96 object-cover rounded-xl shadow-lg"
+          className="w-full h-54 md:h-96 object-cover rounded-xl shadow-lg"
         />
 
         <div className="flex justify-between">
@@ -163,7 +160,7 @@ const BlogDetails = () => {
           )}
         </div>
 
-        <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+        <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-foreground mb-6">
           {blog.title}
         </h1>
 
@@ -176,7 +173,7 @@ const BlogDetails = () => {
           {blog.tags.map((tag) => (
             <span
               key={tag}
-              className="px-3 py-1 bg-muted/30 text-muted-foreground rounded-full text-sm"
+              className="px-3 py-1 bg-black/50 text-white rounded-full text-sm"
             >
               #{tag}
             </span>

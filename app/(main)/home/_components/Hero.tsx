@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import React from "react";
 
 const Hero = () => {
@@ -9,7 +10,7 @@ const Hero = () => {
           Daily Sparks ⚡ Fresh ideas, every day
         </div>
 
-        <h1 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
+        <h1 className="text-3xl md:text-6xl font-extrabold mb-6 leading-tight">
           Ignite Your Curiosity with{" "}
           <span className="text-primary">Daily Sparks</span>
         </h1>
@@ -20,7 +21,7 @@ const Hero = () => {
           adventure.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+        <div className="flex flex-row gap-6 justify-center items-center">
           {[
             {
               name: "Anime",
@@ -38,25 +39,37 @@ const Hero = () => {
               posts: "10+",
             },
           ].map((cat) => (
-            <div
-              key={cat.name}
-              className="group cursor-pointer transition hover:scale-105 hover:shadow-xl rounded-2xl"
-            >
-              <div className="flex flex-col items-center space-y-1 px-6 py-4 bg-card/80 border border-border rounded-2xl">
-                <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 bg-primary rounded-full"></div>
-                  <span className="text-foreground font-semibold">
-                    {cat.name}
-                  </span>
-                  <span className="text-xs text-muted-foreground bg-background px-2 py-1 rounded-full">
-                    {cat.posts} posts
+            <>
+              <div
+                key={cat.name}
+                className="hidden md:block group cursor-pointer transition hover:scale-105 hover:shadow-xl rounded-2xl"
+              >
+                <div className="flex flex-col items-center space-y-1 px-6 py-4 bg-card/80 border border-border rounded-2xl">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-primary rounded-full"></div>
+                    <span className="text-foreground font-semibold">
+                      {cat.name}
+                    </span>
+                    <span className="text-xs text-muted-foreground bg-background px-2 py-1 rounded-full">
+                      {cat.posts} posts
+                    </span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {cat.tagline}
                   </span>
                 </div>
-                <span className="text-xs text-muted-foreground">
-                  {cat.tagline}
-                </span>
               </div>
-            </div>
+
+              <div className="md:hidden">
+                <Badge
+                  variant="outline"
+                  className="rounded-full px-4 py-2 flex items-center gap-1 text-sm"
+                >
+                  <div className="w-3 h-3 bg-primary rounded-full"></div>
+                  <span className="font-medium">{cat.name}</span>
+                </Badge>
+              </div>
+            </>
           ))}
         </div>
       </div>
