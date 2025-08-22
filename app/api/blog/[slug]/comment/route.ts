@@ -4,13 +4,13 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ blogId: string }> }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
     await connectDB();
-    const { blogId } = await context.params;
+    const { slug } = await context.params;
 
-    const comments = await Comment.find({ blogId }).sort({ createdAt: -1 });
+    const comments = await Comment.find({ slug }).sort({ createdAt: -1 });
 
     if (!comments || comments.length === 0) {
       return NextResponse.json(
@@ -31,14 +31,14 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  context: { params: Promise<{ blogId: string }> }
+  context: { params: Promise<{ slug: string }> }
 ) {
   await connectDB();
-  const { blogId } = await context.params;
+  const { slug } = await context.params;
   const body = await req.json();
   try {
     const newComment = await Comment.create({
-      blogId,
+      slug,
       comment: body.comment,
       user: body.userId,
       username: body.username,

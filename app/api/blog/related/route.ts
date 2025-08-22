@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
     const category = url.searchParams.get("category");
-    const excludeId = url.searchParams.get("excludeId");
+    const excludeSlug = url.searchParams.get("excludeSlug");
 
     if (!category) {
       return NextResponse.json(
@@ -19,7 +19,9 @@ export async function GET(req: NextRequest) {
 
     const relatedBlogs = await Blog.find({
       category,
-      ...(excludeId ? { _id: { $ne: excludeId } } : {}),
+      ...(excludeSlug
+        ? { slug: { $ne: excludeSlug.toLowerCase().trim() } }
+        : {}),
     })
       .limit(5)
       .lean();

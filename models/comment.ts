@@ -2,7 +2,7 @@ import { model, models, Schema } from "mongoose";
 
 const commentSchema = new Schema(
   {
-    blogId: { type: Schema.Types.ObjectId, required: true },
+    slug: { type: String, required: true },
     comment: { type: String, required: true },
     user: { type: Schema.Types.ObjectId },
     username: { type: String },

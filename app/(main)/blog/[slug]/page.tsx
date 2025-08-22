@@ -36,26 +36,30 @@ const BlogDetails = () => {
   const [editText, setEditText] = useState("");
 
   const params = useParams();
-  const { id } = params;
+  const { slug } = params;
 
   useEffect(() => {
     fetchBlog();
     fetchComments();
-  }, [id]);
+  }, [slug]);
 
   const fetchBlog = async () => {
     try {
       setLoading(true);
-      const res = await axiosClient.get(`/blog/${id}`);
+      const res = await axiosClient.get(`/blog/${slug}`);
       const fetchedBlog = res.data.blog;
       setBlog(fetchedBlog);
 
       const relatedRes = await axiosClient.get(
         `/blog/related?category=${encodeURIComponent(
           fetchedBlog.category
-        )}&excludeId=${id}`
+        )}&excludeId=${slug}`
       );
-      setRelatedBlogs(relatedRes.data);
+      const related = relatedRes.data.filter(
+        (b: BlogInterface) => b.slug !== fetchedBlog.slug
+      );
+
+      setRelatedBlogs(related);
     } catch (err) {
       console.error("Error fetching blog:", err);
     } finally {
@@ -65,7 +69,7 @@ const BlogDetails = () => {
 
   const fetchComments = async () => {
     try {
-      const res = await axiosClient.get(`/blog/${id}/comment`);
+      const res = await axiosClient.get(`/blog/${slug}/comment`);
       setComments(res.data.comments || []);
     } catch (err) {
       console.error("Error fetching comments:", err);
@@ -84,7 +88,7 @@ const BlogDetails = () => {
 
     try {
       setPosting(true);
-      const res = await axiosClient.post(`/blog/${id}/comment`, {
+      const res = await axiosClient.post(`/blog/${slug}/comment`, {
         comment: newComment,
         userId: user?.userId,
         username: user?.name,
@@ -103,7 +107,7 @@ const BlogDetails = () => {
 
   const handleUpdate = async (commentId: string) => {
     try {
-      const res = await axiosClient.put(`/blog/${id}/comment/${commentId}`, {
+      const res = await axiosClient.put(`/blog/${slug}/comment/${commentId}`, {
         comment: editText,
       });
       setComments((prev) =>
@@ -120,7 +124,7 @@ const BlogDetails = () => {
 
   const handleDelete = async (commentId: string) => {
     try {
-      await axiosClient.delete(`/blog/${id}/comment/${commentId}`);
+      await axiosClient.delete(`/blog/${slug}/comment/${commentId}`);
       setComments((prev) => prev.filter((c) => c?._id !== commentId));
       toast.success("Comment deleted successfully");
     } catch (err: any) {
@@ -151,7 +155,7 @@ const BlogDetails = () => {
           </div>
           {user?.userId === blog.authorId && (
             <div>
-              <Link href={`/blog/${blog._id}/edit`}>
+              <Link href={`/blog/${blog.slug}/edit`}>
                 <Button variant="secondary">
                   <PencilIcon size={16} />
                 </Button>
@@ -289,7 +293,7 @@ const BlogDetails = () => {
           relatedBlogs.map((b) => (
             <Link
               key={b._id}
-              href={`/blog/${b._id}`}
+              href={`/blog/${b.slug}`}
               className="flex flex-col bg-card/70 border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition"
             >
               <img

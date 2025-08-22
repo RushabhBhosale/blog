@@ -1,17 +1,18 @@
 import { connectDB } from "@/lib/db";
 import blog from "@/models/blog";
 import { NextResponse } from "next/server";
+import slugify from "slugify";
 
 export async function GET(
   req: Request,
-  context: { params: Promise<{ blogId: string }> }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { blogId } = await context.params;
+    const { slug } = await context.params;
 
     await connectDB();
 
-    const foundBlog = await blog.findById(blogId);
+    const foundBlog = await blog.findOne({ slug });
 
     if (!foundBlog) {
       return NextResponse.json({ error: "Blog not found" }, { status: 404 });
@@ -29,11 +30,11 @@ export async function GET(
 
 export async function PUT(
   req: Request,
-  context: { params: Promise<{ blogId: string }> }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
     await connectDB();
-    const { blogId } = await context.params;
+    const { slug } = await context.params;
     const { title, content, tags, image, author, category } = await req.json();
 
     if (!title || !content || !image! || !author || !category) {
@@ -45,10 +46,13 @@ export async function PUT(
       );
     }
 
-    const updatedBlog = await blog.findByIdAndUpdate(
-      blogId,
+    const slug2 = slugify(title);
+
+    const updatedBlog = await blog.findOneAndUpdate(
+      { slug },
       {
         title,
+        slug: slug2,
         content,
         tags,
         image,
@@ -74,11 +78,11 @@ export async function PUT(
 
 export async function DELETE(
   req: Request,
-  context: { params: Promise<{ blogId: string }> }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { blogId } = await context.params;
-    const foundBlog = await blog.findByIdAndDelete(blogId);
+    const { slug } = await context.params;
+    const foundBlog = await blog.findOneAndDelete({ slug });
 
     if (!foundBlog) {
       return NextResponse.json({ error: "Blog not found" }, { status: 404 });

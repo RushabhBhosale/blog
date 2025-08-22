@@ -32,10 +32,16 @@ const hljs = require("highlight.js");
 
 const extensions = [...defaultExtensions, slashCommand];
 
-const TailwindAdvancedEditor = () => {
-  const [initialContent, setInitialContent] = useState<null | JSONContent>(
-    null
-  );
+type Props = {
+  isEdit?: boolean;
+  editContent?: string;
+};
+
+const TailwindAdvancedEditor = ({
+  isEdit,
+  editContent = "Start your blog with a fresh Idea",
+}: Props) => {
+  const [initialContent, setInitialContent] = useState<any>(null);
   const [saveStatus, setSaveStatus] = useState("Saved");
   const [charsCount, setCharsCount] = useState();
 
@@ -44,12 +50,9 @@ const TailwindAdvancedEditor = () => {
   const [openLink, setOpenLink] = useState(false);
   const [openAI, setOpenAI] = useState(false);
 
-  //Apply Codeblock Highlighting on the HTML from editor.getHTML()
   const highlightCodeblocks = (content: string) => {
     const doc = new DOMParser().parseFromString(content, "text/html");
     doc.querySelectorAll("pre code").forEach((el) => {
-      // @ts-ignore
-      // https://highlightjs.readthedocs.io/en/latest/api.html?highlight=highlightElement#highlightelement
       hljs.highlightElement(el);
     });
     return new XMLSerializer().serializeToString(doc);
@@ -70,8 +73,11 @@ const TailwindAdvancedEditor = () => {
   );
 
   useEffect(() => {
-    setInitialContent(defaultEditorContent);
-  }, []);
+    if (editContent) {
+      console.log("trecebe");
+      setInitialContent(editContent);
+    }
+  }, [isEdit, editContent]);
 
   if (!initialContent) return null;
 

@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 // GET single comment
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ blogId: string; commentId: string }> }
+  context: { params: Promise<{ slug: string; commentId: string }> }
 ) {
   try {
     await connectDB();
@@ -32,7 +32,7 @@ export async function GET(
 // UPDATE comment
 export async function PUT(
   req: NextRequest,
-  context: { params: Promise<{ blogId: string; commentId: string }> }
+  context: { params: Promise<{ slug: string; commentId: string }> }
 ) {
   try {
     await connectDB();
@@ -69,7 +69,7 @@ export async function PUT(
 // DELETE comment
 export async function DELETE(
   req: NextRequest,
-  context: { params: Promise<{ blogId: string; commentId: string }> }
+  context: { params: Promise<{ slug: string; commentId: string }> }
 ) {
   try {
     await connectDB();

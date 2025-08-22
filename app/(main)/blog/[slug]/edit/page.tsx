@@ -10,10 +10,18 @@ import { ImageUploader } from "@/components/ImageUploader";
 import { useAuth } from "@/utils/useAuth";
 import TailwindAdvancedEditor from "@/components/advanced-editor";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function EditBlogPage() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
+  const [content, setContent] = useState("");
   const [categories, setCategories] = useState<any[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -22,7 +30,7 @@ export default function EditBlogPage() {
 
   const router = useRouter();
   const params = useParams();
-  const blogId = params?.id as string;
+  const slug = params?.slug as string;
 
   const { user, isAuthenticated } = useAuth();
 
@@ -31,7 +39,7 @@ export default function EditBlogPage() {
       try {
         const [catRes, blogRes] = await Promise.all([
           axios.get("/api/category"),
-          axios.get(`/api/blog/${blogId}`),
+          axios.get(`/api/blog/${slug}`),
         ]);
 
         setCategories(catRes.data.category || []);
@@ -53,7 +61,8 @@ export default function EditBlogPage() {
         setCategory(blog.category);
         setTags(blog.tags || []);
         setImageUrl(blog.image || "");
-        localStorage.setItem("html-content", blog.content); // preload editor
+        setContent(blog.content);
+        localStorage.setItem("html-content", blog.content);
       } catch (err) {
         console.error(err);
         toast.error("Error loading blog");
@@ -61,8 +70,8 @@ export default function EditBlogPage() {
       }
     };
 
-    if (blogId && user) fetchData();
-  }, [blogId, user, router]);
+    if (slug && user) fetchData();
+  }, [slug, user, router]);
 
   const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && tagInput.trim() !== "") {
@@ -94,7 +103,7 @@ export default function EditBlogPage() {
 
     try {
       await axios.put(
-        `/api/blog/${blogId}`,
+        `/api/blog/${slug}`,
         {
           author: user.name,
           title,
@@ -107,7 +116,7 @@ export default function EditBlogPage() {
       );
 
       toast.success("Blog updated successfully");
-      router.push(`/blog/${blogId}`);
+      router.push(`/blog/${slug}`);
     } catch (err) {
       console.error(err);
       toast.error("Error updating blog");
@@ -134,21 +143,19 @@ export default function EditBlogPage() {
           initialUrl={imageUrl}
         />
 
-        {/* Category */}
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-full py-2 px-3 rounded-md text-lg border border-gray-200 focus:outline-none "
-        >
-          <option value="">Select category</option>
-          {categories.map((cat) => (
-            <option key={cat._id} value={cat.title}>
-              {cat.title}
-            </option>
-          ))}
-        </select>
+        <Select value={category} onValueChange={setCategory}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select category" />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((cat) => (
+              <SelectItem key={cat._id} value={cat.title}>
+                {cat.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-        {/* Tags */}
         <div>
           <div className="flex flex-wrap gap-2 mb-2">
             {tags.map((tag) => (
@@ -179,12 +186,10 @@ export default function EditBlogPage() {
           />
         </div>
 
-        {/* Editor */}
         <div>
-          <TailwindAdvancedEditor />
+          <TailwindAdvancedEditor isEdit={true} editContent={content} />
         </div>
 
-        {/* Submit */}
         <Button
           type="submit"
           disabled={loading}

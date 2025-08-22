@@ -115,18 +115,18 @@ export default function AddBlogPage() {
 
         <ImageUploader onUpload={(url) => setImageUrl(url)} />
 
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-full py-2 px-3 rounded-md text-lg border border-gray-200 focus:outline-none "
-        >
-          <option value="">Select category</option>
-          {categories.map((cat) => (
-            <option key={cat._id} value={cat.title}>
-              {cat.title}
-            </option>
-          ))}
-        </select>
+        <Select value={category} onValueChange={setCategory}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select category" />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((cat) => (
+              <SelectItem key={cat._id} value={cat.title}>
+                {cat.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
         <div>
           <div className="flex flex-wrap gap-2 mb-2">

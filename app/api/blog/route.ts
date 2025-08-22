@@ -1,10 +1,11 @@
 import { connectDB } from "@/lib/db";
 import Blog from "@/models/blog";
 import { NextRequest, NextResponse } from "next/server";
+import slugify from "slugify";
 
 export async function GET() {
   await connectDB();
-  const blogs = await Blog.find().sort({ createdAt: -1 });
+  const blogs = await Blog.find().select("-content").sort({ createdAt: -1 });
   return NextResponse.json({ blogs }, { status: 200 });
 }
 
@@ -22,8 +23,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const slug = slugify(title);
+
     const newBlog = await Blog.create({
       title,
+      slug,
       content,
       category,
       tags,
