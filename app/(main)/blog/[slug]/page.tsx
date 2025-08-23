@@ -13,11 +13,7 @@ export interface CommentInterface {
   createdAt: string;
 }
 
-interface Props {
-  params: { slug: string };
-}
-
-export default async function Blog({ params }: Props) {
+export default async function Blog({ params }: any) {
   const { slug } = params;
 
   const blogRes = await fetch(
