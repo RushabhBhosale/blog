@@ -17,13 +17,15 @@ export async function GET() {
     priority: 0.8,
   }));
 
-  const categories = await Category.find().select("slug updatedAt");
+  const categories = await Category.find().select("title updatedAt");
+  console.log("dddd", categories);
   const categoryFields: ISitemapField[] = categories.map((cat: any) => ({
     loc: `https://dailysparks.rushabh.in/category/${cat.title}`,
     lastmod: cat.updatedAt?.toISOString(),
     changefreq: "weekly" as const,
     priority: 0.7,
   }));
+  console.log("cate", categoryFields);
 
   const staticFields: ISitemapField[] = [
     {
