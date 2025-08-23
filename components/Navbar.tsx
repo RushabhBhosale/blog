@@ -20,7 +20,7 @@ export default function BlogNavbar() {
   ];
 
   return (
-    <header className="bg-white border-b-2 border-gray-100 shadow-sm sticky top-0 z-50">
+    <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}

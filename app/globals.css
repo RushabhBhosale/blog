@@ -218,3 +218,7 @@
     #ffffff
   );
 }
+
+.novel-content a:hover {
+  color: var(--primary);
+}
