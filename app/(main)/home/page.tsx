@@ -17,7 +17,7 @@ export interface BlogInterface {
 
 export default async function Home() {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/blog`, {
-    cache: "no-store",
+    next: { revalidate: 60 },
   });
   const data = await res.json();
 

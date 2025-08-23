@@ -19,7 +19,7 @@ export default async function Blog({ params }: any) {
   const blogRes = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE}/blog/${slug}`,
     {
-      cache: "no-store",
+      next: { revalidate: 60 },
     }
   );
   const blogData = await blogRes.json();
@@ -30,7 +30,7 @@ export default async function Blog({ params }: any) {
     }/blog/related?category=${encodeURIComponent(
       blogData.blog.category
     )}&excludeSlug=${slug}`,
-    { cache: "no-store" }
+    { next: { revalidate: 60 } }
   );
   const relatedData = await relatedRes.json();
 
