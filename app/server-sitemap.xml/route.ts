@@ -19,7 +19,7 @@ export async function GET() {
 
   const categories = await Category.find().select("slug updatedAt");
   const categoryFields: ISitemapField[] = categories.map((cat: any) => ({
-    loc: `https://dailysparks.rushabh.in/category/${cat.slug}`,
+    loc: `https://dailysparks.rushabh.in/category/${cat.title}`,
     lastmod: cat.updatedAt?.toISOString(),
     changefreq: "weekly" as const,
     priority: 0.7,
