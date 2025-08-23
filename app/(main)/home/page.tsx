@@ -43,22 +43,14 @@ const Home = () => {
     });
   };
 
-  const truncateContent = (content: string, maxLength: number = 120) => {
-    const textContent = content.replace(/<[^>]*>/g, "");
-    return textContent.length > maxLength
-      ? textContent.substring(0, maxLength) + "..."
-      : textContent;
-  };
-
   const recentBlogs = blogs.slice(1, 4);
   const remainingBlogs = blogs.slice(4);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen background">
       <div className="px-3 max-w-7xl mx-auto">
         <Hero />
 
-        {/* Featured Blog Section */}
         {featuredBlog && (
           <section className="mt-8">
             <div className="flex items-center justify-between mb-6">
@@ -107,7 +99,6 @@ const Home = () => {
           </section>
         )}
 
-        {/* Recent Posts Section */}
         <section className="mt-12">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl md:text-3xl font-bold text-foreground">
@@ -163,7 +154,6 @@ const Home = () => {
           </div>
         </section>
 
-        {/* All Posts Section */}
         <section className="mt-12">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl md:text-3xl font-bold text-foreground">
@@ -174,7 +164,6 @@ const Home = () => {
             </span>
           </div>
 
-          {/* Blog Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {remainingBlogs.map((blog) => (
               <Link
@@ -223,7 +212,6 @@ const Home = () => {
           </div>
         </section>
 
-        {/* Newsletter/CTA Section */}
         <section className="mt-16 mb-12">
           <div className="bg-primary/5 border border-primary/20 rounded-xl p-8 text-center">
             <h3 className="text-2xl font-bold text-foreground mb-3">

@@ -206,3 +206,15 @@
     @apply text-sm md:text-base leading-snug;
   }
 }
+
+.background {
+  background: linear-gradient(
+    to bottom,
+    #ffffff,
+    rgba(255, 166, 0, 0.12),
+    #fdfdfd,
+    #fcfcff,
+    #fefcfb,
+    #ffffff
+  );
+}

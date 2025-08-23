@@ -7,7 +7,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="bg-gradient-to-b from-blue-50 via-white to-gray-50 text-gray-900 min-h-screen flex flex-col">
+    <div className="text-gray-900 min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow">{children}</main>
       <Footer />
