@@ -1,3 +1,4 @@
+import { BlogInterface } from "../../home/page";
 import BlogDetailsPage from "./BlogDetailsPage";
 
 export interface CommentInterface {
@@ -32,9 +33,11 @@ export default async function Blog({ params }: any) {
     )}&excludeSlug=${slug}`,
     { next: { revalidate: 60 } }
   );
+
   const relatedData = await relatedRes.json();
+  const related = relatedData.filter((b: BlogInterface) => b.slug !== slug);
 
   return (
-    <BlogDetailsPage blogDetail={blogData.blog} relatedAllBlogs={relatedData} />
+    <BlogDetailsPage blogDetail={blogData.blog} relatedAllBlogs={related} />
   );
 }
