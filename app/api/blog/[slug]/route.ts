@@ -12,7 +12,7 @@ export async function GET(
 
     await connectDB();
 
-    const foundBlog = await blog.findOne({ slug }).select("-content");
+    const foundBlog = await blog.findOne({ slug });
 
     if (!foundBlog) {
       return NextResponse.json({ error: "Blog not found" }, { status: 404 });
