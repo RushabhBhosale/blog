@@ -35,43 +35,43 @@ export default function EditBlogPage() {
   const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [catRes, blogRes] = await Promise.all([
-          axios.get("/api/category"),
-          axios.get(`/api/blog/${slug}`),
-        ]);
-
-        setCategories(catRes.data.category || []);
-
-        const blog = blogRes.data.blog;
-        if (!blog) {
-          toast.error("Blog not found");
-          router.push("/");
-          return;
-        }
-
-        if (user && blog.authorId !== user.userId) {
-          toast.error("You can only edit your own blogs");
-          router.push("/");
-          return;
-        }
-
-        setTitle(blog.title);
-        setCategory(blog.category);
-        setTags(blog.tags || []);
-        setImageUrl(blog.image || "");
-        setContent(blog.content);
-        localStorage.setItem("html-content", blog.content);
-      } catch (err) {
-        console.error(err);
-        toast.error("Error loading blog");
-        router.push("/");
-      }
-    };
-
     if (slug && user) fetchData();
   }, [slug, user, router]);
+
+  const fetchData = async () => {
+    try {
+      const [catRes, blogRes] = await Promise.all([
+        axios.get("/api/category"),
+        axios.get(`/api/blog/${slug}`),
+      ]);
+
+      setCategories(catRes.data.category || []);
+
+      const blog = blogRes.data.blog;
+      if (!blog) {
+        toast.error("Blog not found");
+        router.push("/");
+        return;
+      }
+
+      if (user && blog.authorId !== user.userId) {
+        toast.error("You can only edit your own blogs");
+        router.push("/");
+        return;
+      }
+
+      setTitle(blog.title);
+      setCategory(blog.category);
+      setTags(blog.tags || []);
+      setImageUrl(blog.image || "");
+      setContent(blog.content);
+      localStorage.setItem("html-content", blog.content);
+    } catch (err) {
+      console.error(err);
+      toast.error("Error loading blog");
+      router.push("/");
+    }
+  };
 
   const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && tagInput.trim() !== "") {
@@ -116,6 +116,7 @@ export default function EditBlogPage() {
       );
 
       toast.success("Blog updated successfully");
+      fetchData();
       router.push(`/blog/${slug}`);
     } catch (err) {
       console.error(err);

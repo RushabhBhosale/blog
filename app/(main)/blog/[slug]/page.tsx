@@ -37,6 +37,8 @@ export default async function Blog({ params }: any) {
   const relatedData = await relatedRes.json();
   const related = relatedData.filter((b: BlogInterface) => b.slug !== slug);
 
+  console.log("ddd", blogData);
+
   return (
     <BlogDetailsPage blogDetail={blogData.blog} relatedAllBlogs={related} />
   );
