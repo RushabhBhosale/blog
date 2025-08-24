@@ -27,7 +27,9 @@ const HomePage = ({ allblogs }: Props) => {
   return (
     <div className="min-h-screen background">
       <div className="px-3 max-w-7xl mx-auto">
-        <Hero />
+        <div className="hidden">
+          <Hero />
+        </div>
 
         {featuredBlog && (
           <section className="mt-8">
