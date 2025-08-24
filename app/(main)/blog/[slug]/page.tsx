@@ -20,11 +20,7 @@ export interface CommentInterface {
   createdAt: string;
 }
 
-type Props = {
-  params: { slug: string };
-};
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: any): Promise<Metadata> {
   await connectDB();
   const blog = await Bloga.findOne({ slug: params.slug });
 
