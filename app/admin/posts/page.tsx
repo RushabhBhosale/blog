@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Table,
   TableBody,
@@ -22,6 +23,7 @@ import axiosClient from "@/lib/axiosclient";
 
 interface Post {
   _id: string;
+  slug: string;
   title: string;
   category: string;
   createdAt: string;
@@ -40,9 +42,9 @@ const PostsPage = () => {
     fetchPosts();
   }, []);
 
-  const handleDelete = async (id: string) => {
-    await axiosClient(`/blog/${id}`, { method: "DELETE" });
-    setPosts((prev) => prev.filter((p) => p._id !== id));
+  const handleDelete = async (slug: string) => {
+    await axiosClient(`/blog/${slug}`, { method: "DELETE" });
+    setPosts((prev) => prev.filter((p) => p.slug !== slug));
   };
 
   const filtered = posts
@@ -107,13 +109,13 @@ const PostsPage = () => {
                   {new Date(post.createdAt).toLocaleDateString()}
                 </TableCell>
                 <TableCell className="flex gap-2">
-                  <Button variant="outline" size="sm">
-                    Edit
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={`/admin/posts/${post.slug}`}>Edit</Link>
                   </Button>
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => handleDelete(post._id)}
+                    onClick={() => handleDelete(post.slug)}
                   >
                     Delete
                   </Button>

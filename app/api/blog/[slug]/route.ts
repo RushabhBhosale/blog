@@ -38,7 +38,7 @@ export async function PUT(
     const { slug } = await context.params;
     const { title, content, tags, image, author, category } = await req.json();
 
-    if (!title || !content || !image! || !author || !category) {
+    if (!title || !content || !image || !author || !category) {
       return NextResponse.json(
         {
           error: "Please provide all the required fields",
