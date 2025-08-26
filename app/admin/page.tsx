@@ -8,7 +8,7 @@ import { toast } from "sonner";
 const DashBoardPage = () => {
   const { user, loading, isAuthenticated, signOut } = useAuth();
   const router = useRouter();
-
+  console.log("Reached here");
   useEffect(() => {
     if (!loading && (!isAuthenticated || user?.role !== "admin")) {
       toast.error("User not authenticated to access this page");

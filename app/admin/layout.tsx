@@ -33,6 +33,7 @@ export default function AdminLayout({
   const router = useRouter();
 
   useEffect(() => {
+    console.log("djudd", user);
     if (!loading) {
       if (!isAuthenticated || user?.role !== "admin") {
         toast.error("Not authorized");

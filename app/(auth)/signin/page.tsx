@@ -42,8 +42,10 @@ export default function SignInPage() {
       if (res.status === 200) {
         toast.success(res.data.message || "User login successful");
         if (res.data.role === "user") {
+          console.log("djkhdd");
           router.push("/home");
         } else {
+          console.log("hscc");
           router.push("/admin");
         }
       }
