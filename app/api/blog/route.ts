@@ -2,6 +2,7 @@ import { connectDB } from "@/lib/db";
 import Blog from "@/models/blog";
 import { NextRequest, NextResponse } from "next/server";
 import slugify from "slugify";
+import jwt from "jsonwebtoken";
 
 export async function GET() {
   await connectDB();
@@ -13,13 +14,31 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
 
-    const { title, content, category, tags, image, author, authorId } =
+    const token = req.cookies.get("token")?.value;
+    if (!token)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    } catch {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
+    const { title, content, category, tags, image, authorId } =
       await req.json();
 
     if (!title || !content || !category) {
       return NextResponse.json(
         { error: "Title, content, and category are required" },
         { status: 400 }
+      );
+    }
+
+    if (authorId && decoded.userId !== authorId) {
+      return NextResponse.json(
+        { error: "Author mismatch" },
+        { status: 403 }
       );
     }
 
@@ -32,8 +51,8 @@ export async function POST(req: NextRequest) {
       category,
       tags,
       image,
-      author,
-      authorId,
+      author: decoded.name || decoded.email,
+      authorId: decoded.userId,
     });
 
     return NextResponse.json(newBlog, { status: 201 });
