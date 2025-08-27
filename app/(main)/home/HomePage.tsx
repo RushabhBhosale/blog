@@ -1,8 +1,8 @@
 "use client";
-import React, { useState } from "react";
-import { BlogInterface } from "./page";
+import { useMemo } from "react";
 import Link from "next/link";
-import Hero from "./_components/Hero";
+import Image from "next/image";
+import { BlogInterface } from "./page";
 
 type Props = {
   allblogs: BlogInterface[];
@@ -22,15 +22,11 @@ const HomePage = ({ allblogs }: Props) => {
     });
   };
 
-  const recentBlogs = blogs?.slice(1, 4);
-  const remainingBlogs = blogs?.slice(4);
+  const recentBlogs = useMemo(() => blogs?.slice(1, 4), [blogs]);
+  const remainingBlogs = useMemo(() => blogs?.slice(4), [blogs]);
   return (
     <div className="min-h-screen background">
       <div className="px-3 max-w-7xl mx-auto">
-        <div className="hidden">
-          <Hero />
-        </div>
-
         {featuredBlog && (
           <section className="mt-8">
             <div className="flex items-center justify-between mb-6">
@@ -43,10 +39,12 @@ const HomePage = ({ allblogs }: Props) => {
               href={`/blog/${featuredBlog.slug}`}
               className="block relative h-64 md:h-96 rounded-xl overflow-hidden shadow-xl"
             >
-              <img
+              <Image
                 src={featuredBlog.image}
                 alt={featuredBlog.title}
-                className="w-full h-full object-cover"
+                fill
+                priority
+                className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
@@ -99,10 +97,11 @@ const HomePage = ({ allblogs }: Props) => {
                 className="bg-card border border-border rounded-lg overflow-hidden shadow-sm"
               >
                 <div className="relative h-48 overflow-hidden">
-                  <img
+                  <Image
                     src={blog.image}
                     alt={blog.title}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                   />
                   <div className="absolute top-3 left-3">
                     <span className="bg-primary/90 text-primary-foreground text-xs font-semibold px-2 py-1 rounded-full">
@@ -152,10 +151,11 @@ const HomePage = ({ allblogs }: Props) => {
                 className="bg-card border border-border rounded-lg overflow-hidden shadow-sm"
               >
                 <div className="relative h-40 overflow-hidden">
-                  <img
+                  <Image
                     src={blog.image}
                     alt={blog.title}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                   />
                   <div className="absolute top-3 left-3">
                     <span className="bg-primary/90 text-primary-foreground text-xs font-semibold px-2 py-1 rounded-full">
