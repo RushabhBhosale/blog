@@ -51,11 +51,30 @@ export default function AddBlogPage() {
     fetchCategories();
   }, []);
 
+  const norm = (s: string) => s.trim().replace(/^#+/, "");
+  const tokenize = (s: string) => s.split("#").map(norm).filter(Boolean);
+
+  const addTags = (raw: string) => {
+    const incoming = tokenize(raw);
+    if (!incoming.length) return;
+    const existingSet = new Set(tags.map((t) => t.toLowerCase()));
+    const merged: string[] = [...tags];
+    for (const t of incoming) {
+      if (!existingSet.has(t.toLowerCase())) {
+        existingSet.add(t.toLowerCase());
+        merged.push(t);
+      }
+    }
+    setTags(merged);
+  };
+
   const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && tagInput.trim() !== "") {
+    if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
-      if (!tags.includes(tagInput.trim())) setTags([...tags, tagInput.trim()]);
-      setTagInput("");
+      if (tagInput.trim()) {
+        addTags(tagInput);
+        setTagInput("");
+      }
     }
   };
 
@@ -150,10 +169,22 @@ export default function AddBlogPage() {
           <input
             className="border-0 shadow-none border-b rounded-none w-full outline-none"
             type="text"
-            placeholder="Type a tag and press Enter"
+            placeholder="Type tags (e.g. #react #nextjs, ui design) and press Enter"
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
             onKeyDown={handleTagKeyDown}
+            onBlur={() => {
+              if (tagInput.trim()) {
+                addTags(tagInput);
+                setTagInput("");
+              }
+            }}
+            onPaste={(e) => {
+              e.preventDefault();
+              const text = e.clipboardData.getData("text");
+              addTags(text);
+              setTagInput("");
+            }}
           />
         </div>
         <div>
