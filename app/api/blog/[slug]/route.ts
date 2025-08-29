@@ -36,7 +36,16 @@ export async function PUT(
   try {
     await connectDB();
     const { slug } = await context.params;
-    const { title, content, tags, image, author, category } = await req.json();
+    const {
+      title,
+      content,
+      tags,
+      image,
+      author,
+      category,
+      metaTitle,
+      metaDescription,
+    } = await req.json();
 
     if (!title || !content || !image || !author || !category) {
       return NextResponse.json(
@@ -59,6 +68,8 @@ export async function PUT(
         image,
         author,
         category,
+        metaTitle,
+        metaDescription,
       },
       { new: true }
     );

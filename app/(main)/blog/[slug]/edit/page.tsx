@@ -5,6 +5,8 @@ import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { X } from "lucide-react";
 import { ImageUploader } from "@/components/ImageUploader";
 import { useAuth } from "@/utils/useAuth";
@@ -26,6 +28,8 @@ export default function EditBlogPage() {
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [imageUrl, setImageUrl] = useState("");
+  const [metaTitle, setMetaTitle] = useState("");
+  const [metaDescription, setMetaDescription] = useState("");
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
@@ -65,6 +69,8 @@ export default function EditBlogPage() {
       setTags(blog.tags || []);
       setImageUrl(blog.image || "");
       setContent(blog.content);
+      setMetaTitle(blog.metaTitle || "");
+      setMetaDescription(blog.metaDescription || "");
       localStorage.setItem("html-content", blog.content);
     } catch (err) {
       console.error(err);
@@ -111,6 +117,8 @@ export default function EditBlogPage() {
           content: editorContent,
           tags,
           image: imageUrl,
+          metaTitle,
+          metaDescription,
         },
         { withCredentials: true }
       );
@@ -136,6 +144,19 @@ export default function EditBlogPage() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="w-full text-5xl font-bold border-none focus:outline-none placeholder:text-gray-400"
+        />
+
+        <Input
+          type="text"
+          placeholder="Meta Title"
+          value={metaTitle}
+          onChange={(e) => setMetaTitle(e.target.value)}
+        />
+
+        <Textarea
+          placeholder="Meta Description"
+          value={metaDescription}
+          onChange={(e) => setMetaDescription(e.target.value)}
         />
 
         {/* Image Upload */}
