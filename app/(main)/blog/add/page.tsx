@@ -6,7 +6,6 @@ import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import {
@@ -19,7 +18,6 @@ import {
 import { ImageUploader } from "@/components/ImageUploader";
 import { useAuth } from "@/utils/useAuth";
 import TailwindAdvancedEditor from "@/components/advanced-editor";
-import Link from "next/link";
 import { toast } from "sonner";
 
 export default function AddBlogPage() {
@@ -30,6 +28,8 @@ export default function AddBlogPage() {
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [imageUrl, setImageUrl] = useState("");
+  const [metaTitle, setMetaTitle] = useState("");
+  const [metaDescription, setMetaDescription] = useState("");
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
@@ -107,6 +107,8 @@ export default function AddBlogPage() {
           content: editorContent,
           tags,
           image: imageUrl,
+          metaTitle,
+          metaDescription,
           author: user?.name || user?.email,
           authorId: user?.userId,
         },
@@ -130,6 +132,19 @@ export default function AddBlogPage() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="w-full text-5xl font-bold border-none focus:outline-none placeholder:text-gray-400"
+        />
+
+        <Input
+          type="text"
+          placeholder="Meta Title"
+          value={metaTitle}
+          onChange={(e) => setMetaTitle(e.target.value)}
+        />
+
+        <Textarea
+          placeholder="Meta Description"
+          value={metaDescription}
+          onChange={(e) => setMetaDescription(e.target.value)}
         />
 
         <ImageUploader onUpload={(url) => setImageUrl(url)} />

@@ -25,8 +25,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const { title, content, category, tags, image, authorId } =
-      await req.json();
+    const {
+      title,
+      content,
+      category,
+      tags,
+      image,
+      authorId,
+      metaTitle,
+      metaDescription,
+    } = await req.json();
 
     if (!title || !content || !category) {
       return NextResponse.json(
@@ -51,6 +59,8 @@ export async function POST(req: NextRequest) {
       category,
       tags,
       image,
+      metaTitle,
+      metaDescription,
       author: decoded.name || decoded.email,
       authorId: decoded.userId,
     });

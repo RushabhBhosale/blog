@@ -11,6 +11,8 @@ export interface BlogInterface {
   slug?: string;
   authorId?: string;
   createdAt?: string;
+  metaTitle?: string;
+  metaDescription?: string;
   likes: any;
   comment: any;
 }

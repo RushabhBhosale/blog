@@ -31,21 +31,24 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
     };
   }
 
-  const cleanDescription = blog.content.replace(/<[^>]+>/g, "").slice(0, 160);
-  const cleanTitle = he.decode(blog.title);
+  const cleanDescription = blog.content
+    .replace(/<[^>]+>/g, "")
+    .slice(0, 160);
+  const title = he.decode(blog.metaTitle || blog.title);
+  const description = blog.metaDescription || cleanDescription;
 
   return {
-    title: cleanTitle,
-    description: cleanDescription,
+    title,
+    description,
     openGraph: {
-      title: cleanTitle,
-      description: cleanDescription,
+      title,
+      description,
       images: [blog.image],
     },
     twitter: {
       card: "summary_large_image",
-      title: cleanTitle,
-      description: cleanDescription,
+      title,
+      description,
       images: [blog.image],
     },
   };
