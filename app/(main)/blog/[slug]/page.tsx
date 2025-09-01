@@ -31,9 +31,7 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
     };
   }
 
-  const cleanDescription = blog.content
-    .replace(/<[^>]+>/g, "")
-    .slice(0, 160);
+  const cleanDescription = blog.content.replace(/<[^>]+>/g, "").slice(0, 160);
   const title = he.decode(blog.metaTitle || blog.title);
   const description = blog.metaDescription || cleanDescription;
 
@@ -69,7 +67,7 @@ export default async function Blog({ params }: any) {
     `${
       process.env.NEXT_PUBLIC_API_BASE
     }/blog/related?category=${encodeURIComponent(
-      blogData.blog.category
+      blogData?.blog?.category
     )}&excludeSlug=${slug}`,
     { next: { revalidate: 60 } }
   );

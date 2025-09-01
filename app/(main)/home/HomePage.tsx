@@ -1,8 +1,10 @@
 "use client";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { BlogInterface } from "./page";
+import axiosClient from "@/lib/axiosclient";
+import { toast } from "sonner";
 
 type Props = {
   allblogs: BlogInterface[];
@@ -24,6 +26,26 @@ const HomePage = ({ allblogs }: Props) => {
 
   const recentBlogs = useMemo(() => blogs?.slice(1, 4), [blogs]);
   const remainingBlogs = useMemo(() => blogs?.slice(4), [blogs]);
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const subscribe = async () => {
+    const trimmed = email.trim();
+    if (!/.+@.+\..+/.test(trimmed)) {
+      toast.error("Please enter a valid email");
+      return;
+    }
+    try {
+      setLoading(true);
+      await axiosClient.post("/newsletter/subscribe", { email: trimmed });
+      toast.success("Subscribed! You'll get new posts via email.");
+      setEmail("");
+    } catch (e: any) {
+      toast.error(e?.response?.data?.error || "Failed to subscribe");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -245,11 +267,17 @@ const HomePage = ({ allblogs }: Props) => {
                   <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
                     <input
                       type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter your email address"
                       className="flex-1 px-4 py-3 border border-border rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
-                    <button className="bg-primary text-primary-foreground px-8 py-3 rounded-xl font-semibold">
-                      Subscribe
+                    <button
+                      onClick={subscribe}
+                      disabled={loading}
+                      className="bg-primary text-primary-foreground px-8 py-3 rounded-xl font-semibold disabled:opacity-60"
+                    >
+                      {loading ? "Subscribing..." : "Subscribe"}
                     </button>
                   </div>
                 </div>

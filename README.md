@@ -20,6 +20,22 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Newsletter (SMTP)
+
+To enable newsletter subscriptions and email notifications for new blog posts, configure SMTP environment variables in `.env`:
+
+- `SMTP_HOST` — SMTP server host (e.g., smtp.gmail.com)
+- `SMTP_PORT` — SMTP port (465 for SSL, 587 for TLS)
+- `SMTP_USER` — SMTP username/login
+- `SMTP_PASS` — SMTP password or app password
+- `SMTP_FROM` — From email address (defaults to `SMTP_USER`)
+- `NEXT_PUBLIC_BASE_URL` — Public base URL used in links (e.g., https://dailysparks.rushabh.in)
+
+How it works:
+- Users can subscribe on the Home page; emails are stored in MongoDB.
+- On blog creation, the server emails all subscribers with a link to the new post and an unsubscribe link.
+- Users can unsubscribe via a one-click tokenized link included in every email.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

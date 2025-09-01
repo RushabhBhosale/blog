@@ -17,6 +17,7 @@ export default function BlogNavbar() {
     { name: "Anime", href: "/blog/category/anime" },
     { name: "Tech", href: "/blog/category/tech" },
     { name: "Travel", href: "/blog/category/travel" },
+    { name: "Media", href: "/blog/category/media" },
   ];
 
   return (

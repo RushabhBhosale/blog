@@ -1,6 +1,7 @@
 import { connectDB } from "@/lib/db";
 import Blog from "@/models/blog";
 import { NextRequest, NextResponse } from "next/server";
+import { notifySubscribersOfNewBlog } from "@/lib/newsletter";
 import slugify from "slugify";
 import jwt from "jsonwebtoken";
 
@@ -64,6 +65,16 @@ export async function POST(req: NextRequest) {
       author: decoded.name || decoded.email,
       authorId: decoded.userId,
     });
+
+    // Fire-and-forget email notifications; do not block response
+    notifySubscribersOfNewBlog({
+      title,
+      slug,
+      image,
+      category,
+      author: decoded.name || decoded.email,
+      createdAt: newBlog.createdAt,
+    }).catch((e) => console.error("Newsletter notify error", e));
 
     return NextResponse.json(newBlog, { status: 201 });
   } catch (error) {
