@@ -1,4 +1,14 @@
+import { Metadata } from "next";
 import HomePage from "./HomePage";
+
+export const metadata: Metadata = {
+  title: "Daily Sparks – Fresh Ideas, Every Day",
+  description:
+    "From anime sagas to the latest tech trends and travel escapes across the globe — discover stories that spark inspiration, knowledge, and adventure.",
+  alternates: {
+    canonical: "https://dailysparks.rushabh.in/",
+  },
+};
 
 export interface BlogInterface {
   _id?: string;

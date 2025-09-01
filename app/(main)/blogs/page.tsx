@@ -1,4 +1,14 @@
+import { Metadata } from "next";
 import BlogsPage from "./BlogsPage";
+
+export const metadata: Metadata = {
+  title: "Daily Sparks Blogs – Explore Anime, Tech & Travel Stories",
+  description:
+    "Browse our latest blogs across anime, tech, and travel. Fresh insights, daily updates, and stories to spark curiosity and inspire your journey.",
+  alternates: {
+    canonical: "https://dailysparks.rushabh.in/blog",
+  },
+};
 
 export default async function Blogs() {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/blog`, {
