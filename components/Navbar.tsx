@@ -19,7 +19,7 @@ export default function BlogNavbar() {
     { name: "Travel", href: "/blog/category/travel" },
     { name: "Media", href: "/blog/category/media" },
     { name: "About", href: "/about" },
-    { name: "Media", href: "/contact" },
+    { name: "Contact", href: "/contact" },
   ];
 
   return (
