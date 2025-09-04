@@ -18,6 +18,8 @@ export default function BlogNavbar() {
     { name: "Tech", href: "/blog/category/tech" },
     { name: "Travel", href: "/blog/category/travel" },
     { name: "Media", href: "/blog/category/media" },
+    { name: "About", href: "/about" },
+    { name: "Media", href: "/contact" },
   ];
 
   return (
@@ -36,9 +38,9 @@ export default function BlogNavbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-1">
-            {categories.map((cat) => (
+            {categories.map((cat, i) => (
               <Link
-                key={cat.name}
+                key={i}
                 href={cat.href}
                 className={`px-4 py-2 rounded-full text-sm font-medium ${
                   pathname === cat.href
