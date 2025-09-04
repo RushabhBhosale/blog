@@ -60,6 +60,16 @@ export default function RootLayout({
 }>) {
   return (
     <html suppressHydrationWarning lang="en">
+      <script
+        async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1425611919231559"
+        crossOrigin="anonymous"
+      ></script>
+
+      <meta
+        name="google-adsense-account"
+        content="ca-pub-1425611919231559"
+      ></meta>
       <body
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
@@ -68,13 +78,6 @@ export default function RootLayout({
         <AuthProvider>{children}</AuthProvider>
       </body>
 
-      <Script
-        id="adsense-script"
-        async
-        strategy="afterInteractive"
-        crossOrigin="anonymous"
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1425611919231559"
-      />
       <Script
         src="https://www.googletagmanager.com/gtag/js?id=G-3ZKWSY0EFQ"
         strategy="afterInteractive"
