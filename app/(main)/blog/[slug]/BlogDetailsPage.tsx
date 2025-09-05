@@ -188,7 +188,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 md:py-12 flex flex-col md:flex-row gap-8">
       <div className="md:w-3/4 flex flex-col gap-6">
-        <div className="relative w-full h-54 md:h-96 rounded-xl shadow-lg overflow-hidden">
+        <div className="relative w-full h-56 sm:h-64 md:h-96 rounded-xl shadow-lg overflow-hidden">
           <Image
             src={blog.image}
             alt={blog.title}
@@ -199,7 +199,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
           />
         </div>
 
-        <div className="flex justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             <span className="px-2 py-1 bg-card/50 rounded-full">
               {blog.category}
@@ -423,34 +423,36 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
         </div>
       </div>
 
-      <div className="md:w-1/4 flex flex-col gap-4 sticky top-24 self-start">
+      <div className="md:w-1/4 w-full flex flex-col gap-3 sticky top-24 self-start">
         <h3 className="font-semibold text-lg mb-2">More in {blog.category}</h3>
         {relatedBlogs.length ? (
-          relatedBlogs.map((b) => (
-            <Link
-              key={b._id}
-              href={`/blog/${b.slug}`}
-              className="flex flex-col bg-card/70 border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition"
-            >
-              <div className="relative w-full h-24 overflow-hidden">
-                <Image
-                  src={b.image}
-                  alt={b.title}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 25vw"
-                  className="object-cover"
-                />
-              </div>
-              <div className="p-2">
-                <h4 className="text-sm font-medium text-foreground">
-                  {b.title}
-                </h4>
-                <span className="text-xs text-muted-foreground">
-                  By {b.author}
-                </span>
-              </div>
-            </Link>
-          ))
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-3">
+            {relatedBlogs.map((b) => (
+              <Link
+                key={b._id}
+                href={`/blog/${b.slug}`}
+                className="flex flex-col bg-card/70 border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition"
+              >
+                <div className="relative w-full h-24 overflow-hidden">
+                  <Image
+                    src={b.image}
+                    alt={b.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 25vw"
+                    className="object-cover"
+                  />
+                </div>
+                <div className="p-2">
+                  <h4 className="text-sm font-medium text-foreground line-clamp-2">
+                    {b.title}
+                  </h4>
+                  <span className="text-xs text-muted-foreground">
+                    By {b.author}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
         ) : (
           <p className="text-xs text-muted-foreground">No related blogs.</p>
         )}

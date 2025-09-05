@@ -7,9 +7,9 @@ export default function TermsPage() {
       <p className="mb-6">Last Updated: August 23, 2025</p>
 
       <p className="mb-6">
-        Welcome to <strong>Your Blog Website</strong> (yourdomain.com). By
-        accessing or using our website, you agree to comply with and be bound by
-        these Terms & Conditions. Please read them carefully.
+        Welcome to <strong>Daily Sparks</strong> (dailysparks.in). By accessing
+        or using our website, you agree to comply with and be bound by these
+        Terms & Conditions. Please read them carefully.
       </p>
 
       <h2 className="text-2xl font-semibold mt-8 mb-4">1. Use of Website</h2>

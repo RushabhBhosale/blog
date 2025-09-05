@@ -77,14 +77,16 @@ export default async function Blog({ params }: any) {
   );
   const blogData = await blogRes.json();
 
-  const relatedRes = await fetch(
-    `${
-      process.env.NEXT_PUBLIC_API_BASE
-    }/blog/related?category=${encodeURIComponent(
-      blogData?.blog?.category
-    )}&excludeSlug=${slug}`,
-    { next: { revalidate: 60 } }
+  const tags = (blogData?.blog?.tags || []).join(",");
+  const titleQ = encodeURIComponent(
+    `${blogData?.blog?.title || ""} ${blogData?.blog?.metaTitle || ""}`.trim()
   );
+  const relatedUrl = `${process.env.NEXT_PUBLIC_API_BASE}/blog/related?excludeSlug=${slug}` +
+    (blogData?.blog?.category ? `&category=${encodeURIComponent(blogData.blog.category)}` : "") +
+    (tags ? `&tags=${encodeURIComponent(tags)}` : "") +
+    (titleQ ? `&title=${titleQ}` : "") +
+    `&limit=6`;
+  const relatedRes = await fetch(relatedUrl, { next: { revalidate: 60 } });
 
   const relatedData = await relatedRes.json();
   const related = relatedData.filter((b: BlogInterface) => b.slug !== slug);

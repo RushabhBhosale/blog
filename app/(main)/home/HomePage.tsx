@@ -116,7 +116,7 @@ export default function HomePage({ allblogs }: Props) {
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-[1120px] px-4 sm:px-6 lg:px-8">
-        <header className="py-10 text-center">
+        <header className="hidden md:block py-10 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2">
             <span className="text-xs font-semibold tracking-wide text-primary">
               DAILY SPARKS
@@ -138,7 +138,7 @@ export default function HomePage({ allblogs }: Props) {
             <section>
               <Link href={`/blog/${spotlight.slug}`} className="block">
                 <article className="relative overflow-hidden rounded-2xl border border-border bg-card">
-                  <div className="relative w-full aspect-[16/8] md:aspect-[16/6]">
+                  <div className="relative w-full aspect-[3/2] md:aspect-[16/6]">
                     <Image
                       src={spotlight.image}
                       alt={spotlight.title}
@@ -155,11 +155,11 @@ export default function HomePage({ allblogs }: Props) {
                         {spotlight.category}
                       </span>
                     </div>
-                    <h2 className="md:text-4xl font-extrabold text-white leading-tight line-clamp-2">
+                    <h2 className="sm:text-3xl md:text-4xl font-extrabold text-white leading-tight line-clamp-2">
                       {spotlight.title}
                     </h2>
                     <p className="mt-1 text-white/85 text-sm">
-                      By {editors.author} • {fmt(editors.createdAt)}
+                      By {spotlight.author} • {fmt(spotlight.createdAt)}
                     </p>
                   </div>
                 </article>
@@ -193,7 +193,7 @@ export default function HomePage({ allblogs }: Props) {
                   className="lg:col-span-2 group"
                 >
                   <article className="relative overflow-hidden rounded-2xl border border-border">
-                    <div className="relative w-full aspect-[16/8]">
+                    <div className="relative w-full aspect-[3/2] md:aspect-[16/8]">
                       <Image
                         src={mustMain.image}
                         alt={mustMain.title}
@@ -329,23 +329,6 @@ export default function HomePage({ allblogs }: Props) {
               </div>
             </section>
           )}
-
-          <section>
-            <h3 className="mb-6 text-xl md:text-2xl font-bold">
-              Browse by Category
-            </h3>
-            <div className="flex flex-wrap gap-3">
-              {categoriesAll.slice(0, 12).map((cat) => (
-                <Link
-                  key={cat}
-                  href={`/blogs?category=${encodeURIComponent(cat)}`}
-                  className="rounded-full border border-border bg-muted/40 px-4 py-2 text-sm hover:bg-muted"
-                >
-                  {cat}
-                </Link>
-              ))}
-            </div>
-          </section>
 
           <section className="rounded-2xl border border-border bg-card p-8 text-center">
             <h3 className="text-xl md:text-2xl font-bold">
