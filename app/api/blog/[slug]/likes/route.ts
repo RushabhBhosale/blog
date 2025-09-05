@@ -1,6 +1,7 @@
 import { connectDB } from "@/lib/db";
 import Blog from "@/models/blog";
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 
 // Toggle like/unlike a blog by slug
 export async function PATCH(
@@ -34,6 +35,11 @@ export async function PATCH(
     }
 
     await blog.save();
+
+    // Revalidate the blog page path so ISR pages pick up new likes
+    try {
+      revalidatePath(`/blog/${slug}`);
+    } catch {}
 
     return NextResponse.json(
       { blog, liked: !alreadyLiked, totalLikes: blog.likes.length },

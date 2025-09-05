@@ -4,7 +4,6 @@ import BlogDetailsPage from "./BlogDetailsPage";
 import Bloga from "@/models/blog";
 import { Metadata } from "next";
 import he from "he";
-export const dynamic = "force-dynamic";
 export const revalidate = 60;
 
 export interface CommentInterface {

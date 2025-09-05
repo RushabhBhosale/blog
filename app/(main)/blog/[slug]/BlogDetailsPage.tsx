@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { BlogInterface } from "../../home/page";
 import { CommentInterface } from "./page";
 import Link from "next/link";
+import Image from "next/image";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Heart,
@@ -38,8 +39,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
     blogDetail?.likes?.length || 0
   );
   const [shareOpen, setShareOpen] = useState(false);
-
-  console.log("sjdhcs", blog.authorId, user);
+  const [liking, setLiking] = useState(false);
 
   const params = useParams();
   const { slug } = params;
@@ -88,7 +88,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
         userId: user?.userId,
         username: user?.name,
       });
-      fetchComments();
+      // Optimistically prepend returned comment without refetching
       setComments((prev) => [res.data.comment, ...prev]);
       setNewComment("");
       toast.success("Comment posted successfully");
@@ -134,9 +134,12 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
       return;
     }
     try {
-      // optimistic update
-      setLiked((prev) => !prev);
-      setLikeCount((c) => (liked ? Math.max(0, c - 1) : c + 1));
+      if (liking) return;
+      setLiking(true);
+      // optimistic update using current value
+      const nextLiked = !liked;
+      setLiked(nextLiked);
+      setLikeCount((c) => (nextLiked ? c + 1 : Math.max(0, c - 1)));
 
       const res = await axiosClient.patch(`/blog/${slug}/likes`, {
         userId: user.userId,
@@ -153,10 +156,13 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
       );
     } catch (err: any) {
       // revert optimistic on error
-      setLiked((prev) => !prev);
-      setLikeCount((c) => (liked ? c + 1 : Math.max(0, c - 1)));
+      const reverted = liked; // liked at last render reflects pre-toggle
+      setLiked(reverted);
+      setLikeCount((c) => (reverted ? c + 1 : Math.max(0, c - 1)));
       console.error("Error toggling like:", err);
       toast.error(err?.response?.data?.error || "Something went wrong");
+    } finally {
+      setLiking(false);
     }
   };
 
@@ -182,11 +188,16 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 md:py-12 flex flex-col md:flex-row gap-8">
       <div className="md:w-3/4 flex flex-col gap-6">
-        <img
-          src={blog.image}
-          alt={blog.title}
-          className="w-full h-54 md:h-96 object-cover rounded-xl shadow-lg"
-        />
+        <div className="relative w-full h-54 md:h-96 rounded-xl shadow-lg overflow-hidden">
+          <Image
+            src={blog.image}
+            alt={blog.title}
+            fill
+            sizes="(max-width: 768px) 100vw, 75vw"
+            className="object-cover"
+            priority
+          />
+        </div>
 
         <div className="flex justify-between">
           <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
@@ -200,6 +211,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
             <Button
               variant={"outline"}
               onClick={toggleLike}
+              disabled={liking}
               className="flex items-center gap-2"
             >
               <Heart
@@ -330,7 +342,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
             {comments && comments.length > 0 ? (
               comments.map((c, index) => (
                 <div
-                  key={index}
+                  key={c?._id || String(index)}
                   className="px-3 pt-1 pb-3 border border-border rounded-lg bg-card/50"
                 >
                   <div className="flex justify-between">
@@ -420,11 +432,15 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
               href={`/blog/${b.slug}`}
               className="flex flex-col bg-card/70 border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition"
             >
-              <img
-                src={b.image}
-                alt={b.title}
-                className="w-full h-24 object-cover"
-              />
+              <div className="relative w-full h-24 overflow-hidden">
+                <Image
+                  src={b.image}
+                  alt={b.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 25vw"
+                  className="object-cover"
+                />
+              </div>
               <div className="p-2">
                 <h4 className="text-sm font-medium text-foreground">
                   {b.title}
