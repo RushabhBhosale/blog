@@ -18,6 +18,12 @@ import axiosClient from "@/lib/axiosclient";
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/utils/useAuth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type Props = {
   blogDetail: BlogInterface;
@@ -38,7 +44,6 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
   const [likeCount, setLikeCount] = useState<number>(
     blogDetail?.likes?.length || 0
   );
-  const [shareOpen, setShareOpen] = useState(false);
   const [liking, setLiking] = useState(false);
 
   const params = useParams();
@@ -49,7 +54,6 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
   }, [slug]);
 
   useEffect(() => {
-    // Update liked state when user or blog changes
     if (user && blog?.likes) {
       const u = user?.userId;
       const likedByUser = (blog.likes as any[])?.some(
@@ -78,9 +82,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
       toast.error("You must be logged in to comment");
       return;
     }
-
     if (!newComment.trim()) return;
-
     try {
       setPosting(true);
       const res = await axiosClient.post(`/blog/${slug}/comment`, {
@@ -88,7 +90,6 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
         userId: user?.userId,
         username: user?.name,
       });
-      // Optimistically prepend returned comment without refetching
       setComments((prev) => [res.data.comment, ...prev]);
       setNewComment("");
       toast.success("Comment posted successfully");
@@ -136,17 +137,14 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
     try {
       if (liking) return;
       setLiking(true);
-      // optimistic update using current value
       const nextLiked = !liked;
       setLiked(nextLiked);
       setLikeCount((c) => (nextLiked ? c + 1 : Math.max(0, c - 1)));
-
       const res = await axiosClient.patch(`/blog/${slug}/likes`, {
         userId: user.userId,
       });
       setLiked(res.data.liked);
       setLikeCount(res.data.totalLikes);
-      // keep local blog.likes in sync for subsequent effects
       setBlog(
         (prev) =>
           ({
@@ -155,8 +153,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
           } as any)
       );
     } catch (err: any) {
-      // revert optimistic on error
-      const reverted = liked; // liked at last render reflects pre-toggle
+      const reverted = liked;
       setLiked(reverted);
       setLikeCount((c) => (reverted ? c + 1 : Math.max(0, c - 1)));
       console.error("Error toggling like:", err);
@@ -168,20 +165,6 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
 
   const currentUrl = typeof window !== "undefined" ? window.location.href : "";
   const shareText = `Check out this post: ${blog.title}`;
-  const shareNative = async () => {
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: blog.title,
-          text: shareText,
-          url: currentUrl,
-        });
-      } else {
-        await navigator.clipboard.writeText(currentUrl);
-        toast.success("Link copied to clipboard");
-      }
-    } catch {}
-  };
 
   if (!blog) return <div className="text-center py-20">Blog not found.</div>;
 
@@ -207,9 +190,10 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
             <span>By {blog.author}</span>
             <span>{new Date(blog.createdAt!).toLocaleDateString()}</span>
           </div>
-          <div className="relative flex items-center gap-2">
+
+          <div className="flex items-center gap-2">
             <Button
-              variant={"outline"}
+              variant="outline"
               onClick={toggleLike}
               disabled={liking}
               className="flex items-center gap-2"
@@ -222,80 +206,62 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
               />
               <span className="text-sm">{likeCount}</span>
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShareOpen((o) => !o);
-                // attempt native share immediately for simple flow
-                shareNative();
-              }}
-              className="flex items-center gap-2"
-            >
-              <Share2 size={16} />
-              <span className="text-sm">Share</span>
-            </Button>
-            {shareOpen && (
-              <div className="absolute right-0 top-10 z-10 bg-card border border-border rounded-md shadow-md p-2 flex gap-2">
-                <a
-                  href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(
-                    currentUrl
-                  )}&text=${encodeURIComponent(shareText)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs underline"
-                >
-                  X
-                </a>
-                <a
-                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-                    currentUrl
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs underline"
-                >
-                  Facebook
-                </a>
-                <a
-                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-                    currentUrl
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs underline"
-                >
-                  LinkedIn
-                </a>
-                <a
-                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
-                    shareText + " " + currentUrl
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs underline"
-                >
-                  WhatsApp
-                </a>
-                <button
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="flex items-center gap-2">
+                  <Share2 size={16} />
+                  <span className="text-sm">Share</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
                   onClick={async () => {
                     await navigator.clipboard.writeText(currentUrl);
-                    toast.success("Link copied");
-                    setShareOpen(false);
+                    toast.success("Link copied to clipboard");
                   }}
-                  className="text-xs flex items-center gap-1"
                 >
-                  <LinkIcon size={14} /> Copy
-                </button>
-              </div>
-            )}
+                  <LinkIcon size={14} className="mr-2" /> Copy Link
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <a
+                    href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(
+                      currentUrl
+                    )}&text=${encodeURIComponent(shareText)}`}
+                    target="_blank"
+                  >
+                    X (Twitter)
+                  </a>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <a
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                      currentUrl
+                    )}`}
+                    target="_blank"
+                  >
+                    Facebook
+                  </a>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <a
+                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+                      currentUrl
+                    )}`}
+                    target="_blank"
+                  >
+                    LinkedIn
+                  </a>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             {user?.userId === blog.authorId && (
-              <div>
-                <Link href={`/blog/${blog.slug}/edit`}>
-                  <Button variant="secondary">
-                    <PencilIcon size={16} />
-                  </Button>
-                </Link>
-              </div>
+              <Link href={`/blog/${blog.slug}/edit`}>
+                <Button variant="secondary">
+                  <PencilIcon size={16} />
+                </Button>
+              </Link>
             )}
           </div>
         </div>
@@ -318,108 +284,6 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
               #{tag}
             </span>
           ))}
-        </div>
-
-        <div className="mt-12">
-          <h3 className="text-xl font-semibold mb-4">Comments</h3>
-
-          <form
-            onSubmit={handleCommentSubmit}
-            className="flex flex-col gap-2 mb-6"
-          >
-            <Textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Write a comment..."
-              className="flex-1 px-4 py-2 border border-border rounded-lg"
-            />
-            <Button className="w-fit" type="submit" disabled={posting}>
-              {posting ? "Posting..." : "Post"}
-            </Button>
-          </form>
-
-          <div className="flex flex-col gap-4">
-            {comments && comments.length > 0 ? (
-              comments.map((c, index) => (
-                <div
-                  key={c?._id || String(index)}
-                  className="px-3 pt-1 pb-3 border border-border rounded-lg bg-card/50"
-                >
-                  <div className="flex justify-between">
-                    <div className="flex items-center gap-3 mb-2 pt-1">
-                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-foreground capitalize">
-                        {c?.username?.[0]}
-                      </div>
-
-                      <div className="flex flex-col">
-                        <span className="font-semibold text-foreground capitalize">
-                          {c?.username}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(c?.createdAt).toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-                    <div>
-                      {c?.user === user?.userId && editingId !== c?._id && (
-                        <div className="flex gap-2 mt-2 text-xs">
-                          <Button
-                            variant={"outline"}
-                            className="size-6"
-                            onClick={() => {
-                              setEditingId(c?._id);
-                              setEditText(c?.comment);
-                            }}
-                          >
-                            <Pencil className="size-3" />
-                          </Button>
-                          <Button
-                            variant={"destructive"}
-                            className="size-6"
-                            onClick={() => handleDelete(c?._id)}
-                          >
-                            <Trash className="size-3" />
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {editingId === c?._id ? (
-                    <div className="flex flex-col gap-2">
-                      <Textarea
-                        value={editText}
-                        onChange={(e) => setEditText(e.target.value)}
-                        className="px-2 py-1 border rounded"
-                      />
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleUpdate(c?._id)}
-                          className="px-3 py-1 bg-primary text-white rounded"
-                        >
-                          Save
-                        </button>
-                        <button
-                          onClick={() => setEditingId(null)}
-                          className="px-3 py-1 bg-gray-500 text-white rounded"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="text-sm text-foreground italic">
-                      {c?.comment}
-                    </p>
-                  )}
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No comments yet. Be the first to comment!
-              </p>
-            )}
-          </div>
         </div>
       </div>
 
