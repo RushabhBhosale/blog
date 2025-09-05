@@ -22,11 +22,7 @@ export interface CommentInterface {
 
 const SITE = "https://dailysparks.in";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string };
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: any): Promise<Metadata> {
   await connectDB();
   const blog = await Bloga.findOne({ slug: params.slug });
 
