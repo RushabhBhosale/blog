@@ -2,8 +2,10 @@
 User-agent: *
 Allow: /
 
+Disallow: /admin/
+
 # Host
-Host: https://dailysparks.rushabh.in/
+Host: https://dailysparks.in/
 
 # Sitemaps
-Sitemap: https://dailysparks.rushabh.in/sitemap.xml
+Sitemap: https://dailysparks.in/sitemap.xml

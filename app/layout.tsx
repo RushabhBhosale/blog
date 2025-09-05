@@ -27,12 +27,15 @@ export const metadata = {
     "reviews",
     "guides",
   ],
+  alternates: {
+    canonical: "https://dailysparks.in",
+  },
   authors: [{ name: "Rushabh Bhosale" }],
   openGraph: {
     title: "Daily Sparks ⚡ Fresh Ideas, Every Day",
     description:
       "Discover stories on anime, tech, and travel that spark curiosity, knowledge, and adventure.",
-    url: "https://dailysparks.rushabh.in",
+    url: "https://dailysparks.in",
     siteName: "Daily Sparks",
     images: [
       {
@@ -48,7 +51,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Daily Sparks ⚡ Fresh Ideas, Every Day",
     description: "Anime, tech, and travel stories that ignite your curiosity.",
-    images: ["https://dailysparks.rushabh.in/og-image.jpg"],
+    images: ["https://dailysparks.in/og-image.jpg"],
     creator: "@yourhandle",
   },
 };

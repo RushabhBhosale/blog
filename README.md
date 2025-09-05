@@ -29,9 +29,10 @@ To enable newsletter subscriptions and email notifications for new blog posts, c
 - `SMTP_USER` — SMTP username/login
 - `SMTP_PASS` — SMTP password or app password
 - `SMTP_FROM` — From email address (defaults to `SMTP_USER`)
-- `NEXT_PUBLIC_BASE_URL` — Public base URL used in links (e.g., https://dailysparks.rushabh.in)
+- `NEXT_PUBLIC_BASE_URL` — Public base URL used in links (e.g., https://dailysparks.in)
 
 How it works:
+
 - Users can subscribe on the Home page; emails are stored in MongoDB.
 - On blog creation, the server emails all subscribers with a link to the new post and an unsubscribe link.
 - Users can unsubscribe via a one-click tokenized link included in every email.

@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description:
     "Browse our latest blogs across anime, tech, and travel. Fresh insights, daily updates, and stories to spark curiosity and inspire your journey.",
   alternates: {
-    canonical: "https://dailysparks.rushabh.in/blog",
+    canonical: "https://dailysparks.in/blog",
   },
 };
 

@@ -5,10 +5,10 @@ export const metadata: Metadata = {
   title: "Contact — Daily Sparks",
   description:
     "Get in touch with Rushabh Bhosale, creator of Daily Sparks. For feedback, collaborations, or inquiries, reach out directly here.",
-  alternates: { canonical: "https://dailysparks.rushabh.in/contact" },
+  alternates: { canonical: "https://dailysparks.in/contact" },
   openGraph: {
     type: "website",
-    url: "https://dailysparks.rushabh.in/contact",
+    url: "https://dailysparks.in/contact",
     title: "Contact — Daily Sparks",
     description:
       "Connect with Rushabh Bhosale for feedback, collaborations, or business inquiries.",

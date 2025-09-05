@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description:
     "From anime sagas to the latest tech trends and travel escapes across the globe — discover stories that spark inspiration, knowledge, and adventure.",
   alternates: {
-    canonical: "https://dailysparks.rushabh.in/",
+    canonical: "https://dailysparks.in/",
   },
 };
 

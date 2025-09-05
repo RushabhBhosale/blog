@@ -5,5 +5,5 @@ module.exports = {
   sitemapSize: 7000,
   changefreq: "daily",
   priority: 0.7,
-  additionalSitemaps: ["https://dailysparks.rushabh.in/server-sitemap.xml"],
+  additionalSitemaps: ["https://dailysparks.in/server-sitemap.xml"],
 };

@@ -20,34 +20,53 @@ export interface CommentInterface {
   createdAt: string;
 }
 
-export async function generateMetadata({ params }: any): Promise<Metadata> {
+const SITE = "https://dailysparks.in";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
   await connectDB();
   const blog = await Bloga.findOne({ slug: params.slug });
 
   if (!blog) {
+    const notFoundUrl = `${SITE}/blog/${params.slug}`;
     return {
       title: "Blog Not Found",
       description: "This blog could not be found.",
+      alternates: { canonical: notFoundUrl },
+      metadataBase: new URL(SITE),
+      robots: { index: false, follow: false },
     };
   }
 
-  const cleanDescription = blog.content.replace(/<[^>]+>/g, "").slice(0, 160);
   const title = he.decode(blog.metaTitle || blog.title);
-  const description = blog.metaDescription || cleanDescription;
+  const description =
+    blog.metaDescription || blog.content.replace(/<[^>]+>/g, "").slice(0, 160);
+
+  const canonical = `${SITE}/blog/${params.slug}`;
+  const imageAbs = blog.image?.startsWith("http")
+    ? blog.image
+    : `${SITE}${blog.image || "/og-default.jpg"}`;
 
   return {
     title,
     description,
+    alternates: { canonical },
+    metadataBase: new URL(SITE),
     openGraph: {
       title,
       description,
-      images: [blog.image],
+      url: canonical,
+      images: [{ url: imageAbs }],
+      type: "article",
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [blog.image],
+      images: [imageAbs],
     },
   };
 }

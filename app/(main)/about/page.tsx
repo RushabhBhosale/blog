@@ -6,10 +6,10 @@ export const metadata: Metadata = {
   title: "About — Daily Sparks",
   description:
     "Daily Sparks by Rushabh Bhosale: thoughtful takes on TV series, anime, travel guides, and practical tech reviews.",
-  alternates: { canonical: "https://dailysparks.rushabh.in/about" },
+  alternates: { canonical: "https://dailysparks.in/about" },
   openGraph: {
     type: "website",
-    url: "https://dailysparks.rushabh.in/about",
+    url: "https://dailysparks.in/about",
     title: "About — Daily Sparks",
     description:
       "Stories, guides, and reviews across TV, anime, travel, and tech by Rushabh Bhosale.",
@@ -27,7 +27,7 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "Daily Sparks",
-  url: "https://dailysparks.rushabh.in",
+  url: "https://dailysparks.in",
   author: {
     "@type": "Person",
     name: "Rushabh Bhosale",
