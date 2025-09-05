@@ -2,13 +2,14 @@ import { connectDB } from "@/lib/db";
 import Blog from "@/models/blog";
 import { NextRequest, NextResponse } from "next/server";
 
+// Toggle like/unlike a blog by slug
 export async function PATCH(
   req: NextRequest,
-  context: { params: Promise<{ blogId: string }> }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
     await connectDB();
-    const { blogId } = await context.params;
+    const { slug } = await context.params;
     const { userId } = await req.json();
 
     if (!userId) {
@@ -18,19 +19,18 @@ export async function PATCH(
       );
     }
 
-    const blog = await Blog.findById(blogId);
+    const blog = await Blog.findOne({ slug });
     if (!blog) {
       return NextResponse.json({ error: "Blog not found" }, { status: 404 });
     }
 
-    const alreadyLiked = blog.likes.includes(userId);
+    const likesArray = Array.isArray(blog.likes) ? blog.likes : [];
+    const alreadyLiked = likesArray.some((id: any) => id.toString() === userId.toString());
 
     if (alreadyLiked) {
-      blog.likes = blog.likes.filter(
-        (id: any) => id.toString() !== userId.toString()
-      );
+      blog.likes = likesArray.filter((id: any) => id.toString() !== userId.toString());
     } else {
-      blog.likes.push(userId);
+      blog.likes = [...likesArray, userId];
     }
 
     await blog.save();

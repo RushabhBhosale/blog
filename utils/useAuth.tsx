@@ -36,7 +36,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const fetchUser = async () => {
       try {
         const res = await axios.get("/api/auth/me", { withCredentials: true });
-        setUser(res.data.user || null);
+
+        setUser(res?.data?.user || null);
       } catch (err) {
         console.error("Error fetching user:", err);
         setUser(null);
@@ -69,4 +70,3 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   return useContext(AuthContext);
 }
-

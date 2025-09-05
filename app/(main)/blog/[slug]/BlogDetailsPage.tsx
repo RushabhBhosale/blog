@@ -4,7 +4,14 @@ import { BlogInterface } from "../../home/page";
 import { CommentInterface } from "./page";
 import Link from "next/link";
 import { Textarea } from "@/components/ui/textarea";
-import { Pencil, PencilIcon, Trash } from "lucide-react";
+import {
+  Heart,
+  Pencil,
+  PencilIcon,
+  Trash,
+  Share2,
+  Link as LinkIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import axiosClient from "@/lib/axiosclient";
 import { toast } from "sonner";
@@ -26,6 +33,13 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
   const [posting, setPosting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState<number>(
+    blogDetail?.likes?.length || 0
+  );
+  const [shareOpen, setShareOpen] = useState(false);
+
+  console.log("sjdhcs", blog.authorId, user);
 
   const params = useParams();
   const { slug } = params;
@@ -33,6 +47,20 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
   useEffect(() => {
     fetchComments();
   }, [slug]);
+
+  useEffect(() => {
+    // Update liked state when user or blog changes
+    if (user && blog?.likes) {
+      const u = user?.userId;
+      const likedByUser = (blog.likes as any[])?.some(
+        (id: any) => id?.toString() === u?.toString()
+      );
+      setLiked(!!likedByUser);
+    } else {
+      setLiked(false);
+    }
+    setLikeCount(blog?.likes?.length || 0);
+  }, [user, blog]);
 
   const fetchComments = async () => {
     try {
@@ -100,6 +128,55 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
     }
   };
 
+  const toggleLike = async () => {
+    if (!user) {
+      toast.error("You must be logged in to like");
+      return;
+    }
+    try {
+      // optimistic update
+      setLiked((prev) => !prev);
+      setLikeCount((c) => (liked ? Math.max(0, c - 1) : c + 1));
+
+      const res = await axiosClient.patch(`/blog/${slug}/likes`, {
+        userId: user.userId,
+      });
+      setLiked(res.data.liked);
+      setLikeCount(res.data.totalLikes);
+      // keep local blog.likes in sync for subsequent effects
+      setBlog(
+        (prev) =>
+          ({
+            ...prev,
+            likes: res.data.blog?.likes || prev.likes,
+          } as any)
+      );
+    } catch (err: any) {
+      // revert optimistic on error
+      setLiked((prev) => !prev);
+      setLikeCount((c) => (liked ? c + 1 : Math.max(0, c - 1)));
+      console.error("Error toggling like:", err);
+      toast.error(err?.response?.data?.error || "Something went wrong");
+    }
+  };
+
+  const currentUrl = typeof window !== "undefined" ? window.location.href : "";
+  const shareText = `Check out this post: ${blog.title}`;
+  const shareNative = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: blog.title,
+          text: shareText,
+          url: currentUrl,
+        });
+      } else {
+        await navigator.clipboard.writeText(currentUrl);
+        toast.success("Link copied to clipboard");
+      }
+    } catch {}
+  };
+
   if (!blog) return <div className="text-center py-20">Blog not found.</div>;
 
   return (
@@ -119,15 +196,96 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
             <span>By {blog.author}</span>
             <span>{new Date(blog.createdAt!).toLocaleDateString()}</span>
           </div>
-          {user?.userId === blog.authorId && (
-            <div>
-              <Link href={`/blog/${blog.slug}/edit`}>
-                <Button variant="secondary">
-                  <PencilIcon size={16} />
-                </Button>
-              </Link>
-            </div>
-          )}
+          <div className="relative flex items-center gap-2">
+            <Button
+              variant={"outline"}
+              onClick={toggleLike}
+              className="flex items-center gap-2"
+            >
+              <Heart
+                size={16}
+                className={
+                  liked ? "fill-red-500 text-red-500" : "text-foreground"
+                }
+              />
+              <span className="text-sm">{likeCount}</span>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShareOpen((o) => !o);
+                // attempt native share immediately for simple flow
+                shareNative();
+              }}
+              className="flex items-center gap-2"
+            >
+              <Share2 size={16} />
+              <span className="text-sm">Share</span>
+            </Button>
+            {shareOpen && (
+              <div className="absolute right-0 top-10 z-10 bg-card border border-border rounded-md shadow-md p-2 flex gap-2">
+                <a
+                  href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(
+                    currentUrl
+                  )}&text=${encodeURIComponent(shareText)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs underline"
+                >
+                  X
+                </a>
+                <a
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                    currentUrl
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs underline"
+                >
+                  Facebook
+                </a>
+                <a
+                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+                    currentUrl
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs underline"
+                >
+                  LinkedIn
+                </a>
+                <a
+                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
+                    shareText + " " + currentUrl
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs underline"
+                >
+                  WhatsApp
+                </a>
+                <button
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(currentUrl);
+                    toast.success("Link copied");
+                    setShareOpen(false);
+                  }}
+                  className="text-xs flex items-center gap-1"
+                >
+                  <LinkIcon size={14} /> Copy
+                </button>
+              </div>
+            )}
+            {user?.userId === blog.authorId && (
+              <div>
+                <Link href={`/blog/${blog.slug}/edit`}>
+                  <Button variant="secondary">
+                    <PencilIcon size={16} />
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
 
         <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-foreground mb-6">

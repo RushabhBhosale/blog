@@ -13,6 +13,11 @@ const blogSchema = new Schema(
     metaTitle: { type: String },
     metaDescription: { type: String },
     status: { type: String, enum: ["Draft", "Published", "Pending", "Hide"] },
+    likes: {
+      type: [Schema.Types.ObjectId],
+      ref: "User",
+      default: [],
+    },
   },
   { timestamps: true }
 );
