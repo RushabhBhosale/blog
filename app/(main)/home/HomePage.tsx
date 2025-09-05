@@ -6,29 +6,40 @@ import { BlogInterface } from "./page";
 import axiosClient from "@/lib/axiosclient";
 import { toast } from "sonner";
 
-type Props = {
-  allblogs: BlogInterface[];
-};
+type Props = { allblogs: BlogInterface[] };
 
-const HomePage = ({ allblogs }: Props) => {
-  const blogs = allblogs;
-  const featuredBlog = blogs?.[0];
+export default function HomePage({ allblogs }: Props) {
+  const blogs = allblogs || [];
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return "";
-    const date = new Date(dateStr);
-    return date.toLocaleDateString(undefined, {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString(undefined, {
       year: "numeric",
       month: "short",
       day: "numeric",
     });
   };
 
-  const recentBlogs = useMemo(() => blogs?.slice(1, 4), [blogs]);
-  const remainingBlogs = useMemo(() => blogs?.slice(4), [blogs]);
+  const byCategory = (name: string) =>
+    blogs.filter((b) => b.category?.toLowerCase() === name.toLowerCase());
+
+  const spotlight = blogs[0];
+  const latest = blogs.slice(1, 9);
+  const mustReadMain = blogs[9] || blogs[1];
+  const mustReadSide = blogs.slice(10, 13);
+  const editorsPick = blogs[13] || blogs[2];
+
+  const anime = byCategory("Anime").slice(0, 4);
+  const tech = byCategory("Tech").slice(0, 4);
+  const travel = byCategory("Travel").slice(0, 4);
+
+  const categoriesAll = Array.from(
+    new Set(blogs.map((b) => b.category))
+  ).filter(Boolean);
+
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-
   const subscribe = async () => {
     const trimmed = email.trim();
     if (!/.+@.+\..+/.test(trimmed)) {
@@ -38,7 +49,7 @@ const HomePage = ({ allblogs }: Props) => {
     try {
       setLoading(true);
       await axiosClient.post("/newsletter/subscribe", { email: trimmed });
-      toast.success("Subscribed! You'll get new posts via email.");
+      toast.success("Subscribed to Daily Sparks.");
       setEmail("");
     } catch (e: any) {
       toast.error(e?.response?.data?.error || "Failed to subscribe");
@@ -47,322 +58,317 @@ const HomePage = ({ allblogs }: Props) => {
     }
   };
 
+  const CardSm = ({ b }: { b: BlogInterface }) => (
+    <Link href={`/blog/${b.slug}`} className="group block">
+      <div className="relative h-32 w-full overflow-hidden rounded-xl">
+        <Image
+          src={b.image}
+          alt={b.title}
+          fill
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+      </div>
+      <div className="mt-2 flex items-center gap-2">
+        <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
+          {b.category}
+        </span>
+        <span className="text-[11px] text-muted-foreground">
+          {formatDate(b.createdAt)}
+        </span>
+      </div>
+      <h4 className="mt-1 text-sm font-semibold leading-snug line-clamp-2">
+        {b.title}
+      </h4>
+    </Link>
+  );
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Main Container */}
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Main Content - Takes 3 columns */}
-          <div className="lg:col-span-3 space-y-12">
-            {/* Featured Story Section */}
-            {featuredBlog && (
-              <section className="space-y-6">
-                <div className="flex items-center justify-between border-b border-border pb-4">
-                  <div>
-                    <h2 className="text-3xl font-bold text-foreground">
-                      Featured Story
-                    </h2>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Latest and trending
-                    </p>
-                  </div>
-                  <span className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full">
-                    FEATURED
-                  </span>
-                </div>
+      <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8">
+        <header className="py-8 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2">
+            <span className="text-xs font-semibold tracking-wide text-primary">
+              DAILY SPARKS
+            </span>
+            <span className="text-xs text-muted-foreground">
+              Anime • Tech • Travel
+            </span>
+          </div>
+          <h1 className="mt-4 text-3xl md:text-4xl font-extrabold tracking-tight">
+            Fresh Ideas, Every Day
+          </h1>
+          <p className="mt-2 text-muted-foreground">
+            Reviews, guides, and stories from our creators.
+          </p>
+        </header>
 
+        <div className="space-y-12">
+          {spotlight && (
+            <section className="rounded-2xl overflow-hidden border border-border bg-card">
+              <Link
+                href={`/blog/${spotlight.slug}`}
+                className="block relative h-[340px] md:h-[440px]"
+              >
+                <Image
+                  src={spotlight.image}
+                  alt={spotlight.title}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                  <div className="mb-3 flex items-center gap-3">
+                    <span className="px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-semibold">
+                      {spotlight.category}
+                    </span>
+                    <span className="text-xs text-white/90">
+                      {formatDate(spotlight.createdAt)}
+                    </span>
+                  </div>
+                  <h2 className="text-2xl md:text-4xl font-extrabold text-white leading-tight">
+                    {spotlight.title}
+                  </h2>
+                  <p className="mt-2 text-white/85 text-sm">
+                    By {spotlight.author}
+                  </p>
+                </div>
+              </Link>
+            </section>
+          )}
+
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold">Latest from Daily Sparks</h3>
+              <Link href="/blogs" className="text-sm text-primary">
+                Browse all →
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {latest.map((b) => (
+                <CardSm key={b._id} b={b} />
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold">Must Read</h3>
+              <Link
+                href="/blogs?sort=featured"
+                className="text-sm text-primary"
+              >
+                More →
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {mustReadMain && (
                 <Link
-                  href={`/blog/${featuredBlog.slug}`}
-                  className="block bg-card border border-border rounded-2xl overflow-hidden shadow-sm"
+                  href={`/blog/${mustReadMain.slug}`}
+                  className="md:col-span-2 group"
                 >
-                  <div className="relative h-64 md:h-80">
+                  <div className="relative h-64 md:h-[300px] rounded-2xl overflow-hidden">
                     <Image
-                      src={featuredBlog.image}
-                      alt={featuredBlog.title}
+                      src={mustReadMain.image}
+                      alt={mustReadMain.title}
                       fill
-                      priority
-                      className="object-cover"
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-                      <div className="flex items-center gap-3 mb-4">
-                        <span className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-1.5 rounded-full">
-                          {featuredBlog.category}
-                        </span>
-                        <span className="text-xs text-white/90 font-medium">
-                          {formatDate(featuredBlog.createdAt)}
-                        </span>
-                      </div>
-                      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">
-                        {featuredBlog.title}
-                      </h1>
-                      <div className="flex flex-wrap items-center gap-2 mb-3">
-                        {featuredBlog.tags.slice(0, 3).map((tag) => (
-                          <span
-                            key={tag}
-                            className="text-xs text-white/90 bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-full"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                        {featuredBlog.tags.length > 3 && (
-                          <span className="text-xs text-white/70">
-                            +{featuredBlog.tags.length - 3} more
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm text-white/80 font-medium">
-                        By {featuredBlog.author}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                    <div className="absolute bottom-0 p-6">
+                      <span className="px-2.5 py-1 rounded-full bg-primary text-primary-foreground text-[11px] font-semibold">
+                        {mustReadMain.category}
+                      </span>
+                      <h4 className="mt-3 text-2xl font-bold text-white leading-tight">
+                        {mustReadMain.title}
+                      </h4>
+                      <p className="mt-1 text-white/85 text-sm">
+                        By {mustReadMain.author} •{" "}
+                        {formatDate(mustReadMain.createdAt)}
                       </p>
                     </div>
                   </div>
                 </Link>
-              </section>
-            )}
-
-            {/* Recent Posts Section */}
-            <section className="space-y-6">
-              <div className="flex items-center justify-between border-b border-border pb-4">
-                <div>
-                  <h2 className="text-3xl font-bold text-foreground">
-                    Recent Posts
-                  </h2>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Fresh content from our writers
-                  </p>
-                </div>
-                <Link
-                  href="/blogs"
-                  className="text-sm text-primary font-medium bg-primary/5 px-4 py-2 rounded-full"
-                >
-                  View all →
-                </Link>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {recentBlogs.map((blog) => (
+              )}
+              <div className="space-y-4">
+                {mustReadSide.map((b) => (
                   <Link
-                    key={blog._id}
-                    href={`/blog/${blog.slug}`}
-                    className="bg-card border border-border rounded-xl overflow-hidden shadow-sm"
+                    key={b._id}
+                    href={`/blog/${b.slug}`}
+                    className="flex gap-3 p-2 rounded-xl hover:bg-muted/40 transition"
                   >
-                    <div className="relative h-48">
+                    <div className="relative w-28 h-20 shrink-0 rounded-lg overflow-hidden">
                       <Image
-                        src={blog.image}
-                        alt={blog.title}
+                        src={b.image}
+                        alt={b.title}
                         fill
                         className="object-cover"
                       />
-                      <div className="absolute top-3 left-3">
-                        <span className="bg-primary text-primary-foreground text-xs font-semibold px-2.5 py-1 rounded-full">
-                          {blog.category}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
+                          {b.category}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground">
+                          {formatDate(b.createdAt)}
                         </span>
                       </div>
-                    </div>
-                    <div className="p-5">
-                      <h3 className="font-bold text-foreground mb-3 line-clamp-2 text-lg leading-tight">
-                        {blog.title}
-                      </h3>
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {blog.tags.slice(0, 2).map((tag) => (
-                          <span
-                            key={tag}
-                            className="text-xs text-muted-foreground bg-muted px-2.5 py-1 rounded-full"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                        {blog.tags.length > 2 && (
-                          <span className="text-xs text-muted-foreground">
-                            +{blog.tags.length - 2} more
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center justify-between text-sm text-muted-foreground pt-3 border-t border-border">
-                        <span className="font-medium">By {blog.author}</span>
-                        <span>{formatDate(blog.createdAt)}</span>
-                      </div>
+                      <h5 className="text-sm font-semibold leading-snug line-clamp-2">
+                        {b.title}
+                      </h5>
                     </div>
                   </Link>
                 ))}
-              </div>
-            </section>
-
-            {/* All Posts Section */}
-            <section className="space-y-6">
-              <div className="flex items-center justify-between border-b border-border pb-4">
-                <div>
-                  <h2 className="text-3xl font-bold text-foreground">
-                    All Posts
-                  </h2>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Explore our complete collection
-                  </p>
-                </div>
-                <span className="bg-muted text-muted-foreground text-sm font-medium px-4 py-2 rounded-full">
-                  {remainingBlogs.length} articles
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {remainingBlogs.map((blog) => (
-                  <Link
-                    key={blog._id}
-                    href={`/blog/${blog.slug}`}
-                    className="bg-card border border-border rounded-xl overflow-hidden shadow-sm"
-                  >
-                    <div className="relative h-44">
-                      <Image
-                        src={blog.image}
-                        alt={blog.title}
-                        fill
-                        className="object-cover"
-                      />
-                      <div className="absolute top-3 left-3">
-                        <span className="bg-primary text-primary-foreground text-xs font-semibold px-2.5 py-1 rounded-full">
-                          {blog.category}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-bold text-foreground mb-3 line-clamp-2 leading-tight">
-                        {blog.title}
-                      </h3>
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {blog.tags.slice(0, 2).map((tag) => (
-                          <span
-                            key={tag}
-                            className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                        {blog.tags.length > 2 && (
-                          <span className="text-xs text-muted-foreground">
-                            +{blog.tags.length - 2} more
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center justify-between text-sm text-muted-foreground pt-3 border-t border-border">
-                        <span className="font-medium">By {blog.author}</span>
-                        <span>{formatDate(blog.createdAt)}</span>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </section>
-
-            {/* Newsletter Section */}
-            <section className="mt-16">
-              <div className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-2xl p-8 text-center">
-                <div className="max-w-2xl mx-auto">
-                  <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-                    Never Miss a Story
-                  </h3>
-                  <p className="text-muted-foreground mb-8 text-lg leading-relaxed">
-                    Get the latest updates on travel adventures, anime insights,
-                    and tech discoveries delivered straight to your inbox.
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email address"
-                      className="flex-1 px-4 py-3 border border-border rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                    <button
-                      onClick={subscribe}
-                      disabled={loading}
-                      className="bg-primary text-primary-foreground px-8 py-3 rounded-xl font-semibold disabled:opacity-60"
-                    >
-                      {loading ? "Subscribing..." : "Subscribe"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </section>
-          </div>
-
-          {/* Sidebar - Takes 1 column */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-20 space-y-8">
-              {/* Trending Blogs */}
-              <div className="bg-card border border-border rounded-xl p-6">
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="w-1 h-6 bg-primary rounded-full"></div>
-                  <h3 className="text-xl font-bold text-foreground">
-                    Trending Now
-                  </h3>
-                </div>
-
-                <div>
-                  {remainingBlogs.slice(0, 5).map((blog, index) => (
-                    <Link
-                      key={blog._id}
-                      href={`/blog/${blog.slug}`}
-                      className="flex gap-3 p-3 rounded-lg bg-muted/30"
-                    >
-                      <div className="relative w-12 h-15 rounded-lg overflow-hidden mb-2 border-2 border-border">
-                        <Image
-                          src={blog.image}
-                          alt={blog.title}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-foreground text-sm line-clamp-2 leading-tight mb-1">
-                          {blog.title}
-                        </h4>
-                        <p className="text-xs text-muted-foreground">
-                          By {blog.author}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              {/* Categories */}
-              <div className="bg-card border border-border rounded-xl p-6">
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="w-1 h-6 bg-primary rounded-full"></div>
-                  <h3 className="text-xl font-bold text-foreground">
-                    Categories
-                  </h3>
-                </div>
-
-                <div className="space-y-2">
-                  {[...new Set(blogs.map((blog) => blog.category))]
-                    .slice(0, 6)
-                    .map((category) => {
-                      const count = blogs.filter(
-                        (blog) => blog.category === category
-                      ).length;
-                      return (
-                        <div
-                          key={category}
-                          className="flex items-center justify-between p-3 rounded-lg bg-muted/30"
-                        >
-                          <span className="font-medium text-foreground">
-                            {category}
-                          </span>
-                          <span className="bg-primary/10 text-primary text-xs font-semibold px-2 py-1 rounded-full">
-                            {count}
-                          </span>
-                        </div>
-                      );
-                    })}
-                </div>
               </div>
             </div>
-          </div>
+          </section>
+
+          <section>
+            <h3 className="text-xl font-bold mb-4">Editor’s Picks</h3>
+            {editorsPick && (
+              <Link
+                href={`/blog/${editorsPick.slug}`}
+                className="block rounded-2xl overflow-hidden border border-border"
+              >
+                <div className="relative h-56 md:h-72">
+                  <Image
+                    src={editorsPick.image}
+                    alt={editorsPick.title}
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                  <div className="absolute bottom-0 p-6">
+                    <span className="px-2.5 py-1 rounded-full bg-primary text-primary-foreground text-[11px] font-semibold">
+                      {editorsPick.category}
+                    </span>
+                    <h4 className="mt-3 text-2xl md:text-3xl font-extrabold text-white leading-tight">
+                      {editorsPick.title}
+                    </h4>
+                    <p className="mt-1 text-white/85 text-sm">
+                      By {editorsPick.author} •{" "}
+                      {formatDate(editorsPick.createdAt)}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            )}
+          </section>
+
+          {!!anime.length && (
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold">Anime Highlights</h3>
+                <Link
+                  href="/blogs?category=Anime"
+                  className="text-sm text-primary"
+                >
+                  See Anime →
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {anime.map((b) => (
+                  <CardSm key={b._id} b={b} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {!!tech.length && (
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold">Tech Guides & Reviews</h3>
+                <Link
+                  href="/blogs?category=Tech"
+                  className="text-sm text-primary"
+                >
+                  See Tech →
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {tech.map((b) => (
+                  <CardSm key={b._id} b={b} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {!!travel.length && (
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold">Travel Stories</h3>
+                <Link
+                  href="/blogs?category=Travel"
+                  className="text-sm text-primary"
+                >
+                  See Travel →
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {travel.map((b) => (
+                  <CardSm key={b._id} b={b} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          <section>
+            <h3 className="text-xl font-bold mb-4">Browse by Category</h3>
+            <div className="flex flex-wrap gap-3">
+              {categoriesAll.slice(0, 12).map((cat) => (
+                <Link
+                  key={cat}
+                  href={`/blogs?category=${encodeURIComponent(cat)}`}
+                  className="rounded-full border border-border bg-muted/40 px-4 py-2 text-sm hover:bg-muted"
+                >
+                  {cat}
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-border bg-card p-6 md:p-8">
+            <h3 className="text-xl md:text-2xl font-bold">
+              Get the Daily Sparks newsletter
+            </h3>
+            <p className="text-muted-foreground mt-1">
+              One email. Hand-picked Anime, Tech, and Travel posts.
+            </p>
+            <div className="mt-4 flex flex-col sm:flex-row gap-3 max-w-lg">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="flex-1 px-4 py-3 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+              <button
+                onClick={subscribe}
+                disabled={loading}
+                className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold disabled:opacity-60"
+              >
+                {loading ? "Subscribing..." : "Subscribe"}
+              </button>
+            </div>
+          </section>
         </div>
+
+        <footer className="mt-10 border-t border-border py-10 text-center text-sm text-muted-foreground">
+          <div className="flex justify-center gap-6 flex-wrap">
+            <Link href="/category/Anime" className="hover:text-foreground">
+              Anime
+            </Link>
+            <Link href="/category/Tech" className="hover:text-foreground">
+              Tech
+            </Link>
+            <Link href="/category/Travel" className="hover:text-foreground">
+              Travel
+            </Link>
+          </div>
+          <p className="mt-4">© {new Date().getFullYear()} Daily Sparks</p>
+        </footer>
       </div>
     </div>
   );
-};
-
-export default HomePage;
+}

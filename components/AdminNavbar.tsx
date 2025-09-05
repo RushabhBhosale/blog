@@ -2,13 +2,15 @@ import { useAuth } from "@/utils/useAuth";
 import { LogOut, Menu, Search, User } from "lucide-react";
 import React, { Dispatch, SetStateAction } from "react";
 import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
 
 const AdminNavbar = ({
   setSidebarOpen,
 }: {
   setSidebarOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const router = useRouter();
   return (
     <header className="bg-card shadow-2xl/5 rounded-2xl md:mt-2 md:mr-2 px-6 lg:px-8 py-2 sticky top-0 z-30">
       <div className="flex items-center justify-between">
@@ -44,6 +46,10 @@ const AdminNavbar = ({
             <Button
               variant={"outline"}
               className="border-red-200 bg-red-200/40"
+              onClick={async () => {
+                await signOut();
+                router.push("/");
+              }}
             >
               <LogOut className="w-4 h-4" />
               <span className="hidden sm:inline">Sign out</span>

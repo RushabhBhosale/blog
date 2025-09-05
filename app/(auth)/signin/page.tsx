@@ -19,18 +19,12 @@ import { toast } from "sonner";
 
 export default function SignInPage() {
   const router = useRouter();
-  const { user, loading: authLoading, isAuthenticated } = useAuth();
+  const { user, loading: authLoading, isAuthenticated, fetchUser } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!authLoading && isAuthenticated) {
-      router.push("/home");
-    }
-  }, [authLoading, isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,11 +35,12 @@ export default function SignInPage() {
       const res = await axios.post("/api/auth/signin", { email, password });
       if (res.status === 200) {
         toast.success(res.data.message || "User login successful");
+        fetchUser();
         if (res.data.role === "user") {
-          console.log("djkhdd");
+          console.log("hddkd");
           router.push("/home");
         } else {
-          console.log("hscc");
+          console.log("hdddddd");
           router.push("/admin");
         }
       }

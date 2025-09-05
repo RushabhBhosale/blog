@@ -15,12 +15,14 @@ interface AuthContextType {
   loading: boolean;
   isAuthenticated: boolean;
   signOut: () => Promise<void>;
+  fetchUser: any;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   isAuthenticated: false,
+  fetchUser: async () => {},
   signOut: async () => {},
 });
 
@@ -29,22 +31,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const initialized = useRef(false);
 
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get("/api/auth/me", { withCredentials: true });
+      console.log("sjs", res?.data?.user);
+      setUser(res?.data?.user || null);
+    } catch (err) {
+      console.error("Error fetching user:", err);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (initialized.current) return;
     initialized.current = true;
-
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get("/api/auth/me", { withCredentials: true });
-
-        setUser(res?.data?.user || null);
-      } catch (err) {
-        console.error("Error fetching user:", err);
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
 
     fetchUser();
   }, []);
@@ -60,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, isAuthenticated: !!user, signOut }}
+      value={{ user, loading, isAuthenticated: !!user, signOut, fetchUser }}
     >
       {children}
     </AuthContext.Provider>

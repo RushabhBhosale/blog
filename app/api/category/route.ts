@@ -1,6 +1,7 @@
 import { connectDB } from "@/lib/db";
 import category from "@/models/category";
 import { NextRequest, NextResponse } from "next/server";
+import jwt from "jsonwebtoken";
 
 export async function GET() {
   try {
@@ -20,6 +21,16 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
+    const token = req.cookies.get("token")?.value;
+    if (!token)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    try {
+      const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+      if (decoded.role !== "admin")
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    } catch {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
     const { title } = await req.json();
 
     if (!title) {
