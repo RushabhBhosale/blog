@@ -1,12 +1,15 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
     {
-      "source": "https://dailysparks.in/:path*",
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "dailysparks.in" }],
       "destination": "https://www.dailysparks.in/:path*",
       "permanent": true
     },
     {
-      "source": "https://dailysparks.rushabh.in/:path*",
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "dailysparks.rushabh.in" }],
       "destination": "https://www.dailysparks.in/:path*",
       "permanent": true
     }
