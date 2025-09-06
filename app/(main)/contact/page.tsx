@@ -38,10 +38,10 @@ export default function ContactPage() {
         <p className="mt-2 text-sm text-muted-foreground">
           Drop me an email at{" "}
           <a
-            href="mailto:contact@dailysparks.rushabh.in"
+            href="mailto:contact@dailysparks.in"
             className="font-medium underline underline-offset-4 hover:text-primary"
           >
-            contact@dailysparks.rushabh.in
+            contact@dailysparks.in
           </a>
         </p>
       </section>

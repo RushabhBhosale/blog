@@ -1,0 +1,14 @@
+{
+  "redirects": [
+    {
+      "source": "https://dailysparks.in/:path*",
+      "destination": "https://www.dailysparks.in/:path*",
+      "permanent": true
+    },
+    {
+      "source": "https://dailysparks.rushabh.in/:path*",
+      "destination": "https://www.dailysparks.in/:path*",
+      "permanent": true
+    }
+  ]
+}

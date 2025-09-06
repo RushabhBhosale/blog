@@ -19,14 +19,17 @@ export interface CommentInterface {
   createdAt: string;
 }
 
-const SITE = "https://dailysparks.in";
+const SITE = "https://www.dailysparks.in";
+
+const canonicalFor = (slug: string) =>
+  new URL(`/blog/${encodeURIComponent(slug)}`, SITE).toString();
 
 export async function generateMetadata({ params }: any): Promise<Metadata> {
   await connectDB();
   const blog = await Bloga.findOne({ slug: params.slug });
 
   if (!blog) {
-    const notFoundUrl = `${SITE}/blog/${params.slug}`;
+    const notFoundUrl = canonicalFor(params.slug);
     return {
       title: "Blog Not Found",
       description: "This blog could not be found.",
@@ -40,10 +43,10 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
   const description =
     blog.metaDescription || blog.content.replace(/<[^>]+>/g, "").slice(0, 160);
 
-  const canonical = `${SITE}/blog/${params.slug}`;
+  const canonical = canonicalFor(params.slug);
   const imageAbs = blog.image?.startsWith("http")
     ? blog.image
-    : `${SITE}${blog.image || "/og-default.jpg"}`;
+    : new URL(blog.image || "/og-default.jpg", SITE).toString();
 
   return {
     title,
@@ -81,8 +84,11 @@ export default async function Blog({ params }: any) {
   const titleQ = encodeURIComponent(
     `${blogData?.blog?.title || ""} ${blogData?.blog?.metaTitle || ""}`.trim()
   );
-  const relatedUrl = `${process.env.NEXT_PUBLIC_API_BASE}/blog/related?excludeSlug=${slug}` +
-    (blogData?.blog?.category ? `&category=${encodeURIComponent(blogData.blog.category)}` : "") +
+  const relatedUrl =
+    `${process.env.NEXT_PUBLIC_API_BASE}/blog/related?excludeSlug=${slug}` +
+    (blogData?.blog?.category
+      ? `&category=${encodeURIComponent(blogData.blog.category)}`
+      : "") +
     (tags ? `&tags=${encodeURIComponent(tags)}` : "") +
     (titleQ ? `&title=${titleQ}` : "") +
     `&limit=6`;
