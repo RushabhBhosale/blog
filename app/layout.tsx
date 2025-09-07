@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/utils/useAuth";
+import BackToTop from "@/components/BackToTop";
 import Script from "next/script";
 
 const geistSans = Geist({
@@ -79,6 +80,7 @@ export default function RootLayout({
       >
         <Toaster />
         <AuthProvider>{children}</AuthProvider>
+        <BackToTop />
       </body>
 
       <Script

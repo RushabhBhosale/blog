@@ -175,6 +175,7 @@ export default function AddBlogPage() {
                   className="size-4 m-0"
                   variant={"ghost"}
                   onClick={() => removeTag(tag)}
+                  type="button"
                 >
                   <X className="w-3 h-3 cursor-pointer" />
                 </Button>

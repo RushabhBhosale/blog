@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { Popover, PopoverTrigger } from "@radix-ui/react-popover";
 import { Check, Trash } from "lucide-react";
 import { useEditor } from "novel";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Button } from "../ui/button";
 import { PopoverContent } from "../ui/popover";
 
@@ -58,19 +58,18 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-60 p-0" sideOffset={10}>
-        <form
-          onSubmit={(e) => {
-            const target = e.currentTarget as HTMLFormElement;
+        <div className="flex p-1" onKeyDown={(e) => {
+          if (e.key === "Enter") {
             e.preventDefault();
-            const input = target[0] as HTMLInputElement;
-            const url = getUrlFromString(input.value);
+            e.stopPropagation();
+            if (!inputRef.current) return;
+            const url = getUrlFromString(inputRef.current.value);
             if (url) {
               editor.chain().focus().setLink({ href: url }).run();
               onOpenChange(false);
             }
-          }}
-          className="flex  p-1 "
-        >
+          }
+        }}>
           <input
             ref={inputRef}
             type="text"
@@ -94,11 +93,18 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
               <Trash className="h-4 w-4" />
             </Button>
           ) : (
-            <Button size="icon" className="h-8">
+            <Button size="icon" className="h-8" type="button" onClick={() => {
+              if (!inputRef.current) return;
+              const url = getUrlFromString(inputRef.current.value);
+              if (url) {
+                editor.chain().focus().setLink({ href: url }).run();
+                onOpenChange(false);
+              }
+            }}>
               <Check className="h-4 w-4" />
             </Button>
           )}
-        </form>
+        </div>
       </PopoverContent>
     </Popover>
   );
