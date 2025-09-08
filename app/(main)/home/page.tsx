@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import HomePage from "./HomePage";
+import { apiUrl } from "@/lib/server-url";
 
 export const metadata: Metadata = {
   title: "Daily Sparks – Fresh Ideas, Every Day",
@@ -28,10 +29,11 @@ export interface BlogInterface {
 }
 
 export default async function Home() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/blog`, {
-    next: { revalidate: 60 },
-  });
-  const data = await res.json();
-
-  return <HomePage allblogs={data.blogs} />;
+  try {
+    const res = await fetch(apiUrl("/blog"), { next: { revalidate: 60 } });
+    const data = await res.json();
+    return <HomePage allblogs={data.blogs || []} />;
+  } catch {
+    return <HomePage allblogs={[]} />;
+  }
 }

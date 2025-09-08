@@ -4,6 +4,7 @@ import BlogDetailsPage from "./BlogDetailsPage";
 import Bloga from "@/models/blog";
 import { Metadata } from "next";
 import he from "he";
+import { apiUrl } from "@/lib/server-url";
 export const revalidate = 60;
 
 export interface CommentInterface {
@@ -72,12 +73,9 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
 export default async function Blog({ params }: any) {
   const { slug } = params;
 
-  const blogRes = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE}/blog/${slug}`,
-    {
-      next: { revalidate: 60 },
-    }
-  );
+  const blogRes = await fetch(apiUrl(`/blog/${slug}`), {
+    next: { revalidate: 60 },
+  });
   const blogData = await blogRes.json();
 
   const tags = (blogData?.blog?.tags || []).join(",");
@@ -85,7 +83,7 @@ export default async function Blog({ params }: any) {
     `${blogData?.blog?.title || ""} ${blogData?.blog?.metaTitle || ""}`.trim()
   );
   const relatedUrl =
-    `${process.env.NEXT_PUBLIC_API_BASE}/blog/related?excludeSlug=${slug}` +
+    `${apiUrl("/blog/related")}?excludeSlug=${slug}` +
     (blogData?.blog?.category
       ? `&category=${encodeURIComponent(blogData.blog.category)}`
       : "") +

@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import BlogsPage from "./BlogsPage";
+import { apiUrl } from "@/lib/server-url";
 
 export const metadata: Metadata = {
   title: "Daily Sparks Blogs – Explore Anime, Tech & Travel Stories",
@@ -11,10 +12,12 @@ export const metadata: Metadata = {
 };
 
 export default async function Blogs() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/blog`, {
-    next: { revalidate: 60 },
-  });
-  const data = await res.json();
-
-  return <BlogsPage allblogs={data.blogs} />;
+  try {
+    const res = await fetch(apiUrl("/blog"), { next: { revalidate: 60 } });
+    const data = await res.json();
+    return <BlogsPage allblogs={data.blogs || []} />;
+  } catch {
+    // Gracefully render with no data to avoid build-time failure
+    return <BlogsPage allblogs={[]} />;
+  }
 }

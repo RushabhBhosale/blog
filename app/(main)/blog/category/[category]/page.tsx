@@ -1,4 +1,5 @@
 import CategoryPage from "./Category";
+import { apiUrl } from "@/lib/server-url";
 
 export interface BlogInterface {
   _id?: string;
@@ -23,10 +24,9 @@ export default async function Category(context: {
   const { category } = await context.params;
   console.log("sss", category);
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE}/blog/category/${category}`,
-    { next: { revalidate: 60 } }
-  );
+  const res = await fetch(apiUrl(`/blog/category/${category}`), {
+    next: { revalidate: 60 },
+  });
 
   if (!res.ok) {
     return <div>Category not found</div>;
