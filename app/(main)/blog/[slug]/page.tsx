@@ -19,7 +19,7 @@ export interface CommentInterface {
   createdAt: string;
 }
 
-const SITE = "https://www.dailysparks.in";
+const SITE = "https://dailysparks.in";
 
 const canonicalFor = (slug: string) =>
   new URL(`/blog/${encodeURIComponent(slug)}`, SITE).toString();
