@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import BlogsPage from "./BlogsPage";
-import { apiUrl } from "@/lib/server-url";
+import { connectDB } from "@/lib/db";
+import Blog from "@/models/blog";
 
 export const metadata: Metadata = {
   title: "Daily Sparks Blogs – Explore Anime, Tech & Travel Stories",
@@ -11,13 +12,10 @@ export const metadata: Metadata = {
   },
 };
 
+export const revalidate = 60;
+
 export default async function Blogs() {
-  try {
-    const res = await fetch(apiUrl("/blog"), { next: { revalidate: 60 } });
-    const data = await res.json();
-    return <BlogsPage allblogs={data.blogs || []} />;
-  } catch {
-    // Gracefully render with no data to avoid build-time failure
-    return <BlogsPage allblogs={[]} />;
-  }
+  await connectDB();
+  const blogs = await Blog.find().select("-content").sort({ createdAt: -1 }).lean();
+  return <BlogsPage allblogs={JSON.parse(JSON.stringify(blogs))} />;
 }

@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import HomePage from "./HomePage";
-import { apiUrl } from "@/lib/server-url";
+import { connectDB } from "@/lib/db";
+import Blog from "@/models/blog";
 
 export const metadata: Metadata = {
   title: "Daily Sparks – Fresh Ideas, Every Day",
@@ -28,12 +29,10 @@ export interface BlogInterface {
   comment: any;
 }
 
+export const revalidate = 60;
+
 export default async function Home() {
-  try {
-    const res = await fetch(apiUrl("/blog"), { next: { revalidate: 60 } });
-    const data = await res.json();
-    return <HomePage allblogs={data.blogs || []} />;
-  } catch {
-    return <HomePage allblogs={[]} />;
-  }
+  await connectDB();
+  const blogs = await Blog.find().select("-content").sort({ createdAt: -1 }).lean();
+  return <HomePage allblogs={JSON.parse(JSON.stringify(blogs))} />;
 }

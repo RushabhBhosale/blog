@@ -1,5 +1,6 @@
 import CategoryPage from "./Category";
-import { apiUrl } from "@/lib/server-url";
+import { connectDB } from "@/lib/db";
+import Blog from "@/models/blog";
 
 export interface BlogInterface {
   _id?: string;
@@ -24,16 +25,18 @@ export default async function Category(context: {
   const { category } = await context.params;
   console.log("sss", category);
 
-  const res = await fetch(apiUrl(`/blog/category/${category}`), {
-    next: { revalidate: 60 },
-  });
+  await connectDB();
+  // Case-insensitive exact match for category
+  const regex = new RegExp(`^${category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i");
+  const blogs = await Blog.find({ category: regex })
+    .select("-content")
+    .sort({ createdAt: -1 })
+    .lean();
 
-  if (!res.ok) {
-    return <div>Category not found</div>;
-  }
-
-  const data = await res.json();
-  console.log("f", data);
-
-  return <CategoryPage allblogs={data.blogs} category={category} />;
+  return (
+    <CategoryPage
+      allblogs={JSON.parse(JSON.stringify(blogs))}
+      category={category}
+    />
+  );
 }
