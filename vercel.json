@@ -3,12 +3,6 @@
   "redirects": [
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.dailysparks.in" }],
-      "destination": "https://dailysparks.in/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/:path*",
       "has": [{ "type": "host", "value": "dailysparks.rushabh.in" }],
       "destination": "https://dailysparks.in/:path*",
       "permanent": true
