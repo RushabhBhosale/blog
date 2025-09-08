@@ -288,16 +288,16 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
       </div>
 
       <div className="md:w-1/4 w-full flex flex-col gap-3 sticky top-24 self-start">
-        <h3 className="font-semibold text-lg mb-2">More in {blog.category}</h3>
+        <h3 className="font-semibold text-lg mb-2">Related Blogs</h3>
         {relatedBlogs.length ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-3">
             {relatedBlogs.map((b) => (
               <Link
                 key={b._id}
                 href={`/blog/${b.slug}`}
-                className="flex flex-col bg-card/70 border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition"
+                className="flex bg-card/70 border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition"
               >
-                <div className="relative w-full h-24 overflow-hidden">
+                <div className="relative w-24 h-full overflow-hidden shrink-0">
                   <Image
                     src={b.image}
                     alt={b.title}
