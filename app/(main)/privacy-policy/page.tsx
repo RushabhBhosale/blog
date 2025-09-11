@@ -1,4 +1,20 @@
 // app/privacy-policy/page.tsx
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy — Daily Sparks",
+  description:
+    "Read the Privacy Policy for Daily Sparks to understand how we collect, use, and protect your information.",
+  alternates: { canonical: "https://dailysparks.in/privacy-policy" },
+  openGraph: {
+    type: "website",
+    url: "https://dailysparks.in/privacy-policy",
+    title: "Privacy Policy — Daily Sparks",
+    description:
+      "How Daily Sparks collects, uses, and protects your information.",
+    siteName: "Daily Sparks",
+  },
+};
 
 export default function PrivacyPolicyPage() {
   return (

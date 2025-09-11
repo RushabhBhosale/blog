@@ -1,4 +1,20 @@
-// app/terms/page.tsx
+// app/terms-and-conditions/page.tsx
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms & Conditions — Daily Sparks",
+  description:
+    "Read the Terms & Conditions for using Daily Sparks (dailysparks.in).",
+  alternates: { canonical: "https://dailysparks.in/terms-and-conditions" },
+  openGraph: {
+    type: "website",
+    url: "https://dailysparks.in/terms-and-conditions",
+    title: "Terms & Conditions — Daily Sparks",
+    description:
+      "Terms for using Daily Sparks, including usage, IP, and disclaimers.",
+    siteName: "Daily Sparks",
+  },
+};
 
 export default function TermsPage() {
   return (

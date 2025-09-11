@@ -1,6 +1,7 @@
 import CategoryPage from "./Category";
 import { connectDB } from "@/lib/db";
 import Blog from "@/models/blog";
+import type { Metadata } from "next";
 
 export interface BlogInterface {
   _id?: string;
@@ -17,6 +18,34 @@ export interface BlogInterface {
   metaDescription?: string;
   likes: any;
   comment: any;
+}
+
+const SITE = "https://dailysparks.in";
+
+export async function generateMetadata({ params }: any): Promise<Metadata> {
+  const category = params?.category ?? "";
+  const canonical = new URL(
+    `/blog/category/${encodeURIComponent(category)}`,
+    SITE
+  ).toString();
+
+  const title = `Category: ${decodeURIComponent(category)} — Daily Sparks`;
+  const description = `Recent posts in ${decodeURIComponent(
+    category
+  )} on Daily Sparks.`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    metadataBase: new URL(SITE),
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      type: "website",
+    },
+  };
 }
 
 export default async function Category(context: {
