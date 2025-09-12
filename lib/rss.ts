@@ -16,12 +16,26 @@ function escXml(input: string) {
     .replace(/'/g, "&apos;");
 }
 
-export async function generateRssXml() {
+type RssOptions = {
+  category?: string;
+  limit?: number;
+};
+
+export async function generateRssXml(opts: RssOptions = {}) {
   await connectDB();
 
-  const blogs = await Blog.find({ status: { $ne: "Hide" } })
+  const query: any = { status: { $ne: "Hide" } };
+  if (opts.category) {
+    // Case-insensitive exact match for category (same as category page)
+    const regex = new RegExp(`^${opts.category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i");
+    query.category = regex;
+  }
+
+  const limit = opts.limit ?? 50;
+
+  const blogs = await Blog.find(query)
     .sort({ createdAt: -1 })
-    .limit(50)
+    .limit(limit)
     .lean();
 
   const items = blogs
@@ -70,4 +84,3 @@ export async function generateRssXml() {
 
   return xml;
 }
-
