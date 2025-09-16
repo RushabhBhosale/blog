@@ -3,6 +3,8 @@ import blog from "@/models/blog";
 import { NextResponse } from "next/server";
 import slugify from "slugify";
 
+const slugOptions = { lower: true, strict: true, trim: true } as const;
+
 export async function GET(
   req: Request,
   context: { params: Promise<{ slug: string }> }
@@ -45,6 +47,7 @@ export async function PUT(
       category,
       metaTitle,
       metaDescription,
+      slug: incomingSlug,
     } = await req.json();
 
     if (!title || !content || !image || !author || !category) {
@@ -56,7 +59,18 @@ export async function PUT(
       );
     }
 
-    const slug2 = slugify(title);
+    const slugSource =
+      typeof incomingSlug === "string" && incomingSlug.trim().length
+        ? incomingSlug
+        : title;
+    const slug2 = slugify(slugSource, slugOptions);
+
+    if (!slug2) {
+      return NextResponse.json(
+        { error: "Unable to generate slug" },
+        { status: 400 }
+      );
+    }
 
     const updatedBlog = await blog.findOneAndUpdate(
       { slug },

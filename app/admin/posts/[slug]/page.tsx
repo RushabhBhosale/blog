@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import axiosClient from "@/lib/axiosclient";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
 import { ImageUploader } from "@/components/ImageUploader";
 import TailwindAdvancedEditor from "@/components/advanced-editor";
@@ -16,6 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import slugify from "slugify";
+
+const SLUG_OPTIONS = { lower: true, strict: true, trim: true } as const;
 
 const AdminEditBlogPage = () => {
   const [title, setTitle] = useState("");
@@ -26,6 +30,8 @@ const AdminEditBlogPage = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [imageUrl, setImageUrl] = useState("");
   const [author, setAuthor] = useState("");
+  const [newSlug, setNewSlug] = useState("");
+  const [slugLocked, setSlugLocked] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
@@ -36,6 +42,12 @@ const AdminEditBlogPage = () => {
     if (slug) fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
+
+  useEffect(() => {
+    if (!slugLocked) {
+      setNewSlug(slugify(title || "", SLUG_OPTIONS));
+    }
+  }, [title, slugLocked]);
 
   const fetchData = async () => {
     try {
@@ -59,6 +71,8 @@ const AdminEditBlogPage = () => {
       setImageUrl(blog.image || "");
       setContent(blog.content);
       setAuthor(blog.author);
+      setSlugLocked(true);
+      setNewSlug(blog.slug || "");
       localStorage.setItem("html-content", blog.content);
     } catch (err) {
       console.error(err);
@@ -98,6 +112,7 @@ const AdminEditBlogPage = () => {
         content: editorContent,
         tags,
         image: imageUrl,
+        slug: newSlug,
       });
 
       toast.success("Blog updated successfully");
@@ -119,6 +134,22 @@ const AdminEditBlogPage = () => {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="w-full text-5xl font-bold border-none focus:outline-none placeholder:text-gray-400"
+        />
+
+        <Input
+          type="text"
+          placeholder="Slug"
+          value={newSlug}
+          onChange={(e) => {
+            const formatted = slugify(e.target.value, SLUG_OPTIONS);
+            setNewSlug(formatted);
+            setSlugLocked(formatted.length > 0);
+          }}
+          onBlur={() => {
+            if (!newSlug.length) {
+              setSlugLocked(false);
+            }
+          }}
         />
 
         <ImageUploader onUpload={(url) => setImageUrl(url)} initialUrl={imageUrl} />
@@ -183,4 +214,3 @@ const AdminEditBlogPage = () => {
 };
 
 export default AdminEditBlogPage;
-

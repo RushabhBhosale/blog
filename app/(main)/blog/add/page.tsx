@@ -19,6 +19,9 @@ import { ImageUploader } from "@/components/ImageUploader";
 import { useAuth } from "@/utils/useAuth";
 import TailwindAdvancedEditor from "@/components/advanced-editor";
 import { toast } from "sonner";
+import slugify from "slugify";
+
+const SLUG_OPTIONS = { lower: true, strict: true, trim: true } as const;
 
 export default function AddBlogPage() {
   const [title, setTitle] = useState("");
@@ -30,6 +33,8 @@ export default function AddBlogPage() {
   const [imageUrl, setImageUrl] = useState("");
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
+  const [slug, setSlug] = useState("");
+  const [slugLocked, setSlugLocked] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
@@ -50,6 +55,12 @@ export default function AddBlogPage() {
     };
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    if (!slugLocked) {
+      setSlug(slugify(title || "", SLUG_OPTIONS));
+    }
+  }, [title, slugLocked]);
 
   const norm = (s: string) => s.trim().replace(/^#+/, "");
   const tokenize = (s: string) => s.split("#").map(norm).filter(Boolean);
@@ -103,6 +114,7 @@ export default function AddBlogPage() {
         "/api/blog",
         {
           title,
+          slug,
           category,
           content: editorContent,
           tags,
@@ -139,6 +151,22 @@ export default function AddBlogPage() {
           placeholder="Meta Title"
           value={metaTitle}
           onChange={(e) => setMetaTitle(e.target.value)}
+        />
+
+        <Input
+          type="text"
+          placeholder="Slug"
+          value={slug}
+          onChange={(e) => {
+            const formatted = slugify(e.target.value, SLUG_OPTIONS);
+            setSlug(formatted);
+            setSlugLocked(formatted.length > 0);
+          }}
+          onBlur={() => {
+            if (!slug.length) {
+              setSlugLocked(false);
+            }
+          }}
         />
 
         <Textarea

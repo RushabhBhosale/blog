@@ -5,6 +5,8 @@ import { notifySubscribersOfNewBlog } from "@/lib/newsletter";
 import slugify from "slugify";
 import jwt from "jsonwebtoken";
 
+const slugOptions = { lower: true, strict: true, trim: true } as const;
+
 export async function GET() {
   await connectDB();
   const blogs = await Blog.find().select("-content").sort({ createdAt: -1 });
@@ -35,6 +37,7 @@ export async function POST(req: NextRequest) {
       authorId,
       metaTitle,
       metaDescription,
+      slug: incomingSlug,
     } = await req.json();
 
     if (!title || !content || !category) {
@@ -51,11 +54,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const slug = slugify(title);
+    const slugSource =
+      typeof incomingSlug === "string" && incomingSlug.trim().length
+        ? incomingSlug
+        : title;
+    const normalizedSlug = slugify(slugSource, slugOptions);
+
+    if (!normalizedSlug) {
+      return NextResponse.json(
+        { error: "Unable to generate slug" },
+        { status: 400 }
+      );
+    }
 
     const newBlog = await Blog.create({
       title,
-      slug,
+      slug: normalizedSlug,
       content,
       category,
       tags,
@@ -69,7 +83,7 @@ export async function POST(req: NextRequest) {
     // Fire-and-forget email notifications; do not block response
     notifySubscribersOfNewBlog({
       title,
-      slug,
+      slug: normalizedSlug,
       image,
       category,
       author: decoded.name || decoded.email,

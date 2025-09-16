@@ -19,6 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import slugify from "slugify";
+
+const SLUG_OPTIONS = { lower: true, strict: true, trim: true } as const;
 
 export default function EditBlogPage() {
   const [title, setTitle] = useState("");
@@ -30,6 +33,8 @@ export default function EditBlogPage() {
   const [imageUrl, setImageUrl] = useState("");
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
+  const [newSlug, setNewSlug] = useState("");
+  const [slugLocked, setSlugLocked] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
@@ -41,6 +46,12 @@ export default function EditBlogPage() {
   useEffect(() => {
     if (slug && user) fetchData();
   }, [slug, user, router]);
+
+  useEffect(() => {
+    if (!slugLocked) {
+      setNewSlug(slugify(title || "", SLUG_OPTIONS));
+    }
+  }, [title, slugLocked]);
 
   const fetchData = async () => {
     try {
@@ -71,6 +82,8 @@ export default function EditBlogPage() {
       setContent(blog.content);
       setMetaTitle(blog.metaTitle || "");
       setMetaDescription(blog.metaDescription || "");
+      setSlugLocked(true);
+      setNewSlug(blog.slug || "");
       localStorage.setItem("html-content", blog.content);
     } catch (err) {
       console.error(err);
@@ -108,7 +121,7 @@ export default function EditBlogPage() {
     }
 
     try {
-      await axios.put(
+      const { data } = await axios.put(
         `/api/blog/${slug}`,
         {
           author: user.name,
@@ -119,13 +132,14 @@ export default function EditBlogPage() {
           image: imageUrl,
           metaTitle,
           metaDescription,
+          slug: newSlug,
         },
         { withCredentials: true }
       );
 
       toast.success("Blog updated successfully");
-      fetchData();
-      router.push(`/blog/${slug}`);
+      const formattedSlug = data?.blog?.slug || newSlug || slug;
+      router.push(`/blog/${formattedSlug}`);
     } catch (err) {
       console.error(err);
       toast.error("Error updating blog");
@@ -144,6 +158,22 @@ export default function EditBlogPage() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="w-full text-5xl font-bold border-none focus:outline-none placeholder:text-gray-400"
+        />
+
+        <Input
+          type="text"
+          placeholder="Slug"
+          value={newSlug}
+          onChange={(e) => {
+            const formatted = slugify(e.target.value, SLUG_OPTIONS);
+            setNewSlug(formatted);
+            setSlugLocked(formatted.length > 0);
+          }}
+          onBlur={() => {
+            if (!newSlug.length) {
+              setSlugLocked(false);
+            }
+          }}
         />
 
         <Input
