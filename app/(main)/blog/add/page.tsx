@@ -31,6 +31,7 @@ export default function AddBlogPage() {
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [imageUrl, setImageUrl] = useState("");
+  const [imageAlt, setImageAlt] = useState("");
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
   const [slug, setSlug] = useState("");
@@ -119,6 +120,7 @@ export default function AddBlogPage() {
           content: editorContent,
           tags,
           image: imageUrl,
+          imageAlt,
           metaTitle,
           metaDescription,
           author: user?.name || user?.email,
@@ -176,6 +178,12 @@ export default function AddBlogPage() {
         />
 
         <ImageUploader onUpload={(url) => setImageUrl(url)} />
+        <Input
+          type="text"
+          placeholder="Image alt text (for accessibility/SEO)"
+          value={imageAlt}
+          onChange={(e) => setImageAlt(e.target.value)}
+        />
 
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger className="w-full">

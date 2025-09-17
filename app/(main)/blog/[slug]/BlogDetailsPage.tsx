@@ -174,7 +174,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
         <div className="relative w-full h-56 sm:h-64 md:h-96 rounded-xl shadow-lg overflow-hidden">
           <Image
             src={blog.image}
-            alt={blog.title}
+            alt={blog.imageAlt || blog.title}
             fill
             sizes="(max-width: 768px) 100vw, 75vw"
             className="object-cover"
@@ -300,7 +300,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
                 <div className="relative w-24 h-full overflow-hidden shrink-0">
                   <Image
                     src={b.image}
-                    alt={b.title}
+                    alt={b.imageAlt || b.title}
                     fill
                     sizes="(max-width: 768px) 100vw, 25vw"
                     className="object-cover"

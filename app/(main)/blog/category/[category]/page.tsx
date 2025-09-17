@@ -7,6 +7,7 @@ export interface BlogInterface {
   _id?: string;
   title: string;
   image: string;
+  imageAlt?: string;
   category: string;
   tags: string[];
   content: string;

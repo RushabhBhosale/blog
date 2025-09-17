@@ -10,6 +10,7 @@ const blogSchema = new Schema(
     authorId: { type: String, required: true },
     tags: { type: [String] },
     image: { type: String },
+    imageAlt: { type: String },
     metaTitle: { type: String },
     metaDescription: { type: String },
     status: { type: String, enum: ["Draft", "Published", "Pending", "Hide"] },

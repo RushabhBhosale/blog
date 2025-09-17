@@ -87,7 +87,7 @@ export default function HomePage({ allblogs }: Props) {
         <div className="relative w-full aspect-[4/3]">
           <Image
             src={b.image}
-            alt={b.title}
+            alt={b.imageAlt || b.title}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
             sizes="(min-width:1024px) 260px, (min-width:640px) 33vw, 100vw"
@@ -196,7 +196,7 @@ export default function HomePage({ allblogs }: Props) {
                     <div className="relative w-full aspect-[3/2] md:aspect-[16/8]">
                       <Image
                         src={mustMain.image}
-                        alt={mustMain.title}
+                        alt={mustMain.imageAlt || mustMain.title}
                         fill
                         className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                         sizes="(min-width:1024px) 720px, 100vw"
@@ -225,7 +225,7 @@ export default function HomePage({ allblogs }: Props) {
                         <div className="relative w-full aspect-[10/6.15]">
                           <Image
                             src={b.image}
-                            alt={b.title}
+                            alt={b.imageAlt || b.title}
                             fill
                             className="object-cover"
                             sizes="160px"
@@ -262,7 +262,7 @@ export default function HomePage({ allblogs }: Props) {
                   <div className="relative w-full aspect-[3/2] md:aspect-[16/7]">
                     <Image
                       src={editors.image}
-                      alt={editors.title}
+                      alt={editors.imageAlt || editors.title}
                       fill
                       className="object-cover"
                       sizes="100vw"

@@ -31,6 +31,7 @@ export default function EditBlogPage() {
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [imageUrl, setImageUrl] = useState("");
+  const [imageAlt, setImageAlt] = useState("");
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
   const [newSlug, setNewSlug] = useState("");
@@ -79,6 +80,7 @@ export default function EditBlogPage() {
       setCategory(blog.category);
       setTags(blog.tags || []);
       setImageUrl(blog.image || "");
+      setImageAlt(blog.imageAlt || "");
       setContent(blog.content);
       setMetaTitle(blog.metaTitle || "");
       setMetaDescription(blog.metaDescription || "");
@@ -130,6 +132,7 @@ export default function EditBlogPage() {
           content: editorContent,
           tags,
           image: imageUrl,
+          imageAlt,
           metaTitle,
           metaDescription,
           slug: newSlug,
@@ -193,6 +196,12 @@ export default function EditBlogPage() {
         <ImageUploader
           onUpload={(url) => setImageUrl(url)}
           initialUrl={imageUrl}
+        />
+        <Input
+          type="text"
+          placeholder="Image alt text (for accessibility/SEO)"
+          value={imageAlt}
+          onChange={(e) => setImageAlt(e.target.value)}
         />
 
         <Select value={category} onValueChange={setCategory}>

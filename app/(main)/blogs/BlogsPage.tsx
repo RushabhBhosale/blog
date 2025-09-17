@@ -244,7 +244,7 @@ const BlogsPage = ({ allblogs }: Props) => {
                 <div className="relative h-48 overflow-hidden">
                   <Image
                     src={blog.image}
-                    alt={blog.title}
+                    alt={blog.imageAlt || blog.title}
                     fill
                     className="object-cover"
                   />

@@ -29,6 +29,7 @@ const AdminEditBlogPage = () => {
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [imageUrl, setImageUrl] = useState("");
+  const [imageAlt, setImageAlt] = useState("");
   const [author, setAuthor] = useState("");
   const [newSlug, setNewSlug] = useState("");
   const [slugLocked, setSlugLocked] = useState(false);
@@ -70,6 +71,7 @@ const AdminEditBlogPage = () => {
       setTags(blog.tags || []);
       setImageUrl(blog.image || "");
       setContent(blog.content);
+      setImageAlt(blog.imageAlt || "");
       setAuthor(blog.author);
       setSlugLocked(true);
       setNewSlug(blog.slug || "");
@@ -112,6 +114,7 @@ const AdminEditBlogPage = () => {
         content: editorContent,
         tags,
         image: imageUrl,
+        imageAlt,
         slug: newSlug,
       });
 
@@ -153,6 +156,12 @@ const AdminEditBlogPage = () => {
         />
 
         <ImageUploader onUpload={(url) => setImageUrl(url)} initialUrl={imageUrl} />
+        <Input
+          type="text"
+          placeholder="Image alt text (for accessibility/SEO)"
+          value={imageAlt}
+          onChange={(e) => setImageAlt(e.target.value)}
+        />
 
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger className="w-full">

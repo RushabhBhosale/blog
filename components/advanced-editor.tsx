@@ -27,6 +27,7 @@ import { defaultEditorContent } from "@/lib/content";
 import { defaultExtensions } from "./extensions";
 import { slashCommand, suggestionItems } from "./slash-command";
 import { uploadFn } from "./image-upload";
+import ImageAltSelector from "./selectors/image-alt-selector";
 
 const hljs = require("highlight.js");
 
@@ -145,6 +146,8 @@ const TailwindAdvancedEditor = ({
             <TextButtons />
             <Separator orientation="vertical" />
             <ColorSelector open={openColor} onOpenChange={setOpenColor} />
+            <Separator orientation="vertical" />
+            <ImageAltSelector />
           </GenerativeMenuSwitch>
         </EditorContent>
       </EditorRoot>
