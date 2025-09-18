@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import BlogsPage from "./BlogsPage";
 import { connectDB } from "@/lib/db";
 import Blog from "@/models/blog";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Daily Sparks Blogs – Explore Anime, Tech & Travel Stories",
@@ -16,6 +17,13 @@ export const revalidate = 60;
 
 export default async function Blogs() {
   await connectDB();
-  const blogs = await Blog.find().select("-content").sort({ createdAt: -1 }).lean();
-  return <BlogsPage allblogs={JSON.parse(JSON.stringify(blogs))} />;
+  const blogs = await Blog.find()
+    .select("-content")
+    .sort({ createdAt: -1 })
+    .lean();
+  return (
+    <Suspense fallback={<div>Loading blogs...</div>}>
+      <BlogsPage allblogs={JSON.parse(JSON.stringify(blogs))} />
+    </Suspense>
+  );
 }
