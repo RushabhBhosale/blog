@@ -211,7 +211,9 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
             <span className="px-2 py-1 bg-card/50 rounded-full">
               {blog.category}
             </span>
-            <span>By {blog.author}</span>
+            <Link href={`/author/${encodeURIComponent((blog.author || "").trim().toLowerCase().replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, ""))}`} className="hover:underline">
+              By {blog.author}
+            </Link>
             <span>{new Date(blog.createdAt!).toLocaleDateString()}</span>
           </div>
 

@@ -97,13 +97,21 @@ export default async function Blog({ params }: any) {
 
   const publisherLogo = new URL("/og-cover.png", SITE).toString();
 
+  const authorSlug = (blogData.author || "").trim().toLowerCase().replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "");
+  const authorUrl = authorSlug
+    ? new URL(`/author/${encodeURIComponent(authorSlug)}`, SITE).toString()
+    : SITE;
+  const authorLd = authorSlug
+    ? { "@type": "Person", name: blogData.author, url: authorUrl }
+    : { "@type": "Organization", name: "DailySparks Team", url: SITE };
+
   const blogPosting = {
     "@type": "BlogPosting",
     mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
     headline: title,
     description,
     image: [imageAbs],
-    author: { "@type": "Organization", name: "DailySparks Team" },
+    author: authorLd,
     publisher: {
       "@type": "Organization",
       name: "DailySparks",
