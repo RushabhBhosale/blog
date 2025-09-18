@@ -171,6 +171,30 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 md:py-12 flex flex-col md:flex-row gap-8">
       <div className="md:w-3/4 flex flex-col gap-6">
+        {/* Breadcrumbs */}
+        <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground -mb-2">
+          <ol className="flex items-center gap-1 flex-wrap">
+            <li className="flex items-center">
+              <Link href="/" className="hover:underline">Home</Link>
+              <span className="mx-2">›</span>
+            </li>
+            {blog.category && (
+              <li className="flex items-center">
+                <Link
+                  href={`/blog/category/${encodeURIComponent(blog.category)}`}
+                  className="hover:underline"
+                >
+                  {blog.category}
+                </Link>
+                <span className="mx-2">›</span>
+              </li>
+            )}
+            <li className="text-foreground truncate max-w-full">
+              {blog.title}
+            </li>
+          </ol>
+        </nav>
+
         <div className="relative w-full h-56 sm:h-64 md:h-96 rounded-xl shadow-lg overflow-hidden">
           <Image
             src={blog.image}

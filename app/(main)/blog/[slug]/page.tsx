@@ -3,6 +3,7 @@ import { BlogInterface } from "../../home/page";
 import BlogDetailsPage from "./BlogDetailsPage";
 import BlogM from "@/models/blog";
 import { Metadata } from "next";
+import Script from "next/script";
 import he from "he";
 export const revalidate = 60;
 
@@ -78,6 +79,71 @@ export default async function Blog({ params }: any) {
     return <div>Blog not found</div>;
   }
 
+  const canonical = canonicalFor(slug);
+  const title = he.decode(blogData.metaTitle || blogData.title);
+  const description =
+    blogData.metaDescription || blogData.content.replace(/<[^>]+>/g, "").slice(0, 160);
+  const imageAbs = blogData.image?.startsWith("http")
+    ? blogData.image
+    : new URL(blogData.image || "/og-cover.png", SITE).toString();
+  const published = blogData.createdAt
+    ? new Date(blogData.createdAt).toISOString()
+    : undefined;
+  const modified = blogData.updatedAt
+    ? new Date(blogData.updatedAt).toISOString()
+    : published;
+  const categoryName = blogData?.category || "";
+  const tagsArr: string[] = Array.isArray(blogData?.tags) ? blogData.tags : [];
+
+  const publisherLogo = new URL("/og-cover.png", SITE).toString();
+
+  const blogPosting = {
+    "@type": "BlogPosting",
+    mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
+    headline: title,
+    description,
+    image: [imageAbs],
+    author: { "@type": "Organization", name: "DailySparks Team" },
+    publisher: {
+      "@type": "Organization",
+      name: "DailySparks",
+      logo: { "@type": "ImageObject", url: publisherLogo },
+    },
+    datePublished: published,
+    dateModified: modified,
+    url: canonical,
+    articleSection: categoryName,
+    keywords: tagsArr.join(", "),
+  } as const;
+
+  const breadcrumbList = {
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: SITE,
+      },
+      ...(categoryName
+        ? [
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: categoryName,
+              item: new URL(`/blog/category/${encodeURIComponent(categoryName)}`, SITE).toString(),
+            },
+          ]
+        : []),
+      {
+        "@type": "ListItem",
+        position: categoryName ? 3 : 2,
+        name: title,
+        item: canonical,
+      },
+    ],
+  } as const;
+
   const tags = (blogData?.tags || []).join(",");
   const titleQ = encodeURIComponent(
     `${blogData?.title || ""} ${blogData?.metaTitle || ""}`.trim()
@@ -141,9 +207,21 @@ export default async function Blog({ params }: any) {
   ]);
 
   return (
-    <BlogDetailsPage
-      blogDetail={JSON.parse(JSON.stringify(blogData))}
-      relatedAllBlogs={JSON.parse(JSON.stringify(related))}
-    />
+    <>
+      <Script
+        id="jsonld-blog"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [blogPosting, breadcrumbList],
+          }),
+        }}
+      />
+      <BlogDetailsPage
+        blogDetail={JSON.parse(JSON.stringify(blogData))}
+        relatedAllBlogs={JSON.parse(JSON.stringify(related))}
+      />
+    </>
   );
 }
