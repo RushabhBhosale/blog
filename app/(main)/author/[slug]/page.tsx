@@ -11,17 +11,29 @@ const SITE = "https://dailysparks.in";
 
 function authorRegexFromSlug(slug: string) {
   // Convert "john-doe" -> /^john[\s_\-]*doe$/i
-  const parts = slug.split("-").filter(Boolean).map((p) => p.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&"));
+  const parts = slug
+    .split("-")
+    .filter(Boolean)
+    .map((p) => p.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&"));
   const pattern = parts.join("[\\s_\\-]*");
   return new RegExp(`^${pattern}$`, "i");
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: any;
+}): Promise<Metadata> {
   await connectDB();
   const re = authorRegexFromSlug(params.slug);
-  const oneBlog = await Blog.findOne({ author: re }).select("author authorId").lean();
+  const oneBlog: any = await Blog.findOne({ author: re })
+    .select("author authorId")
+    .lean();
   const name = oneBlog?.author || params.slug.replace(/-/g, " ");
-  const canonical = new URL(`/author/${encodeURIComponent(params.slug)}`, SITE).toString();
+  const canonical = new URL(
+    `/author/${encodeURIComponent(params.slug)}`,
+    SITE
+  ).toString();
   return {
     title: `${name} — Author at DailySparks`,
     description: `Explore articles by ${name} on DailySparks.`,
@@ -36,7 +48,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function AuthorPage({ params }: { params: { slug: string } }) {
+export default async function AuthorPage({ params }: { params: any }) {
   const { slug } = params;
   await connectDB();
   const re = authorRegexFromSlug(slug);
@@ -50,12 +62,17 @@ export default async function AuthorPage({ params }: { params: { slug: string } 
     user = await User.findById(blogs[0].authorId).lean();
   }
   const displayName = blogs[0]?.author || slug.replace(/-/g, " ");
-  const canonical = new URL(`/author/${encodeURIComponent(slug)}`, SITE).toString();
+  const canonical = new URL(
+    `/author/${encodeURIComponent(slug)}`,
+    SITE
+  ).toString();
   const imageUrl = user?.imageUrl ? String(user.imageUrl) : undefined;
 
   // Gather quick stats
   const postCount = blogs.length;
-  const categories = Array.from(new Set(blogs.map((b: any) => b.category))).sort();
+  const categories = Array.from(
+    new Set(blogs.map((b: any) => b.category))
+  ).sort();
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
@@ -75,18 +92,33 @@ export default async function AuthorPage({ params }: { params: { slug: string } 
               {
                 "@type": "BreadcrumbList",
                 itemListElement: [
-                  { "@type": "ListItem", position: 1, name: "Home", item: SITE },
-                  { "@type": "ListItem", position: 2, name: displayName, item: canonical }
-                ]
-              }
-            ]
-          })
+                  {
+                    "@type": "ListItem",
+                    position: 1,
+                    name: "Home",
+                    item: SITE,
+                  },
+                  {
+                    "@type": "ListItem",
+                    position: 2,
+                    name: displayName,
+                    item: canonical,
+                  },
+                ],
+              },
+            ],
+          }),
         }}
       />
-      <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground mb-4">
+      <nav
+        aria-label="Breadcrumb"
+        className="text-sm text-muted-foreground mb-4"
+      >
         <ol className="flex items-center gap-1 flex-wrap">
           <li className="flex items-center">
-            <Link href="/" className="hover:underline">Home</Link>
+            <Link href="/" className="hover:underline">
+              Home
+            </Link>
             <span className="mx-2">›</span>
           </li>
           <li className="text-foreground">{displayName}</li>
@@ -95,7 +127,12 @@ export default async function AuthorPage({ params }: { params: { slug: string } 
       <header className="flex items-start gap-4 md:gap-6 mb-8">
         <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border border-border bg-card">
           {user?.imageUrl ? (
-            <Image src={user.imageUrl} alt={displayName} fill className="object-cover" />
+            <Image
+              src={user.imageUrl}
+              alt={displayName}
+              fill
+              className="object-cover"
+            />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-xl md:text-2xl font-semibold bg-muted text-foreground">
               {displayName?.[0]?.toUpperCase() || "A"}
@@ -103,18 +140,28 @@ export default async function AuthorPage({ params }: { params: { slug: string } 
           )}
         </div>
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground">{displayName}</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground">
+            {displayName}
+          </h1>
           <p className="text-muted-foreground mt-1">Author at DailySparks</p>
           <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mt-3">
-            <span>{postCount} {postCount === 1 ? "post" : "posts"}</span>
+            <span>
+              {postCount} {postCount === 1 ? "post" : "posts"}
+            </span>
             {user?.createdAt && (
-              <span>Joined {new Date(user.createdAt).toLocaleDateString()}</span>
+              <span>
+                Joined {new Date(user.createdAt).toLocaleDateString()}
+              </span>
             )}
           </div>
           {categories.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {categories.map((c) => (
-                <Link key={c} href={`/blog/category/${encodeURIComponent(c)}`} className="px-2 py-1 rounded-full border border-border text-xs hover:bg-accent">
+                <Link
+                  key={c}
+                  href={`/blog/category/${encodeURIComponent(c)}`}
+                  className="px-2 py-1 rounded-full border border-border text-xs hover:bg-accent"
+                >
                   {c}
                 </Link>
               ))}
@@ -143,7 +190,9 @@ export default async function AuthorPage({ params }: { params: { slug: string } 
                 />
               </div>
               <div className="p-4">
-                <div className="text-xs text-muted-foreground mb-1">{b.category}</div>
+                <div className="text-xs text-muted-foreground mb-1">
+                  {b.category}
+                </div>
                 <h2 className="text-base font-semibold line-clamp-2 group-hover:underline">
                   {b.title}
                 </h2>

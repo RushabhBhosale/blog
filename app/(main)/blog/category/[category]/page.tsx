@@ -25,8 +25,10 @@ export interface BlogInterface {
 
 const SITE = "https://dailysparks.in";
 
-export async function generateMetadata({ params }: any): Promise<Metadata> {
-  const category = params?.category ?? "";
+export async function generateMetadata(context: {
+  params: Promise<{ category: string }>;
+}): Promise<Metadata> {
+  const { category } = await context.params;
   const canonical = new URL(
     `/blog/category/${encodeURIComponent(category)}`,
     SITE
@@ -59,7 +61,10 @@ export default async function Category(context: {
 
   await connectDB();
   // Case-insensitive exact match for category
-  const regex = new RegExp(`^${category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i");
+  const regex = new RegExp(
+    `^${category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+    "i"
+  );
   const blogs = await Blog.find({ category: regex })
     .select("-content")
     .sort({ createdAt: -1 })
