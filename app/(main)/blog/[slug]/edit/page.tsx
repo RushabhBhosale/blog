@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import slugify from "slugify";
+import { extractFaqSchema, type FaqItem } from "@/lib/faq-schema";
 
 const SLUG_OPTIONS = { lower: true, strict: true, trim: true } as const;
 
@@ -37,6 +38,8 @@ export default function EditBlogPage() {
   const [newSlug, setNewSlug] = useState("");
   const [slugLocked, setSlugLocked] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [enableFaqSchema, setEnableFaqSchema] = useState(false);
+  const [faqs, setFaqs] = useState<FaqItem[]>([{ question: "", answer: "" }]);
 
   const router = useRouter();
   const params = useParams();
@@ -81,12 +84,28 @@ export default function EditBlogPage() {
       setTags(blog.tags || []);
       setImageUrl(blog.image || "");
       setImageAlt(blog.imageAlt || "");
-      setContent(blog.content);
+      const { htmlWithoutFaqSchema, faqs: extractedFaqs } = extractFaqSchema(
+        blog.content || ""
+      );
+      const storedFaqs = Array.isArray(blog.faqs) ? blog.faqs : [];
+      const resolvedFaqs = storedFaqs?.length
+        ? storedFaqs
+        : extractedFaqs.length
+        ? extractedFaqs
+        : [{ question: "", answer: "" }];
+      const shouldEnableFaq =
+        typeof blog.enableFaqSchema === "boolean"
+          ? blog.enableFaqSchema
+          : resolvedFaqs.some((faq: any) => faq.question && faq.answer);
+
+      setEnableFaqSchema(shouldEnableFaq);
+      setFaqs(resolvedFaqs);
+      setContent(htmlWithoutFaqSchema);
       setMetaTitle(blog.metaTitle || "");
       setMetaDescription(blog.metaDescription || "");
       setSlugLocked(true);
       setNewSlug(blog.slug || "");
-      localStorage.setItem("html-content", blog.content);
+      localStorage.setItem("html-content", htmlWithoutFaqSchema);
     } catch (err) {
       console.error(err);
       toast.error("Error loading blog");
@@ -106,6 +125,32 @@ export default function EditBlogPage() {
     setTags(tags.filter((t) => t !== tagToRemove));
   };
 
+  const toggleFaqSchema = (checked: boolean) => {
+    setEnableFaqSchema(checked);
+    if (checked && faqs.length === 0) {
+      setFaqs([{ question: "", answer: "" }]);
+    }
+  };
+
+  const updateFaq = (index: number, field: keyof FaqItem, value: string) => {
+    setFaqs((prev) =>
+      prev.map((faq, i) => (i === index ? { ...faq, [field]: value } : faq))
+    );
+  };
+
+  const addFaq = () => {
+    setFaqs((prev) => [...prev, { question: "", answer: "" }]);
+  };
+
+  const removeFaq = (index: number) => {
+    setFaqs((prev) => {
+      if (prev.length <= 1) {
+        return [{ question: "", answer: "" }];
+      }
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -118,6 +163,19 @@ export default function EditBlogPage() {
     const editorContent = window.localStorage.getItem("html-content") || "";
     if (!title || !category || !editorContent || !tags.length || !imageUrl) {
       toast.error("Please fill all the required fields");
+      setLoading(false);
+      return;
+    }
+
+    const sanitizedFaqs = faqs
+      .map((faq) => ({
+        question: faq.question.trim(),
+        answer: faq.answer.trim(),
+      }))
+      .filter((faq) => faq.question && faq.answer);
+
+    if (enableFaqSchema && sanitizedFaqs.length === 0) {
+      toast.error("Add at least one FAQ with both question and answer.");
       setLoading(false);
       return;
     }
@@ -136,6 +194,8 @@ export default function EditBlogPage() {
           metaTitle,
           metaDescription,
           slug: newSlug,
+          enableFaqSchema,
+          faqs: sanitizedFaqs,
         },
         { withCredentials: true }
       );
@@ -249,6 +309,59 @@ export default function EditBlogPage() {
 
         <div>
           <TailwindAdvancedEditor isEdit={true} editContent={content} />
+        </div>
+
+        <div className="border rounded-lg p-4 space-y-4">
+          <label className="flex items-center gap-3 text-sm font-medium">
+            <input
+              type="checkbox"
+              checked={enableFaqSchema}
+              onChange={(e) => toggleFaqSchema(e.target.checked)}
+              className="size-4"
+            />
+            Enable FAQ Schema
+          </label>
+
+          {enableFaqSchema && (
+            <div className="space-y-4">
+              {faqs.map((faq, index) => (
+                <div
+                  key={index}
+                  className="space-y-2 rounded-md border border-dashed p-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium">FAQ {index + 1}</p>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      disabled={faqs.length <= 1}
+                      onClick={() => removeFaq(index)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                  <Input
+                    placeholder="Question"
+                    value={faq.question}
+                    onChange={(e) =>
+                      updateFaq(index, "question", e.target.value)
+                    }
+                  />
+                  <Textarea
+                    placeholder="Answer"
+                    value={faq.answer}
+                    onChange={(e) => updateFaq(index, "answer", e.target.value)}
+                    rows={4}
+                  />
+                </div>
+              ))}
+
+              <Button type="button" variant="outline" onClick={addFaq}>
+                Add FAQ
+              </Button>
+            </div>
+          )}
         </div>
 
         <Button

@@ -19,6 +19,8 @@ export interface BlogInterface {
   metaDescription?: string;
   likes: any;
   comment: any;
+  enableFaqSchema?: boolean;
+  faqs?: { question: string; answer: string }[];
 }
 
 const SITE = "https://dailysparks.in";

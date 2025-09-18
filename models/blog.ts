@@ -13,6 +13,17 @@ const blogSchema = new Schema(
     imageAlt: { type: String },
     metaTitle: { type: String },
     metaDescription: { type: String },
+    enableFaqSchema: { type: Boolean, default: false },
+    faqs: {
+      type: [
+        {
+          question: { type: String, required: true },
+          answer: { type: String, required: true },
+          _id: false,
+        },
+      ],
+      default: [],
+    },
     status: { type: String, enum: ["Draft", "Published", "Pending", "Hide"] },
     likes: {
       type: [Schema.Types.ObjectId],

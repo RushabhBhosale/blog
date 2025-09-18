@@ -4,6 +4,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { notifySubscribersOfNewBlog } from "@/lib/newsletter";
 import slugify from "slugify";
 import jwt from "jsonwebtoken";
+import {
+  buildFaqJsonLd,
+  extractFaqSchema,
+  injectFaqSchemaIntoHtml,
+  normalizeFaqItems,
+} from "@/lib/faq-schema";
 
 const slugOptions = { lower: true, strict: true, trim: true } as const;
 
@@ -39,6 +45,8 @@ export async function POST(req: NextRequest) {
       metaTitle,
       metaDescription,
       slug: incomingSlug,
+      enableFaqSchema,
+      faqs,
     } = await req.json();
 
     if (!title || !content || !category) {
@@ -68,10 +76,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const sanitizedFaqs = normalizeFaqItems(faqs);
+    const shouldEnableFaq = Boolean(enableFaqSchema && sanitizedFaqs.length);
+
+    const incomingContent = typeof content === "string" ? content : "";
+    const { htmlWithoutFaqSchema } = extractFaqSchema(incomingContent);
+    const finalContent = shouldEnableFaq
+      ? injectFaqSchemaIntoHtml(
+          htmlWithoutFaqSchema,
+          buildFaqJsonLd(sanitizedFaqs)
+        )
+      : htmlWithoutFaqSchema;
+
     const newBlog = await Blog.create({
       title,
       slug: normalizedSlug,
-      content,
+      content: finalContent,
       category,
       tags,
       image,
@@ -80,6 +100,8 @@ export async function POST(req: NextRequest) {
       metaDescription,
       author: decoded.name || decoded.email,
       authorId: decoded.userId,
+      enableFaqSchema: shouldEnableFaq,
+      faqs: shouldEnableFaq ? sanitizedFaqs : [],
     });
 
     // Fire-and-forget email notifications; do not block response

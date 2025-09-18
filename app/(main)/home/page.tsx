@@ -28,6 +28,8 @@ export interface BlogInterface {
   metaDescription?: string;
   likes: any;
   comment: any;
+  enableFaqSchema?: boolean;
+  faqs?: { question: string; answer: string }[];
 }
 
 export const revalidate = 60;

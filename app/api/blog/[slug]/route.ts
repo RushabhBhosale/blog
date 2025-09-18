@@ -2,6 +2,12 @@ import { connectDB } from "@/lib/db";
 import blog from "@/models/blog";
 import { NextResponse } from "next/server";
 import slugify from "slugify";
+import {
+  buildFaqJsonLd,
+  extractFaqSchema,
+  injectFaqSchemaIntoHtml,
+  normalizeFaqItems,
+} from "@/lib/faq-schema";
 
 const slugOptions = { lower: true, strict: true, trim: true } as const;
 
@@ -49,6 +55,8 @@ export async function PUT(
       metaTitle,
       metaDescription,
       slug: incomingSlug,
+      enableFaqSchema,
+      faqs,
     } = await req.json();
 
     if (!title || !content || !image || !author || !category) {
@@ -73,12 +81,24 @@ export async function PUT(
       );
     }
 
+    const sanitizedFaqs = normalizeFaqItems(faqs);
+    const shouldEnableFaq = Boolean(enableFaqSchema && sanitizedFaqs.length);
+
+    const incomingContent = typeof content === "string" ? content : "";
+    const { htmlWithoutFaqSchema } = extractFaqSchema(incomingContent);
+    const finalContent = shouldEnableFaq
+      ? injectFaqSchemaIntoHtml(
+          htmlWithoutFaqSchema,
+          buildFaqJsonLd(sanitizedFaqs)
+        )
+      : htmlWithoutFaqSchema;
+
     const updatedBlog = await blog.findOneAndUpdate(
       { slug },
       {
         title,
         slug: slug2,
-        content,
+        content: finalContent,
         tags,
         image,
         imageAlt,
@@ -86,6 +106,8 @@ export async function PUT(
         category,
         metaTitle,
         metaDescription,
+        enableFaqSchema: shouldEnableFaq,
+        faqs: shouldEnableFaq ? sanitizedFaqs : [],
       },
       { new: true }
     );
