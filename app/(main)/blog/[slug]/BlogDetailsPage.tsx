@@ -285,6 +285,32 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
             </span>
           ))}
         </div>
+
+        {blog?.enableFaqSchema && (blog?.faqs?.length || 0) > 0 && (
+          <section className="mt-10 border-t border-border pt-6">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-4">
+              Frequently Asked Questions
+            </h2>
+            <div className="space-y-3">
+              {blog.faqs!.map((faq, idx) => (
+                <details
+                  key={idx}
+                  className="group rounded-md border border-border bg-card/60 p-4"
+                >
+                  <summary className="cursor-pointer list-none font-medium text-foreground flex items-center justify-between">
+                    <span>{faq.question}</span>
+                    <span className="ml-3 text-muted-foreground transition-transform group-open:rotate-45">
+                      +
+                    </span>
+                  </summary>
+                  <div className="mt-3 text-sm text-muted-foreground whitespace-pre-line">
+                    {faq.answer}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
 
       <div className="md:w-1/4 w-full flex flex-col gap-3 sticky top-24 self-start">
