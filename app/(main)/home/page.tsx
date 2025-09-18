@@ -30,6 +30,18 @@ export interface BlogInterface {
   comment: any;
   enableFaqSchema?: boolean;
   faqs?: { question: string; answer: string }[];
+  enableReviewSchema?: boolean;
+  reviews?: {
+    name?: string;
+    reviewBody?: string;
+    ratingValue?: number;
+    bestRating?: number;
+    worstRating?: number;
+    author?: string;
+    datePublished?: string;
+  }[];
+  enableHowToSchema?: boolean;
+  howToSteps?: { name: string; text?: string; image?: string }[];
 }
 
 export const revalidate = 60;

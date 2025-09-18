@@ -57,6 +57,10 @@ export async function PUT(
       slug: incomingSlug,
       enableFaqSchema,
       faqs,
+      enableReviewSchema,
+      reviews,
+      enableHowToSchema,
+      howToSteps,
     } = await req.json();
 
     if (!title || !content || !image || !author || !category) {
@@ -108,6 +112,10 @@ export async function PUT(
         metaDescription,
         enableFaqSchema: shouldEnableFaq,
         faqs: shouldEnableFaq ? sanitizedFaqs : [],
+        enableReviewSchema: Boolean(enableReviewSchema) && Array.isArray(reviews) && reviews.length > 0,
+        reviews: Array.isArray(reviews) ? reviews : [],
+        enableHowToSchema: Boolean(enableHowToSchema) && Array.isArray(howToSteps) && howToSteps.length > 0,
+        howToSteps: Array.isArray(howToSteps) ? howToSteps : [],
       },
       { new: true }
     );
