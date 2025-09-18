@@ -107,8 +107,10 @@ export default async function Blog({ params }: any) {
 
   const blogPosting = {
     "@type": "BlogPosting",
+    "@id": `${canonical}#article`,
     mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
     headline: title,
+    name: title,
     description,
     image: [imageAbs],
     author: authorLd,
