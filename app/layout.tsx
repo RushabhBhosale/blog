@@ -80,7 +80,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {/* Global header with search aligned to SearchAction */}
-        <header className="w-full border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        {/* <header className="w-full border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
             <a href="/" className="font-semibold text-lg">DailySparks</a>
             <form
@@ -101,7 +101,7 @@ export default function RootLayout({
               </button>
             </form>
           </div>
-        </header>
+        </header> */}
         <Toaster />
         <AuthProvider>{children}</AuthProvider>
         <BackToTop />
@@ -128,33 +128,33 @@ export default function RootLayout({
             {
               "@type": "Organization",
               "@id": "https://dailysparks.com/#organization",
-              "name": "DailySparks",
-              "url": "https://dailysparks.com/",
-              "logo": {
+              name: "DailySparks",
+              url: "https://dailysparks.com/",
+              logo: {
                 "@type": "ImageObject",
-                "url": "[insert logo URL]"
+                url: "[insert logo URL]",
               },
-              "sameAs": [
+              sameAs: [
                 "[insert Twitter URL]",
                 "[insert Facebook URL]",
                 "[insert Instagram URL]",
                 "[insert LinkedIn URL]",
-                "[insert YouTube URL]"
-              ]
+                "[insert YouTube URL]",
+              ],
             },
             {
               "@type": "WebSite",
               "@id": "https://dailysparks.com/#website",
-              "url": "https://dailysparks.com/",
-              "name": "DailySparks",
-              "publisher": { "@id": "https://dailysparks.com/#organization" },
-              "potentialAction": {
+              url: "https://dailysparks.com/",
+              name: "DailySparks",
+              publisher: { "@id": "https://dailysparks.com/#organization" },
+              potentialAction: {
                 "@type": "SearchAction",
-                "target": "https://dailysparks.com/?s={search_term_string}",
-                "query-input": "required name=search_term_string"
-              }
-            }
-          ]
+                target: "https://dailysparks.com/?s={search_term_string}",
+                "query-input": "required name=search_term_string",
+              },
+            },
+          ],
         })}
       </Script>
     </html>
