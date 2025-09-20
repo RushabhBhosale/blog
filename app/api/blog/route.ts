@@ -10,6 +10,12 @@ import {
   injectFaqSchemaIntoHtml,
   normalizeFaqItems,
 } from "@/lib/faq-schema";
+import {
+  buildItemListJsonLd,
+  injectListSchemaIntoHtml,
+  normalizeListItems,
+} from "@/lib/list-schema";
+import { replaceItemListPlaceholders } from "@/lib/list-render";
 
 const slugOptions = { lower: true, strict: true, trim: true } as const;
 
@@ -45,6 +51,8 @@ export async function POST(req: NextRequest) {
       slug: incomingSlug,
       enableFaqSchema,
       faqs,
+      enableListSchema,
+      listItems,
     } = await req.json();
 
     if (!title || !content || !category) {
@@ -75,16 +83,31 @@ export async function POST(req: NextRequest) {
     }
 
     const sanitizedFaqs = normalizeFaqItems(faqs);
+    const sanitizedListItems = normalizeListItems(listItems);
     const shouldEnableFaq = Boolean(enableFaqSchema && sanitizedFaqs.length);
+    const shouldEnableList = Boolean(enableListSchema && sanitizedListItems.length);
 
     const incomingContent = typeof content === "string" ? content : "";
     const { htmlWithoutFaqSchema } = extractFaqSchema(incomingContent);
-    const finalContent = shouldEnableFaq
-      ? injectFaqSchemaIntoHtml(
-          htmlWithoutFaqSchema,
-          buildFaqJsonLd(sanitizedFaqs)
-        )
-      : htmlWithoutFaqSchema;
+    let finalContent = htmlWithoutFaqSchema;
+    // Replace any <!--ITEMLIST[:variant]--> placeholders with visible markup
+    if (shouldEnableList) {
+      finalContent = replaceItemListPlaceholders(finalContent, sanitizedListItems, {
+        title,
+      });
+    }
+    if (shouldEnableFaq) {
+      finalContent = injectFaqSchemaIntoHtml(
+        finalContent,
+        buildFaqJsonLd(sanitizedFaqs)
+      );
+    }
+    if (shouldEnableList) {
+      finalContent = injectListSchemaIntoHtml(
+        finalContent,
+        buildItemListJsonLd(sanitizedListItems, { name: title })
+      );
+    }
 
     const newBlog = await Blog.create({
       title,
@@ -100,6 +123,8 @@ export async function POST(req: NextRequest) {
       authorId: decoded.userId,
       enableFaqSchema: shouldEnableFaq,
       faqs: shouldEnableFaq ? sanitizedFaqs : [],
+      enableListSchema: shouldEnableList,
+      listItems: shouldEnableList ? sanitizedListItems : [],
     });
 
     // Fire-and-forget email notifications; do not block response

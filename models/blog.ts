@@ -24,6 +24,20 @@ const blogSchema = new Schema(
       ],
       default: [],
     },
+    // Optional structured list/ranking support
+    enableListSchema: { type: Boolean, default: false },
+    listItems: {
+      type: [
+        {
+          title: { type: String, required: true },
+          url: { type: String },
+          description: { type: String },
+          image: { type: String },
+          _id: false,
+        },
+      ],
+      default: [],
+    },
     status: { type: String, enum: ["Draft", "Published", "Pending", "Hide"] },
     likes: {
       type: [Schema.Types.ObjectId],

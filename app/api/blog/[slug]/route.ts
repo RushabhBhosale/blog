@@ -8,6 +8,12 @@ import {
   injectFaqSchemaIntoHtml,
   normalizeFaqItems,
 } from "@/lib/faq-schema";
+import {
+  buildItemListJsonLd,
+  injectListSchemaIntoHtml,
+  normalizeListItems,
+} from "@/lib/list-schema";
+import { replaceItemListPlaceholders } from "@/lib/list-render";
 
 const slugOptions = { lower: true, strict: true, trim: true } as const;
 
@@ -55,6 +61,8 @@ export async function PUT(
       slug: incomingSlug,
       enableFaqSchema,
       faqs,
+      enableListSchema,
+      listItems,
     } = await req.json();
 
     if (!title || !content || !image || !author || !category) {
@@ -80,16 +88,31 @@ export async function PUT(
     }
 
     const sanitizedFaqs = normalizeFaqItems(faqs);
+    const sanitizedListItems = normalizeListItems(listItems);
     const shouldEnableFaq = Boolean(enableFaqSchema && sanitizedFaqs.length);
+    const shouldEnableList = Boolean(enableListSchema && sanitizedListItems.length);
 
     const incomingContent = typeof content === "string" ? content : "";
     const { htmlWithoutFaqSchema } = extractFaqSchema(incomingContent);
-    const finalContent = shouldEnableFaq
-      ? injectFaqSchemaIntoHtml(
-          htmlWithoutFaqSchema,
-          buildFaqJsonLd(sanitizedFaqs)
-        )
-      : htmlWithoutFaqSchema;
+    let finalContent = htmlWithoutFaqSchema;
+    // Replace <!--ITEMLIST[:variant]--> placeholders with visible markup at author-chosen position
+    if (shouldEnableList) {
+      finalContent = replaceItemListPlaceholders(finalContent, sanitizedListItems, {
+        title,
+      });
+    }
+    if (shouldEnableFaq) {
+      finalContent = injectFaqSchemaIntoHtml(
+        finalContent,
+        buildFaqJsonLd(sanitizedFaqs)
+      );
+    }
+    if (shouldEnableList) {
+      finalContent = injectListSchemaIntoHtml(
+        finalContent,
+        buildItemListJsonLd(sanitizedListItems, { name: title })
+      );
+    }
 
     const updatedBlog = await blog.findOneAndUpdate(
       { slug },
@@ -106,6 +129,8 @@ export async function PUT(
         metaDescription,
         enableFaqSchema: shouldEnableFaq,
         faqs: shouldEnableFaq ? sanitizedFaqs : [],
+        enableListSchema: shouldEnableList,
+        listItems: shouldEnableList ? sanitizedListItems : [],
       },
       { new: true }
     );

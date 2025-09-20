@@ -21,6 +21,7 @@ import TailwindAdvancedEditor from "@/components/advanced-editor";
 import { toast } from "sonner";
 import slugify from "slugify";
 import { type FaqItem } from "@/lib/faq-schema";
+type ListItem = { title: string; url?: string; description?: string; image?: string };
 
 const SLUG_OPTIONS = { lower: true, strict: true, trim: true } as const;
 
@@ -40,6 +41,8 @@ export default function AddBlogPage() {
   const [loading, setLoading] = useState(false);
   const [enableFaqSchema, setEnableFaqSchema] = useState(false);
   const [faqs, setFaqs] = useState<FaqItem[]>([{ question: "", answer: "" }]);
+  const [enableListSchema, setEnableListSchema] = useState(false);
+  const [listItems, setListItems] = useState<ListItem[]>([{ title: "", url: "", description: "", image: "" }]);
 
   const router = useRouter();
   const { user, isAuthenticated } = useAuth();
@@ -123,6 +126,25 @@ export default function AddBlogPage() {
     });
   };
 
+  const toggleListSchema = (checked: boolean) => {
+    setEnableListSchema(checked);
+    if (checked && listItems.length === 0) {
+      setListItems([{ title: "", url: "", description: "", image: "" }]);
+    }
+  };
+
+  const updateListItem = (index: number, field: keyof ListItem, value: string) => {
+    setListItems((prev) => prev.map((it, i) => (i === index ? { ...it, [field]: value } : it)));
+  };
+
+  const addListItem = () => {
+    setListItems((prev) => [...prev, { title: "", url: "", description: "", image: "" }]);
+  };
+
+  const removeListItem = (index: number) => {
+    setListItems((prev) => (prev.length <= 1 ? [{ title: "", url: "", description: "", image: "" }] : prev.filter((_, i) => i !== index)));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -169,6 +191,15 @@ export default function AddBlogPage() {
           authorId: user?.userId,
           enableFaqSchema,
           faqs: sanitizedFaqs,
+          enableListSchema,
+          listItems: listItems
+            .map((i) => ({
+              title: i.title.trim(),
+              url: (i.url || "").trim(),
+              description: (i.description || "").trim(),
+              image: (i.image || "").trim(),
+            }))
+            .filter((i) => i.title),
         },
         { withCredentials: true }
       );
@@ -333,6 +364,50 @@ export default function AddBlogPage() {
 
               <Button type="button" variant="outline" onClick={addFaq}>
                 Add FAQ
+              </Button>
+            </div>
+          )}
+        </div>
+
+        <div className="border rounded-lg p-4 space-y-4">
+          <label className="flex items-center gap-3 text-sm font-medium">
+            <input
+              type="checkbox"
+              checked={enableListSchema}
+              onChange={(e) => toggleListSchema(e.target.checked)}
+              className="size-4"
+            />
+            Enable List/Ranking Schema
+          </label>
+
+          {enableListSchema && (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Tip: Type <code>[[ITEMLIST]]</code> where you want this list to appear.
+                You can also use <code>[[ITEMLIST:table]]</code>, <code>[[ITEMLIST:ol]]</code>, or <code>[[ITEMLIST:ul]]</code> for different layouts.
+              </p>
+              {listItems.map((it, index) => (
+                <div key={index} className="space-y-2 rounded-md border border-dashed p-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium">Item {index + 1}</p>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      disabled={listItems.length <= 1}
+                      onClick={() => removeListItem(index)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                  <Input placeholder="Title (required)" value={it.title} onChange={(e) => updateListItem(index, "title", e.target.value)} />
+                  <Input placeholder="URL (optional)" value={it.url || ""} onChange={(e) => updateListItem(index, "url", e.target.value)} />
+                  <Textarea placeholder="Description (optional)" value={it.description || ""} onChange={(e) => updateListItem(index, "description", e.target.value)} rows={3} />
+                  <Input placeholder="Image URL (optional)" value={it.image || ""} onChange={(e) => updateListItem(index, "image", e.target.value)} />
+                </div>
+              ))}
+              <Button type="button" variant="outline" onClick={addListItem}>
+                Add Item
               </Button>
             </div>
           )}
