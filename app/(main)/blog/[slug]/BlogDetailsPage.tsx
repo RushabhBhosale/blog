@@ -170,12 +170,17 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 md:py-12 flex flex-col md:flex-row gap-8">
-      <div className="md:w-3/4 flex flex-col gap-6">
+      <div className="md:w-3/4 flex flex-col gap-6 md:gap-6">
         {/* Breadcrumbs */}
-        <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground -mb-2">
+        <nav
+          aria-label="Breadcrumb"
+          className="text-sm text-muted-foreground -mb-2"
+        >
           <ol className="flex items-center gap-1 flex-wrap">
             <li className="flex items-center">
-              <Link href="/" className="hover:underline">Home</Link>
+              <Link href="/" className="hover:underline">
+                Home
+              </Link>
               <span className="mx-2">›</span>
             </li>
             {blog.category && (
@@ -207,11 +212,20 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-          <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+          <div className="md:mb-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             <span className="px-2 py-1 bg-card/50 rounded-full">
               {blog.category}
             </span>
-            <Link href={`/author/${encodeURIComponent((blog.author || "").trim().toLowerCase().replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, ""))}`} className="hover:underline">
+            <Link
+              href={`/author/${encodeURIComponent(
+                (blog.author || "")
+                  .trim()
+                  .toLowerCase()
+                  .replace(/[^a-z0-9]+/gi, "-")
+                  .replace(/^-+|-+$/g, "")
+              )}`}
+              className="hover:underline"
+            >
               By {blog.author}
             </Link>
             <span>{new Date(blog.createdAt!).toLocaleDateString()}</span>
@@ -292,7 +306,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
           </div>
         </div>
 
-        <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-foreground mb-6">
+        <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-foreground md:mb-6">
           {blog.title}
         </h1>
 
@@ -314,7 +328,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
 
         {blog?.enableFaqSchema && (blog?.faqs?.length || 0) > 0 && (
           <section className="mt-10 border-t border-border pt-6">
-            <h2 className="text-xl sm:text-2xl font-semibold mb-4">
+            <h2 className="text-xl sm:text-2xl font-semibold md:mb-4">
               Frequently Asked Questions
             </h2>
             <div className="space-y-3">

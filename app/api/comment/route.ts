@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import "@/lib/db"; // initialize DB once per server instance
 import Comment from "@/models/comment";
 import jwt from "jsonwebtoken";
 
 export async function GET(req: NextRequest) {
   try {
-    await connectDB();
 
     const token = req.cookies.get("token")?.value;
     if (!token)
@@ -35,4 +34,3 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
-

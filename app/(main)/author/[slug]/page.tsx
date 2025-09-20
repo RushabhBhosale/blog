@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { connectDB } from "@/lib/db";
+import "@/lib/db"; // initialize DB once per server instance
 import User from "@/models/user";
 import Blog from "@/models/blog";
 import Link from "next/link";
@@ -24,7 +24,6 @@ export async function generateMetadata({
 }: {
   params: any;
 }): Promise<Metadata> {
-  await connectDB();
   const re = authorRegexFromSlug(params.slug);
   const oneBlog: any = await Blog.findOne({ author: re })
     .select("author authorId")
@@ -50,7 +49,6 @@ export async function generateMetadata({
 
 export default async function AuthorPage({ params }: { params: any }) {
   const { slug } = params;
-  await connectDB();
   const re = authorRegexFromSlug(slug);
   const blogs = await Blog.find({ author: re })
     .sort({ createdAt: -1 })

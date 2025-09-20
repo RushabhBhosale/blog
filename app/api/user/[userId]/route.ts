@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import "@/lib/db"; // initialize DB once per server instance
 import User from "@/models/user";
 import jwt from "jsonwebtoken";
 
@@ -22,7 +22,6 @@ export async function PUT(
   context: { params: Promise<{ userId: string }> }
 ) {
   try {
-    await connectDB();
     const admin = await requireAdmin(req);
     if (!admin.ok) return admin.res!;
     const { userId } = await context.params;
@@ -47,7 +46,6 @@ export async function DELETE(
   context: { params: Promise<{ userId: string }> }
 ) {
   try {
-    await connectDB();
     const admin = await requireAdmin(req);
     if (!admin.ok) return admin.res!;
     const { userId } = await context.params;
@@ -59,4 +57,3 @@ export async function DELETE(
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
-

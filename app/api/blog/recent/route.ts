@@ -1,10 +1,9 @@
-import { connectDB } from "@/lib/db";
+import "@/lib/db"; // initialize DB once per server instance
 import blog from "@/models/blog";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   try {
-    await connectDB();
 
     const blogs = await blog.find().sort({ createdAt: -1 }).limit(5);
     if (!blogs || blogs.length === 0) {

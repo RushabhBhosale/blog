@@ -1,11 +1,10 @@
-import { connectDB } from "@/lib/db";
+import "@/lib/db"; // initialize DB once per server instance
 import category from "@/models/category";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
 export async function GET() {
   try {
-    await connectDB();
     const categories = await category.find().sort({ createdAt: -1 });
 
     return NextResponse.json({ category: categories }, { status: 200 });
@@ -20,7 +19,6 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    await connectDB();
     const token = req.cookies.get("token")?.value;
     if (!token)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

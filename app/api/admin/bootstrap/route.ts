@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import "@/lib/db"; // initialize DB once per server instance
 import User from "@/models/user";
 
 export async function POST(req: NextRequest) {
   try {
-    await connectDB();
     const { email, token } = await req.json();
     if (!email || !token) {
       return NextResponse.json({ error: "email and token required" }, { status: 400 });
@@ -27,4 +26,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
-

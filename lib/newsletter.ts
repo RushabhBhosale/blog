@@ -1,10 +1,8 @@
-import { connectDB } from "@/lib/db";
 import Subscriber from "@/models/subscriber";
 import { sendMail } from "@/lib/mailer";
 import crypto from "crypto";
 
 export async function subscribeEmail(email: string) {
-  await connectDB();
   const normalized = email.trim().toLowerCase();
   const token = cryptoRandomToken();
 
@@ -16,7 +14,6 @@ export async function subscribeEmail(email: string) {
 }
 
 export async function unsubscribeByToken(token: string) {
-  await connectDB();
   const res = await Subscriber.findOneAndDelete({ token });
   return Boolean(res);
 }
@@ -29,7 +26,6 @@ export async function notifySubscribersOfNewBlog(blog: {
   author?: string;
   createdAt?: string | Date;
 }) {
-  await connectDB();
   const subscribers: { email: string; token: string }[] = await Subscriber.find().select(
     "email token"
   );

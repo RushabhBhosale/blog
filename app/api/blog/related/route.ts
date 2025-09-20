@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import "@/lib/db"; // initialize DB once per server instance
 import Blog from "@/models/blog";
-import { connectDB } from "@/lib/db";
-
-connectDB();
 
 function tokenize(input?: string | null) {
   if (!input) return [] as string[];

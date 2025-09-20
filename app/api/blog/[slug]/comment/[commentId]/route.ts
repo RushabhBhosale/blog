@@ -1,4 +1,4 @@
-import { connectDB } from "@/lib/db";
+import "@/lib/db"; // initialize DB once per server instance
 import Comment from "@/models/comment";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -8,7 +8,6 @@ export async function GET(
   context: { params: Promise<{ slug: string; commentId: string }> }
 ) {
   try {
-    await connectDB();
     const { commentId } = await context.params;
 
     const comment = await Comment.findById(commentId).populate(
@@ -35,7 +34,6 @@ export async function PUT(
   context: { params: Promise<{ slug: string; commentId: string }> }
 ) {
   try {
-    await connectDB();
     const { commentId } = await context.params;
     const { comment } = await req.json();
 
@@ -72,7 +70,6 @@ export async function DELETE(
   context: { params: Promise<{ slug: string; commentId: string }> }
 ) {
   try {
-    await connectDB();
     const { commentId } = await context.params;
 
     const deletedComment = await Comment.findByIdAndDelete(commentId);

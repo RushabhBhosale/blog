@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import HomePage from "./HomePage";
-import { connectDB } from "@/lib/db";
+import "@/lib/db"; // initialize DB once per server instance
 import Blog from "@/models/blog";
 
 export const metadata: Metadata = {
@@ -35,7 +35,6 @@ export interface BlogInterface {
 export const revalidate = 60;
 
 export default async function Home() {
-  await connectDB();
   const blogs = await Blog.find().select("-content").sort({ createdAt: -1 }).lean();
   return <HomePage allblogs={JSON.parse(JSON.stringify(blogs))} />;
 }

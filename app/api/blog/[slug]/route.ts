@@ -1,4 +1,4 @@
-import { connectDB } from "@/lib/db";
+import "@/lib/db"; // initialize DB once per server instance
 import blog from "@/models/blog";
 import { NextResponse } from "next/server";
 import slugify from "slugify";
@@ -18,7 +18,6 @@ export async function GET(
   try {
     const { slug } = await context.params;
 
-    await connectDB();
 
     const foundBlog = await blog.findOne({ slug });
 
@@ -42,7 +41,6 @@ export async function PUT(
   context: { params: Promise<{ slug: string }> }
 ) {
   try {
-    await connectDB();
     const { slug } = await context.params;
     const {
       title,

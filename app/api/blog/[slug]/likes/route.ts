@@ -1,4 +1,4 @@
-import { connectDB } from "@/lib/db";
+import "@/lib/db"; // initialize DB once per server instance
 import Blog from "@/models/blog";
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
@@ -9,7 +9,6 @@ export async function PATCH(
   context: { params: Promise<{ slug: string }> }
 ) {
   try {
-    await connectDB();
     const { slug } = await context.params;
     const { userId } = await req.json();
 

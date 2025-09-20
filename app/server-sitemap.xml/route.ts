@@ -1,4 +1,4 @@
-import { connectDB } from "@/lib/db";
+import "@/lib/db"; // initialize DB once per server instance
 import Blog from "@/models/blog";
 import Category from "@/models/category";
 import { getServerSideSitemap } from "next-sitemap";
@@ -7,7 +7,6 @@ import type { ISitemapField } from "next-sitemap";
 export const runtime = "nodejs";
 
 export async function GET() {
-  await connectDB();
 
   const blogs = await Blog.find().select("slug updatedAt");
   const blogFields: ISitemapField[] = blogs.map((blog: any) => ({

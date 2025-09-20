@@ -1,4 +1,4 @@
-import { connectDB } from "@/lib/db";
+import "@/lib/db"; // initialize DB once per server instance
 import Comment from "@/models/comment";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -7,7 +7,6 @@ export async function GET(
   context: { params: Promise<{ slug: string }> }
 ) {
   try {
-    await connectDB();
     const { slug } = await context.params;
 
     const comments = await Comment.find({ slug }).sort({ createdAt: -1 });
@@ -33,7 +32,6 @@ export async function POST(
   req: NextRequest,
   context: { params: Promise<{ slug: string }> }
 ) {
-  await connectDB();
   const { slug } = await context.params;
   const body = await req.json();
   try {

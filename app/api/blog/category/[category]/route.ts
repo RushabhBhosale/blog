@@ -1,4 +1,4 @@
-import { connectDB } from "@/lib/db";
+import "@/lib/db"; // initialize DB once per server instance
 import Blog from "@/models/blog";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -11,7 +11,6 @@ export async function GET(
   context: { params: Promise<{ category: string }> }
 ) {
   try {
-    await connectDB();
     const { category } = await context.params;
 
     const cate = capitalizeFirst(category);

@@ -1,4 +1,4 @@
-import { connectDB } from "@/lib/db";
+import "@/lib/db"; // initialize DB once per server instance
 import Blog from "@/models/blog";
 
 const SITE = (process.env.SITE_URL || "https://dailysparks.in").replace(/\/+$/, "");
@@ -13,7 +13,6 @@ function escXml(input: string) {
 }
 
 export async function generateOpmlXml() {
-  await connectDB();
 
   // Distinct categories for visible posts only
   const categories: string[] = await Blog.distinct("category", {
@@ -65,4 +64,3 @@ ${outlines}
 
   return xml;
 }
-

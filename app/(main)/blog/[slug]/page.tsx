@@ -1,5 +1,5 @@
-import { connectDB } from "@/lib/db";
 import { BlogInterface } from "../../home/page";
+import "@/lib/db"; // initialize DB once per server instance
 import BlogDetailsPage from "./BlogDetailsPage";
 import BlogM from "@/models/blog";
 import { Metadata } from "next";
@@ -28,7 +28,6 @@ const canonicalFor = (slug: string) =>
 
 // Deduped, cached per-request DB fetch for the blog by slug
 const getBlogBySlug = cache(async (slug: string) => {
-  await connectDB();
   return await BlogM.findOne({ slug })
     .select(
       "title metaTitle metaDescription image content createdAt updatedAt author category tags slug imageAlt likes"

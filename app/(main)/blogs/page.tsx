@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import BlogsPage from "./BlogsPage";
-import { connectDB } from "@/lib/db";
+import "@/lib/db"; // initialize DB once per server instance
 import Blog from "@/models/blog";
 import { Suspense } from "react";
 
@@ -16,7 +16,6 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 export default async function Blogs() {
-  await connectDB();
   const blogs = await Blog.find()
     .select("-content")
     .sort({ createdAt: -1 })

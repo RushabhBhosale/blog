@@ -1,4 +1,4 @@
-import { connectDB } from "@/lib/db";
+import "@/lib/db"; // initialize DB once per server instance
 import Blog from "@/models/blog";
 import { NextRequest, NextResponse } from "next/server";
 import { notifySubscribersOfNewBlog } from "@/lib/newsletter";
@@ -14,14 +14,12 @@ import {
 const slugOptions = { lower: true, strict: true, trim: true } as const;
 
 export async function GET() {
-  await connectDB();
   const blogs = await Blog.find().select("-content").sort({ createdAt: -1 });
   return NextResponse.json({ blogs }, { status: 200 });
 }
 
 export async function POST(req: NextRequest) {
   try {
-    await connectDB();
 
     const token = req.cookies.get("token")?.value;
     if (!token)

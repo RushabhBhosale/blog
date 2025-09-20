@@ -1,4 +1,4 @@
-import { connectDB } from "@/lib/db";
+import "@/lib/db"; // initialize DB once per server instance
 import Blog from "@/models/blog";
 
 const SITE = (process.env.SITE_URL || "https://dailysparks.in").replace(/\/+$/, "");
@@ -22,7 +22,6 @@ type RssOptions = {
 };
 
 export async function generateRssXml(opts: RssOptions = {}) {
-  await connectDB();
 
   const query: any = { status: { $ne: "Hide" } };
   if (opts.category) {

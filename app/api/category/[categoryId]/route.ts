@@ -1,4 +1,4 @@
-import { connectDB } from "@/lib/db";
+import "@/lib/db"; // initialize DB once per server instance
 import category from "@/models/category";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
@@ -8,7 +8,6 @@ export async function GET(
   context: { params: Promise<{ categoryId: string }> }
 ) {
   try {
-    await connectDB();
     const { categoryId } = await context.params;
 
     const foundCategory = await category.findById(categoryId);
@@ -34,7 +33,6 @@ export async function PUT(
   context: { params: Promise<{ categoryId: string }> }
 ) {
   try {
-    await connectDB();
     const token = req.cookies.get("token")?.value;
     if (!token)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -80,7 +78,6 @@ export async function DELETE(
   context: { params: Promise<{ categoryId: string }> }
 ) {
   try {
-    await connectDB();
     const token = req.cookies.get("token")?.value;
     if (!token)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

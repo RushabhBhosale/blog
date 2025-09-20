@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { connectDB } from "@/lib/db";
+import "@/lib/db"; // initialize DB once per server instance
 import User from "@/models/user";
 
-connectDB();
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 
 export async function POST(req: NextRequest) {
