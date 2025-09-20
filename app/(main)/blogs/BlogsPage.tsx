@@ -1,6 +1,5 @@
 "use client";
-import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { BlogInterface } from "../home/page";
@@ -16,17 +15,6 @@ const BlogsPage = ({ allblogs }: Props) => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
-  const searchParams = useSearchParams();
-
-  // Initialize search from URL param (?s=)
-  useEffect(() => {
-    const q = (searchParams?.get("s") || "").trim();
-    if (q) {
-      setSearchQuery(q);
-      setCurrentPage(1);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return "";

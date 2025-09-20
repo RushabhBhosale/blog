@@ -79,7 +79,29 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* Site header is rendered by app/(main)/layout.tsx Navbar */}
+        {/* Global header with search aligned to SearchAction */}
+        <header className="w-full border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
+            <a href="/" className="font-semibold text-lg">DailySparks</a>
+            <form
+              action="/"
+              method="get"
+              className="ml-auto flex items-center gap-2"
+              role="search"
+              aria-label="Site search"
+            >
+              <input
+                type="search"
+                name="s"
+                placeholder="Search..."
+                className="rounded-md border border-border bg-background px-3 py-1.5 text-sm"
+              />
+              <button type="submit" className="rounded-md border px-3 py-1.5 text-sm">
+                Search
+              </button>
+            </form>
+          </div>
+        </header>
         <Toaster />
         <AuthProvider>{children}</AuthProvider>
         <BackToTop />

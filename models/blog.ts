@@ -24,34 +24,6 @@ const blogSchema = new Schema(
       ],
       default: [],
     },
-    enableReviewSchema: { type: Boolean, default: false },
-    reviews: {
-      type: [
-        {
-          name: { type: String }, // headline/title of the review
-          reviewBody: { type: String },
-          ratingValue: { type: Number },
-          bestRating: { type: Number, default: 5 },
-          worstRating: { type: Number, default: 1 },
-          author: { type: String },
-          datePublished: { type: String },
-          _id: false,
-        },
-      ],
-      default: [],
-    },
-    enableHowToSchema: { type: Boolean, default: false },
-    howToSteps: {
-      type: [
-        {
-          name: { type: String, required: true },
-          text: { type: String },
-          image: { type: String },
-          _id: false,
-        },
-      ],
-      default: [],
-    },
     status: { type: String, enum: ["Draft", "Published", "Pending", "Hide"] },
     likes: {
       type: [Schema.Types.ObjectId],

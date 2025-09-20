@@ -21,8 +21,6 @@ import {
 } from "@/components/ui/select";
 import slugify from "slugify";
 import { extractFaqSchema, type FaqItem } from "@/lib/faq-schema";
-import { type ReviewItem } from "@/lib/review-schema";
-import { type HowToStep } from "@/lib/howto-schema";
 
 const SLUG_OPTIONS = { lower: true, strict: true, trim: true } as const;
 
@@ -42,10 +40,6 @@ export default function EditBlogPage() {
   const [loading, setLoading] = useState(false);
   const [enableFaqSchema, setEnableFaqSchema] = useState(false);
   const [faqs, setFaqs] = useState<FaqItem[]>([{ question: "", answer: "" }]);
-  const [enableReviewSchema, setEnableReviewSchema] = useState(false);
-  const [reviews, setReviews] = useState<ReviewItem[]>([{ name: "", reviewBody: "", ratingValue: 5, bestRating: 5, worstRating: 1, author: "", datePublished: "" }]);
-  const [enableHowToSchema, setEnableHowToSchema] = useState(false);
-  const [howToSteps, setHowToSteps] = useState<HowToStep[]>([{ name: "", text: "", image: "" }]);
 
   const router = useRouter();
   const params = useParams();
@@ -106,10 +100,6 @@ export default function EditBlogPage() {
 
       setEnableFaqSchema(shouldEnableFaq);
       setFaqs(resolvedFaqs);
-      setEnableReviewSchema(Boolean(blog.enableReviewSchema) && Array.isArray(blog.reviews) && blog.reviews.length > 0);
-      setReviews(Array.isArray(blog.reviews) && blog.reviews.length ? blog.reviews : [{ name: "", reviewBody: "", ratingValue: 5, bestRating: 5, worstRating: 1, author: "", datePublished: "" }]);
-      setEnableHowToSchema(Boolean(blog.enableHowToSchema) && Array.isArray(blog.howToSteps) && blog.howToSteps.length > 0);
-      setHowToSteps(Array.isArray(blog.howToSteps) && blog.howToSteps.length ? blog.howToSteps : [{ name: "", text: "", image: "" }]);
       setContent(htmlWithoutFaqSchema);
       setMetaTitle(blog.metaTitle || "");
       setMetaDescription(blog.metaDescription || "");
@@ -161,28 +151,6 @@ export default function EditBlogPage() {
     });
   };
 
-  // Review schema helpers
-  const toggleReviewSchema = (checked: boolean) => {
-    setEnableReviewSchema(checked);
-    if (checked && reviews.length === 0) setReviews([{ name: "", reviewBody: "", ratingValue: 5, bestRating: 5, worstRating: 1, author: "", datePublished: "" }]);
-  };
-  const updateReview = (index: number, field: keyof ReviewItem, value: any) => {
-    setReviews((prev) => prev.map((r, i) => (i === index ? { ...r, [field]: value } : r)));
-  };
-  const addReview = () => setReviews((prev) => [...prev, { name: "", reviewBody: "", ratingValue: 5, bestRating: 5, worstRating: 1, author: "", datePublished: "" }]);
-  const removeReview = (index: number) => setReviews((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== index)));
-
-  // HowTo schema helpers
-  const toggleHowToSchema = (checked: boolean) => {
-    setEnableHowToSchema(checked);
-    if (checked && howToSteps.length === 0) setHowToSteps([{ name: "", text: "", image: "" }]);
-  };
-  const updateStep = (index: number, field: keyof HowToStep, value: string) => {
-    setHowToSteps((prev) => prev.map((s, i) => (i === index ? { ...s, [field]: value } : s)));
-  };
-  const addStep = () => setHowToSteps((prev) => [...prev, { name: "", text: "", image: "" }]);
-  const removeStep = (index: number) => setHowToSteps((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== index)));
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -228,10 +196,6 @@ export default function EditBlogPage() {
           slug: newSlug,
           enableFaqSchema,
           faqs: sanitizedFaqs,
-          enableReviewSchema,
-          reviews,
-          enableHowToSchema,
-          howToSteps,
         },
         { withCredentials: true }
       );
@@ -396,76 +360,6 @@ export default function EditBlogPage() {
               <Button type="button" variant="outline" onClick={addFaq}>
                 Add FAQ
               </Button>
-            </div>
-          )}
-        </div>
-
-        {/* Review Schema */}
-        <div className="border rounded-lg p-4 space-y-4">
-          <label className="flex items-center gap-3 text-sm font-medium">
-            <input
-              type="checkbox"
-              className="size-4"
-              checked={enableReviewSchema}
-              onChange={(e) => toggleReviewSchema(e.target.checked)}
-            />
-            Enable Review Schema
-          </label>
-          {enableReviewSchema && (
-            <div className="space-y-4">
-              {reviews.map((rv, index) => (
-                <div key={index} className="space-y-2 rounded-md border border-dashed p-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">Review {index + 1}</p>
-                    <Button type="button" variant="ghost" size="sm" disabled={reviews.length <= 1} onClick={() => removeReview(index)}>
-                      Remove
-                    </Button>
-                  </div>
-                  <Input placeholder="Headline" value={rv.name || ""} onChange={(e) => updateReview(index, "name", e.target.value)} />
-                  <Textarea placeholder="Review body" value={rv.reviewBody || ""} onChange={(e) => updateReview(index, "reviewBody", e.target.value)} rows={3} />
-                  <div className="grid grid-cols-3 gap-2">
-                    <Input type="number" step="0.1" min="1" max="5" placeholder="Rating (1-5)" value={rv.ratingValue ?? 5} onChange={(e) => updateReview(index, "ratingValue", Number(e.target.value))} />
-                    <Input type="number" placeholder="Best Rating" value={rv.bestRating ?? 5} onChange={(e) => updateReview(index, "bestRating", Number(e.target.value))} />
-                    <Input type="number" placeholder="Worst Rating" value={rv.worstRating ?? 1} onChange={(e) => updateReview(index, "worstRating", Number(e.target.value))} />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Input placeholder="Reviewer name" value={rv.author || ""} onChange={(e) => updateReview(index, "author", e.target.value)} />
-                    <Input placeholder="Date (YYYY-MM-DD)" value={rv.datePublished || ""} onChange={(e) => updateReview(index, "datePublished", e.target.value)} />
-                  </div>
-                </div>
-              ))}
-              <Button type="button" variant="outline" onClick={addReview}>Add Review</Button>
-            </div>
-          )}
-        </div>
-
-        {/* HowTo Schema */}
-        <div className="border rounded-lg p-4 space-y-4">
-          <label className="flex items-center gap-3 text-sm font-medium">
-            <input
-              type="checkbox"
-              className="size-4"
-              checked={enableHowToSchema}
-              onChange={(e) => toggleHowToSchema(e.target.checked)}
-            />
-            Enable HowTo Schema
-          </label>
-          {enableHowToSchema && (
-            <div className="space-y-4">
-              {howToSteps.map((st, index) => (
-                <div key={index} className="space-y-2 rounded-md border border-dashed p-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">Step {index + 1}</p>
-                    <Button type="button" variant="ghost" size="sm" disabled={howToSteps.length <= 1} onClick={() => removeStep(index)}>
-                      Remove
-                    </Button>
-                  </div>
-                  <Input placeholder="Step title" value={st.name} onChange={(e) => updateStep(index, "name", e.target.value)} />
-                  <Textarea placeholder="Step details" value={st.text || ""} onChange={(e) => updateStep(index, "text", e.target.value)} rows={3} />
-                  <Input placeholder="Step image URL (optional)" value={st.image || ""} onChange={(e) => updateStep(index, "image", e.target.value)} />
-                </div>
-              ))}
-              <Button type="button" variant="outline" onClick={addStep}>Add Step</Button>
             </div>
           )}
         </div>

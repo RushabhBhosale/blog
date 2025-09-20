@@ -126,41 +126,6 @@ export default async function Blog({ params }: any) {
     keywords: tagsArr.join(", "),
   } as const;
 
-  // Optional Review and HowTo schema blocks
-  const reviewNodes = (Array.isArray(blogData?.reviews) ? blogData.reviews : [])
-    .filter((r: any) => r?.name || r?.reviewBody || r?.ratingValue)
-    .map((r: any, i: number) => ({
-      "@type": "Review",
-      name: r?.name || undefined,
-      reviewBody: r?.reviewBody || undefined,
-      reviewRating: r?.ratingValue
-        ? {
-            "@type": "Rating",
-            ratingValue: Number(r.ratingValue),
-            bestRating: r?.bestRating ?? 5,
-            worstRating: r?.worstRating ?? 1,
-          }
-        : undefined,
-      author: r?.author ? { "@type": "Person", name: r.author } : undefined,
-      datePublished: r?.datePublished || undefined,
-      itemReviewed: { "@id": `${canonical}#article` },
-    }));
-
-  const howToNode = Array.isArray(blogData?.howToSteps) && blogData.howToSteps.length
-    ? {
-        "@type": "HowTo",
-        name: title,
-        step: blogData.howToSteps
-          .filter((s: any) => s?.name)
-          .map((s: any) => ({
-            "@type": "HowToStep",
-            name: s.name,
-            text: s?.text || undefined,
-            image: s?.image || undefined,
-          })),
-      }
-    : null;
-
   const breadcrumbList = {
     "@type": "BreadcrumbList",
     itemListElement: [
@@ -259,12 +224,7 @@ export default async function Blog({ params }: any) {
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@graph": [
-              blogPosting,
-              breadcrumbList,
-              ...(blogData?.enableReviewSchema ? reviewNodes : []),
-              ...(blogData?.enableHowToSchema && howToNode ? [howToNode] : []),
-            ],
+            "@graph": [blogPosting, breadcrumbList],
           }),
         }}
       />

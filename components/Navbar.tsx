@@ -1,24 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Menu, X, Plus, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/utils/useAuth";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 export default function BlogNavbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { isAuthenticated, signOut } = useAuth();
   const pathname = usePathname();
-  const router = useRouter();
-  const [search, setSearch] = useState("");
-  const searchParams = useSearchParams();
-  // Sync search input with URL param (?s=)
-  useEffect(() => {
-    const q = (searchParams?.get("s") || "").trim();
-    setSearch(q);
-  }, [searchParams]);
 
   const categories = [
     { name: "Home", href: "/home" },
@@ -32,7 +24,7 @@ export default function BlogNavbar() {
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="max-w-[83rem] mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
@@ -61,32 +53,8 @@ export default function BlogNavbar() {
             ))}
           </div>
 
-          {/* Desktop Search + Auth */}
+          {/* Desktop Auth */}
           <div className="hidden lg:flex items-center space-x-3">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const q = search.trim();
-                router.push(q ? `/blogs?s=${encodeURIComponent(q)}` : "/blogs");
-              }}
-              role="search"
-              aria-label="Site search"
-              className="hidden xl:flex items-center gap-2 mr-2"
-            >
-              <input
-                type="search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search..."
-                className="rounded-md border border-gray-300 px-3 py-1.5 text-sm"
-              />
-              <button
-                type="submit"
-                className="rounded-md border px-3 py-1.5 text-sm"
-              >
-                Search
-              </button>
-            </form>
             {isAuthenticated ? (
               <>
                 <Link href="/blog/add">
@@ -135,34 +103,6 @@ export default function BlogNavbar() {
         {isOpen && (
           <div className="lg:hidden border-t border-gray-200">
             <div className="py-4 space-y-2">
-              {/* Mobile search */}
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const q = search.trim();
-                  setIsOpen(false);
-                  router.push(
-                    q ? `/blogs?s=${encodeURIComponent(q)}` : "/blogs"
-                  );
-                }}
-                role="search"
-                aria-label="Site search"
-                className="px-4 pb-2 flex items-center gap-2"
-              >
-                <input
-                  type="search"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search..."
-                  className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm"
-                />
-                <button
-                  type="submit"
-                  className="rounded-md border px-3 py-2 text-sm"
-                >
-                  Go
-                </button>
-              </form>
               {categories.map((cat) => (
                 <Link
                   key={cat.name}
