@@ -6,6 +6,7 @@ import { Metadata } from "next";
 import Script from "next/script";
 import he from "he";
 export const revalidate = 60;
+import { cache } from "react";
 
 export interface CommentInterface {
   _id: string;
@@ -25,9 +26,18 @@ const SITE = "https://dailysparks.in";
 const canonicalFor = (slug: string) =>
   new URL(`/blog/${encodeURIComponent(slug)}`, SITE).toString();
 
-export async function generateMetadata({ params }: any): Promise<Metadata> {
+// Deduped, cached per-request DB fetch for the blog by slug
+const getBlogBySlug = cache(async (slug: string) => {
   await connectDB();
-  const blog = await BlogM.findOne({ slug: params.slug });
+  return await BlogM.findOne({ slug })
+    .select(
+      "title metaTitle metaDescription image content createdAt updatedAt author category tags slug imageAlt likes"
+    )
+    .lean();
+});
+
+export async function generateMetadata({ params }: any): Promise<Metadata> {
+  const blog = (await getBlogBySlug(params.slug)) as any;
 
   if (!blog) {
     const notFoundUrl = canonicalFor(params.slug);
@@ -72,8 +82,7 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
 
 export default async function Blog({ params }: any) {
   const { slug } = params;
-  await connectDB();
-  const blogData: any = await BlogM.findOne({ slug }).lean();
+  const blogData: any = await getBlogBySlug(slug);
 
   if (!blogData) {
     return <div>Blog not found</div>;
@@ -155,60 +164,31 @@ export default async function Blog({ params }: any) {
   } as const;
 
   const tags = (blogData?.tags || []).join(",");
-  const titleQ = encodeURIComponent(
-    `${blogData?.title || ""} ${blogData?.metaTitle || ""}`.trim()
-  );
-  // Build related via aggregation (same logic as API)
-  function tokenize(input?: string | null) {
-    if (!input) return [] as string[];
-    return input
-      .toLowerCase()
-      .split(/[^a-z0-9]+/gi)
-      .filter((t) => t && t.length >= 3);
-  }
-  const category = blogData?.category;
-  const tokens = tokenize(
-    `${blogData?.title || ""} ${blogData?.metaTitle || ""}`
-  );
-  const tagList = blogData?.tags || [];
-  const match: any = { slug: { $ne: slug } };
-  if (category) match.category = category;
-  const tokenScoreConds = tokens.map((tok) => ({
-    $cond: [
-      {
+  // Simpler and much faster related-posts query using category/tags only
+  const category = blogData?.category || "";
+  const tagList: string[] = Array.isArray(blogData?.tags) ? blogData.tags : [];
+
+  const related = await BlogM.aggregate([
+    {
+      $match: {
+        slug: { $ne: slug },
         $or: [
-          { $regexMatch: { input: "$title", regex: tok, options: "i" } },
-          { $regexMatch: { input: "$metaTitle", regex: tok, options: "i" } },
-          {
-            $regexMatch: {
-              input: "$metaDescription",
-              regex: tok,
-              options: "i",
-            },
-          },
-          { $regexMatch: { input: "$content", regex: tok, options: "i" } },
+          ...(category ? [{ category }] as any[] : []),
+          ...(tagList.length ? [{ tags: { $in: tagList } }] : []),
         ],
       },
-      1,
-      0,
-    ],
-  }));
-  const related = await BlogM.aggregate([
-    { $match: match },
+    },
     {
       $addFields: {
         tagMatches: tagList.length
           ? { $size: { $setIntersection: ["$tags", tagList] } }
           : 0,
-        tokenHits: tokenScoreConds.length ? { $sum: tokenScoreConds } : 0,
-        catBonus: category ? 1 : 0,
+        catBonus: category ? { $cond: [{ $eq: ["$category", category] }, 1, 0] } : 0,
       },
     },
     {
       $addFields: {
-        score: {
-          $add: [{ $multiply: ["$tagMatches", 3] }, "$tokenHits", "$catBonus"],
-        },
+        score: { $add: [{ $multiply: ["$tagMatches", 3] }, "$catBonus"] },
       },
     },
     { $sort: { score: -1, createdAt: -1 } },

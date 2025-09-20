@@ -34,4 +34,17 @@ const blogSchema = new Schema(
   { timestamps: true }
 );
 
+// Indexes to speed up common queries
+// - Unique index on slug for fast lookup by slug
+// - Index on category and tags to accelerate related posts queries
+// - Text index to help any text-based search if used elsewhere
+try {
+  blogSchema.index({ slug: 1 }, { unique: true });
+  blogSchema.index({ category: 1 });
+  blogSchema.index({ tags: 1 });
+  blogSchema.index({ title: "text", metaTitle: "text", metaDescription: "text", content: "text" });
+} catch (_) {
+  // In case indexes are registered multiple times in dev reloads
+}
+
 export default models.Blog || model("Blog", blogSchema);
