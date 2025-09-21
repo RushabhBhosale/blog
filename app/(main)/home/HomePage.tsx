@@ -81,8 +81,13 @@ export default function HomePage({ allblogs }: Props) {
     </div>
   );
 
+  const blogUrl = (b: BlogInterface) =>
+    (b as any)?.hub?.slug && b.category
+      ? `/blogs/${encodeURIComponent(b.category)}/${encodeURIComponent((b as any).hub.slug!)}/${encodeURIComponent(b.slug || "")}`
+      : `/blog/${b.slug}`;
+
   const CardSm = ({ b }: { b: BlogInterface }) => (
-    <Link href={`/blog/${b.slug}`} className="group h-full">
+    <Link href={blogUrl(b)} className="group h-full">
       <article className="h-full overflow-hidden rounded-xl border border-border bg-card transition-shadow hover:shadow-sm">
         <div className="relative w-full aspect-[4/3]">
           <Image
@@ -189,7 +194,7 @@ export default function HomePage({ allblogs }: Props) {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               {mustMain && (
                 <Link
-                  href={`/blog/${mustMain.slug}`}
+                  href={blogUrl(mustMain)}
                   className="lg:col-span-2 group"
                 >
                   <article className="relative overflow-hidden rounded-2xl border border-border">
@@ -219,7 +224,7 @@ export default function HomePage({ allblogs }: Props) {
               )}
               <div className="space-y-4">
                 {mustSide.map((b) => (
-                  <Link key={b._id} href={`/blog/${b.slug}`} className="block">
+                  <Link key={b._id} href={blogUrl(b)} className="block">
                     <article className="flex gap-3 rounded-xl border border-border bg-card p-3 hover:bg-muted/40 transition">
                       <div className="relative w-32 shrink-0 overflow-hidden rounded-lg">
                         <div className="relative w-full aspect-[10/6.15]">
@@ -257,7 +262,7 @@ export default function HomePage({ allblogs }: Props) {
               <h3 className="mb-6 text-xl md:text-2xl font-bold">
                 Editor’s Pick
               </h3>
-              <Link href={`/blog/${editors.slug}`} className="block">
+              <Link href={blogUrl(editors)} className="block">
                 <article className="overflow-hidden rounded-2xl border border-border">
                   <div className="relative w-full aspect-[3/2] md:aspect-[16/7]">
                     <Image

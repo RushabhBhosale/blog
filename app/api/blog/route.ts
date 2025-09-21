@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
       faqs,
       enableListSchema,
       listItems,
+      hub,
     } = await req.json();
 
     if (!title || !content || !category) {
@@ -127,6 +128,7 @@ export async function POST(req: NextRequest) {
       faqs: shouldEnableFaq ? sanitizedFaqs : [],
       enableListSchema: shouldEnableList,
       listItems: shouldEnableList ? sanitizedListItems : [],
+      hub: hub && typeof hub === "object" ? { slug: hub.slug, title: hub.title } : undefined,
     });
 
     // Fire-and-forget email notifications; do not block response

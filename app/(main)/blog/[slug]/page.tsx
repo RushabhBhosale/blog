@@ -24,15 +24,23 @@ export interface CommentInterface {
 
 const SITE = "https://dailysparks.in";
 
-const canonicalFor = (slug: string) =>
-  new URL(`/blog/${encodeURIComponent(slug)}`, SITE).toString();
+const canonicalFor = (blog?: any) => {
+  if (blog?.hub?.slug && blog?.category) {
+    return new URL(
+      `/blogs/${encodeURIComponent(blog.category)}/${encodeURIComponent(blog.hub.slug)}/${encodeURIComponent(blog.slug)}`,
+      SITE,
+    ).toString();
+  }
+  const slug = blog?.slug || "";
+  return new URL(`/blog/${encodeURIComponent(slug)}`, SITE).toString();
+};
 
 // Deduped, cached per-request DB fetch for the blog by slug
 const getBlogBySlug = cache(async (slug: string) => {
   await dbReady;
   return await BlogM.findOne({ slug })
     .select(
-      "title metaTitle metaDescription image content createdAt updatedAt author category tags slug imageAlt likes"
+      "title metaTitle metaDescription image content createdAt updatedAt author authorId category tags slug imageAlt likes hub"
     )
     .lean();
 });
@@ -58,7 +66,7 @@ export async function generateMetadata(context: {
   const description =
     blog.metaDescription || blog.content.replace(/<[^>]+>/g, "").slice(0, 160);
 
-  const canonical = canonicalFor(params.slug);
+  const canonical = canonicalFor(blog);
   const imageAbs = blog.image?.startsWith("http")
     ? blog.image
     : new URL(blog.image || "/og-default.jpg", SITE).toString();
@@ -94,7 +102,7 @@ export default async function Blog(context: {
     return <div>Blog not found</div>;
   }
 
-  const canonical = canonicalFor(slug);
+  const canonical = canonicalFor(blogData);
   const title = he.decode(blogData.metaTitle || blogData.title);
   const description =
     blogData.metaDescription ||
@@ -144,6 +152,18 @@ export default async function Blog(context: {
     url: canonical,
     articleSection: categoryName,
     keywords: tagsArr.join(", "),
+    ...(blogData?.hub?.slug && categoryName
+      ? {
+          isPartOf: {
+            "@type": "Collection",
+            url: new URL(
+              `/blogs/${encodeURIComponent(categoryName)}/${encodeURIComponent(blogData.hub.slug)}`,
+              SITE,
+            ).toString(),
+            name: blogData?.hub?.title || blogData?.hub?.slug,
+          },
+        }
+      : {}),
   } as const;
 
   const breadcrumbList = {
@@ -168,9 +188,22 @@ export default async function Blog(context: {
             },
           ]
         : []),
+      ...(blogData?.hub?.slug && categoryName
+        ? [
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: blogData.hub.title || blogData.hub.slug,
+              item: new URL(
+                `/blogs/${encodeURIComponent(categoryName)}/${encodeURIComponent(blogData.hub.slug)}`,
+                SITE,
+              ).toString(),
+            },
+          ]
+        : []),
       {
         "@type": "ListItem",
-        position: categoryName ? 3 : 2,
+        position: blogData?.hub?.slug ? 4 : categoryName ? 3 : 2,
         name: title,
         item: canonical,
       },

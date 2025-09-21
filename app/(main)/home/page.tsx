@@ -31,6 +31,7 @@ export interface BlogInterface {
   comment: any;
   enableFaqSchema?: boolean;
   faqs?: { question: string; answer: string }[];
+  hub?: { slug?: string; title?: string };
 }
 
 export const revalidate = 60;

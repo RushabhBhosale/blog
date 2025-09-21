@@ -37,7 +37,11 @@ const CategoryPage = ({ allblogs, category }: Props) => {
         {featuredBlog && (
           <section className="mt-8">
             <Link
-              href={`/blog/${featuredBlog.slug}`}
+              href={
+                featuredBlog?.hub?.slug
+                  ? `/blogs/${encodeURIComponent(category)}/${encodeURIComponent(featuredBlog.hub.slug)}/${encodeURIComponent(featuredBlog.slug || "")}`
+                  : `/blog/${featuredBlog.slug}`
+              }
               className="block relative h-64 md:h-96 rounded-xl overflow-hidden shadow-xl"
             >
               <img
@@ -65,7 +69,11 @@ const CategoryPage = ({ allblogs, category }: Props) => {
             {recentBlogs.map((blog) => (
               <Link
                 key={blog._id}
-                href={`/blog/${blog.slug}`}
+                href={
+                  blog?.hub?.slug
+                    ? `/blogs/${encodeURIComponent(category)}/${encodeURIComponent(blog.hub.slug)}/${encodeURIComponent(blog.slug || "")}`
+                    : `/blog/${blog.slug}`
+                }
                 className="bg-card border border-border rounded-lg overflow-hidden shadow-sm"
               >
                 <div className="h-48">
@@ -93,7 +101,11 @@ const CategoryPage = ({ allblogs, category }: Props) => {
             {remainingBlogs.map((blog) => (
               <Link
                 key={blog._id}
-                href={`/blog/${blog.slug}`}
+                href={
+                  blog?.hub?.slug
+                    ? `/blogs/${encodeURIComponent(category)}/${encodeURIComponent(blog.hub.slug)}/${encodeURIComponent(blog.slug || "")}`
+                    : `/blog/${blog.slug}`
+                }
                 className="bg-card border border-border rounded-lg overflow-hidden shadow-sm"
               >
                 <div className="h-40">

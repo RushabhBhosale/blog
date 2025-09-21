@@ -7,13 +7,18 @@ import type { ISitemapField } from "next-sitemap";
 export const runtime = "nodejs";
 
 export async function GET() {
-  const blogs = await Blog.find().select("slug updatedAt");
-  const blogFields: ISitemapField[] = blogs.map((blog: any) => ({
-    loc: `https://dailysparks.in/blog/${blog.slug}`,
-    lastmod: blog.updatedAt?.toISOString(),
-    changefreq: "daily" as const,
-    priority: 0.8,
-  }));
+  const blogs = await Blog.find().select("slug updatedAt category hub");
+  const blogFields: ISitemapField[] = blogs.map((blog: any) => {
+    const loc = blog?.hub?.slug && blog?.category
+      ? `https://dailysparks.in/blogs/${encodeURIComponent(blog.category)}/${encodeURIComponent(blog.hub.slug)}/${encodeURIComponent(blog.slug)}`
+      : `https://dailysparks.in/blog/${encodeURIComponent(blog.slug)}`;
+    return {
+      loc,
+      lastmod: blog.updatedAt?.toISOString(),
+      changefreq: "daily" as const,
+      priority: 0.8,
+    };
+  });
 
   const categories = await Category.find().select("title updatedAt");
   console.log("dddd", categories);

@@ -22,6 +22,7 @@ export interface BlogInterface {
   comment: any;
   enableFaqSchema?: boolean;
   faqs?: { question: string; answer: string }[];
+  hub?: { slug?: string; title?: string };
 }
 
 const SITE = "https://dailysparks.in";

@@ -47,7 +47,9 @@ export async function generateRssXml(opts: RssOptions = {}) {
 
   const items = blogs
     .map((b: any) => {
-      const url = `${SITE}/blog/${encodeURIComponent(b.slug)}`;
+      const url = b?.hub?.slug && b?.category
+        ? `${SITE}/blogs/${encodeURIComponent(b.category)}/${encodeURIComponent(b.hub.slug)}/${encodeURIComponent(b.slug)}`
+        : `${SITE}/blog/${encodeURIComponent(b.slug)}`;
       const imageUrl = b?.image
         ? b.image.startsWith("http")
           ? b.image

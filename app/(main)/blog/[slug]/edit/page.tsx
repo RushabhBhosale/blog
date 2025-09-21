@@ -43,6 +43,10 @@ export default function EditBlogPage() {
   const [metaDescription, setMetaDescription] = useState("");
   const [newSlug, setNewSlug] = useState("");
   const [slugLocked, setSlugLocked] = useState(false);
+  const [hubSlug, setHubSlug] = useState("");
+  const [hubTitle, setHubTitle] = useState("");
+  const [hubs, setHubs] = useState<{ slug: string; title: string }[]>([]);
+  const [creatingHub, setCreatingHub] = useState(false);
   const [loading, setLoading] = useState(false);
   const [enableFaqSchema, setEnableFaqSchema] = useState(false);
   const [faqs, setFaqs] = useState<FaqItem[]>([{ question: "", answer: "" }]);
@@ -60,6 +64,23 @@ export default function EditBlogPage() {
   useEffect(() => {
     if (slug && user) fetchData();
   }, [slug, user, router]);
+
+  // Load hubs whenever category changes
+  useEffect(() => {
+    const fetchHubs = async () => {
+      if (!category) {
+        setHubs([]);
+        return;
+      }
+      try {
+        const res = await axios.get(`/api/hub?category=${encodeURIComponent(category)}`);
+        setHubs((res.data?.hubs || []).map((h: any) => ({ slug: h.slug, title: h.title })));
+      } catch (err) {
+        setHubs([]);
+      }
+    };
+    fetchHubs();
+  }, [category]);
 
   useEffect(() => {
     if (!slugLocked) {
@@ -91,6 +112,13 @@ export default function EditBlogPage() {
 
       setTitle(blog.title);
       setCategory(blog.category);
+      // hubs for current category
+      try {
+        const hubRes = await axios.get(`/api/hub?category=${encodeURIComponent(blog.category)}`);
+        setHubs((hubRes.data?.hubs || []).map((h: any) => ({ slug: h.slug, title: h.title })));
+      } catch {
+        setHubs([]);
+      }
       setTags(blog.tags || []);
       setImageUrl(blog.image || "");
       setImageAlt(blog.imageAlt || "");
@@ -113,6 +141,8 @@ export default function EditBlogPage() {
       setContent(htmlWithoutFaqSchema);
       setMetaTitle(blog.metaTitle || "");
       setMetaDescription(blog.metaDescription || "");
+      setHubSlug(blog?.hub?.slug || "");
+      setHubTitle(blog?.hub?.title || "");
       setSlugLocked(true);
       setNewSlug(blog.slug || "");
       // List schema state from stored blog
@@ -235,6 +265,17 @@ export default function EditBlogPage() {
     }
 
     try {
+      if (creatingHub && hubSlug && category) {
+        try {
+          await axios.post(
+            "/api/hub",
+            { title: hubTitle || hubSlug, slug: slugify(hubSlug, SLUG_OPTIONS), category },
+            { withCredentials: true },
+          );
+        } catch (err) {
+          console.warn("Hub creation failed or already exists", err);
+        }
+      }
       const { data } = await axios.put(
         `/api/blog/${slug}`,
         {
@@ -259,6 +300,9 @@ export default function EditBlogPage() {
               image: (i.image || "").trim(),
             }))
             .filter((i) => i.title),
+          hub: hubSlug
+            ? { slug: slugify(hubSlug, SLUG_OPTIONS), title: hubTitle || hubSlug }
+            : null,
         },
         { withCredentials: true },
       );
@@ -339,6 +383,85 @@ export default function EditBlogPage() {
             ))}
           </SelectContent>
         </Select>
+
+        {/* Hub selector/creator (optional) */}
+        {category ? (
+          <div className="space-y-2">
+            {!creatingHub ? (
+              <div className="flex gap-2 items-center">
+                <Select
+                  value={hubSlug || undefined}
+                  onValueChange={(val) => {
+                    if (val === "__none__") {
+                      setHubSlug("");
+                      setHubTitle("");
+                      return;
+                    }
+                    setHubSlug(val);
+                    const h = hubs.find((x) => x.slug === val);
+                    setHubTitle(h?.title || "");
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select hub (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">None</SelectItem>
+                    {hubs.map((h) => (
+                      <SelectItem key={h.slug} value={h.slug}>
+                        {h.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button type="button" variant="outline" onClick={() => setCreatingHub(true)}>
+                  Create hub
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                <Input
+                  type="text"
+                  placeholder="New hub slug"
+                  value={hubSlug}
+                  onChange={(e) => setHubSlug(e.target.value)}
+                />
+                <Input
+                  type="text"
+                  placeholder="New hub title"
+                  value={hubTitle}
+                  onChange={(e) => setHubTitle(e.target.value)}
+                />
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={async () => {
+                      if (!hubSlug || !category) return;
+                      try {
+                        await axios.post(
+                          "/api/hub",
+                          { title: hubTitle || hubSlug, slug: slugify(hubSlug, SLUG_OPTIONS), category },
+                          { withCredentials: true },
+                        );
+                        const res = await axios.get(`/api/hub?category=${encodeURIComponent(category)}`);
+                        setHubs((res.data?.hubs || []).map((h: any) => ({ slug: h.slug, title: h.title })));
+                        setCreatingHub(false);
+                      } catch (err) {
+                        console.error("Failed to create hub", err);
+                      }
+                    }}
+                  >
+                    Save hub
+                  </Button>
+                  <Button type="button" variant="ghost" onClick={() => setCreatingHub(false)}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : null}
 
         <div>
           <div className="flex flex-wrap gap-2 mb-2">

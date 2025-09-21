@@ -194,6 +194,17 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
                 <span className="mx-2">›</span>
               </li>
             )}
+            {blog.hub?.slug && (
+              <li className="flex items-center">
+                <Link
+                  href={`/blogs/${encodeURIComponent(blog.category)}/${encodeURIComponent(blog.hub.slug)}`}
+                  className="hover:underline"
+                >
+                  {blog.hub?.title || blog.hub.slug}
+                </Link>
+                <span className="mx-2">›</span>
+              </li>
+            )}
             <li className="text-foreground truncate max-w-full">
               {blog.title}
             </li>
@@ -360,7 +371,11 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
             {relatedBlogs.map((b) => (
               <Link
                 key={b._id}
-                href={`/blog/${b.slug}`}
+                href={
+                  (b as any)?.hub?.slug
+                    ? `/blogs/${encodeURIComponent(b.category)}/${encodeURIComponent((b as any).hub.slug)}/${encodeURIComponent(b.slug)}`
+                    : `/blog/${b.slug}`
+                }
                 className="flex bg-card/70 border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition"
               >
                 <div className="relative w-24 h-full overflow-hidden shrink-0">

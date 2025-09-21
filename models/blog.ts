@@ -1,5 +1,13 @@
 import mongoose, { Schema, model, models } from "mongoose";
 
+const HubSubSchema = new Schema(
+  {
+    slug: { type: String },
+    title: { type: String },
+  },
+  { _id: false },
+);
+
 const blogSchema = new Schema(
   {
     title: { type: String, required: true },
@@ -44,6 +52,8 @@ const blogSchema = new Schema(
       ref: "User",
       default: [],
     },
+    // Optional hub association
+    hub: { type: HubSubSchema, default: undefined },
   },
   { timestamps: true },
 );
@@ -56,6 +66,7 @@ try {
   blogSchema.index({ slug: 1 }, { unique: true });
   blogSchema.index({ category: 1 });
   blogSchema.index({ tags: 1 });
+  blogSchema.index({ "hub.slug": 1 });
   blogSchema.index({
     title: "text",
     metaTitle: "text",
@@ -65,5 +76,13 @@ try {
 } catch (_) {
   // In case indexes are registered multiple times in dev reloads
 }
+
+// In Next.js dev, model definitions can be cached across reloads.
+// Ensure the latest schema is used by recreating the model in dev.
+try {
+  if (process.env.NODE_ENV !== "production" && (mongoose.models as any)?.Blog) {
+    delete (mongoose.models as any).Blog;
+  }
+} catch {}
 
 export default models.Blog || model("Blog", blogSchema);

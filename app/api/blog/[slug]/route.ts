@@ -62,6 +62,7 @@ export async function PUT(
       faqs,
       enableListSchema,
       listItems,
+      hub,
     } = await req.json();
 
     if (!title || !content || !image || !author || !category) {
@@ -119,24 +120,33 @@ export async function PUT(
       );
     }
 
+    const set: any = {
+      title,
+      slug: slug2,
+      content: finalContent,
+      tags,
+      image,
+      imageAlt,
+      author,
+      category,
+      metaTitle,
+      metaDescription,
+      enableFaqSchema: shouldEnableFaq,
+      faqs: shouldEnableFaq ? sanitizedFaqs : [],
+      enableListSchema: shouldEnableList,
+      listItems: shouldEnableList ? sanitizedListItems : [],
+    };
+    if (hub && typeof hub === "object") {
+      set.hub = { slug: hub.slug, title: hub.title };
+    }
+    const update: any = { $set: set };
+    if (hub === null) {
+      update.$unset = { hub: "" };
+    }
+
     const updatedBlog = await blog.findOneAndUpdate(
       { slug },
-      {
-        title,
-        slug: slug2,
-        content: finalContent,
-        tags,
-        image,
-        imageAlt,
-        author,
-        category,
-        metaTitle,
-        metaDescription,
-        enableFaqSchema: shouldEnableFaq,
-        faqs: shouldEnableFaq ? sanitizedFaqs : [],
-        enableListSchema: shouldEnableList,
-        listItems: shouldEnableList ? sanitizedListItems : [],
-      },
+      update,
       { new: true },
     );
 
