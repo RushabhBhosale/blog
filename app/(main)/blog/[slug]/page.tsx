@@ -1,5 +1,6 @@
 import { BlogInterface } from "../../home/page";
 import "@/lib/db"; // initialize DB once per server instance
+import { dbReady } from "@/lib/db";
 import BlogDetailsPage from "./BlogDetailsPage";
 import BlogM from "@/models/blog";
 import { Metadata } from "next";
@@ -28,6 +29,7 @@ const canonicalFor = (slug: string) =>
 
 // Deduped, cached per-request DB fetch for the blog by slug
 const getBlogBySlug = cache(async (slug: string) => {
+  await dbReady;
   return await BlogM.findOne({ slug })
     .select(
       "title metaTitle metaDescription image content createdAt updatedAt author category tags slug imageAlt likes"
@@ -167,6 +169,7 @@ export default async function Blog({ params }: any) {
   const category = blogData?.category || "";
   const tagList: string[] = Array.isArray(blogData?.tags) ? blogData.tags : [];
 
+  await dbReady;
   const related = await BlogM.aggregate([
     {
       $match: {

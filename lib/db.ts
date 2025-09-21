@@ -29,3 +29,11 @@ export async function connectDB() {
   (global as any).mongoose = cached;
   return cached.conn;
 }
+
+// Expose a ready promise for callers that want to await initialization
+export const dbReady: Promise<typeof mongoose> = (async () => {
+  if (cached.conn) return cached.conn;
+  cached.conn = await cached.promise;
+  (global as any).mongoose = cached;
+  return cached.conn;
+})();

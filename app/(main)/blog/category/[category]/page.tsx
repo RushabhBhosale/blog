@@ -1,5 +1,6 @@
 import CategoryPage from "./Category";
 import "@/lib/db"; // initialize DB once per server instance
+import { dbReady } from "@/lib/db";
 import Blog from "@/models/blog";
 import type { Metadata } from "next";
 
@@ -58,7 +59,7 @@ export default async function Category(context: {
 }) {
   const { category } = await context.params;
   console.log("sss", category);
-
+  await dbReady;
   // Case-insensitive exact match for category
   const regex = new RegExp(
     `^${category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,

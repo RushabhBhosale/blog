@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import "@/lib/db"; // initialize DB once per server instance
+import { dbReady } from "@/lib/db";
 import User from "@/models/user";
 import Blog from "@/models/blog";
 import Link from "next/link";
@@ -24,6 +25,7 @@ export async function generateMetadata({
 }: {
   params: any;
 }): Promise<Metadata> {
+  await dbReady;
   const re = authorRegexFromSlug(params.slug);
   const oneBlog: any = await Blog.findOne({ author: re })
     .select("author authorId")
@@ -49,6 +51,7 @@ export async function generateMetadata({
 
 export default async function AuthorPage({ params }: { params: any }) {
   const { slug } = params;
+  await dbReady;
   const re = authorRegexFromSlug(slug);
   const blogs = await Blog.find({ author: re })
     .sort({ createdAt: -1 })
