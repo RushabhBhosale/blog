@@ -14,10 +14,10 @@ export default function BlogNavbar() {
 
   const categories = [
     { name: "Home", href: "/home" },
-    { name: "Anime", href: "/blog/category/anime" },
-    { name: "Tech", href: "/blog/category/tech" },
-    { name: "Travel", href: "/blog/category/travel" },
-    { name: "Media", href: "/blog/category/media" },
+    { name: "Anime", href: "/blogs/anime" },
+    { name: "Tech", href: "/blogs/tech" },
+    { name: "Travel", href: "/blogs/travel" },
+    { name: "Media", href: "/blogs/media" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
   ];

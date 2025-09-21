@@ -32,7 +32,7 @@ const getBlogBySlug = cache(async (slug: string) => {
   await dbReady;
   return await BlogM.findOne({ slug })
     .select(
-      "title metaTitle metaDescription image content createdAt updatedAt author category tags slug imageAlt likes",
+      "title metaTitle metaDescription image content createdAt updatedAt author category tags slug imageAlt likes"
     )
     .lean();
 });
@@ -162,8 +162,8 @@ export default async function Blog(context: {
               position: 2,
               name: categoryName,
               item: new URL(
-                `/blog/category/${encodeURIComponent(categoryName)}`,
-                SITE,
+                `/blogs/${encodeURIComponent(categoryName)}`,
+                SITE
               ).toString(),
             },
           ]

@@ -3,7 +3,7 @@ import Blog from "@/models/blog";
 
 const SITE = (process.env.SITE_URL || "https://dailysparks.in").replace(
   /\/+$/,
-  "",
+  ""
 );
 
 function escXml(input: string) {
@@ -41,10 +41,12 @@ export async function generateOpmlXml() {
     ...categories.map((cat) => {
       const safeCat = escXml(cat);
       const rssUrl = `${SITE}/rss.xml?category=${encodeURIComponent(cat)}`;
-      const htmlUrl = `${SITE}/blog/category/${encodeURIComponent(cat)}`;
+      const htmlUrl = `${SITE}/blog/${encodeURIComponent(cat)}`;
       const desc = `Posts in ${cat} from Daily Sparks.`;
       return `    <outline title="${safeCat}" text="${safeCat}">
-      <outline type="rss" title="Daily Sparks — ${safeCat}" text="Daily Sparks — ${safeCat}" xmlUrl="${rssUrl}" htmlUrl="${htmlUrl}" description="${escXml(desc)}"/>
+      <outline type="rss" title="Daily Sparks — ${safeCat}" text="Daily Sparks — ${safeCat}" xmlUrl="${rssUrl}" htmlUrl="${htmlUrl}" description="${escXml(
+        desc
+      )}"/>
     </outline>`;
     }),
   ].join("\n");

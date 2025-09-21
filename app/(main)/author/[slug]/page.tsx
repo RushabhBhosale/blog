@@ -33,7 +33,7 @@ export async function generateMetadata({
   const name = oneBlog?.author || params.slug.replace(/-/g, " ");
   const canonical = new URL(
     `/author/${encodeURIComponent(params.slug)}`,
-    SITE,
+    SITE
   ).toString();
   return {
     title: `${name} — Author at DailySparks`,
@@ -65,14 +65,14 @@ export default async function AuthorPage({ params }: { params: any }) {
   const displayName = blogs[0]?.author || slug.replace(/-/g, " ");
   const canonical = new URL(
     `/author/${encodeURIComponent(slug)}`,
-    SITE,
+    SITE
   ).toString();
   const imageUrl = user?.imageUrl ? String(user.imageUrl) : undefined;
 
   // Gather quick stats
   const postCount = blogs.length;
   const categories = Array.from(
-    new Set(blogs.map((b: any) => b.category)),
+    new Set(blogs.map((b: any) => b.category))
   ).sort();
 
   return (
@@ -160,7 +160,7 @@ export default async function AuthorPage({ params }: { params: any }) {
               {categories.map((c) => (
                 <Link
                   key={c}
-                  href={`/blog/category/${encodeURIComponent(c)}`}
+                  href={`/blog/${encodeURIComponent(c)}`}
                   className="px-2 py-1 rounded-full border border-border text-xs hover:bg-accent"
                 >
                   {c}
