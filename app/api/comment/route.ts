@@ -5,7 +5,6 @@ import jwt from "jsonwebtoken";
 
 export async function GET(req: NextRequest) {
   try {
-
     const token = req.cookies.get("token")?.value;
     if (!token)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -31,6 +30,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ comments }, { status: 200 });
   } catch (error) {
     console.error("Error fetching comments", error);
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 },
+    );
   }
 }

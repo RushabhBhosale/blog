@@ -8,7 +8,7 @@ function capitalizeFirst(str: string) {
 
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ category: string }> }
+  context: { params: Promise<{ category: string }> },
 ) {
   try {
     const { category } = await context.params;

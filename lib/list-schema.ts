@@ -20,7 +20,7 @@ export const normalizeListItems = (input: any): ListItemInput[] => {
 
 export const buildItemListJsonLd = (
   items: ListItemInput[],
-  opts?: { name?: string; order?: "Ascending" | "Descending" | "Unordered" }
+  opts?: { name?: string; order?: "Ascending" | "Descending" | "Unordered" },
 ): string => {
   const itemListElement = items.map((it, idx) => {
     const item: any = { "@type": "Thing", name: it.title };
@@ -41,7 +41,10 @@ export const buildItemListJsonLd = (
 };
 
 // Simple injector (same strategy as FAQ injector)
-export const injectListSchemaIntoHtml = (html: string, jsonLd: string): string => {
+export const injectListSchemaIntoHtml = (
+  html: string,
+  jsonLd: string,
+): string => {
   if (!html) return html;
   if (!jsonLd.trim().length) return html;
   const scriptTag = `<script type="application/ld+json">\n${jsonLd}\n</script>`;
@@ -50,4 +53,3 @@ export const injectListSchemaIntoHtml = (html: string, jsonLd: string): string =
   }
   return `${html}\n${scriptTag}`;
 };
-

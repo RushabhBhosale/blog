@@ -20,7 +20,12 @@ import {
 } from "@/components/ui/select";
 import slugify from "slugify";
 import { extractFaqSchema, type FaqItem } from "@/lib/faq-schema";
-type ListItem = { title: string; url?: string; description?: string; image?: string };
+type ListItem = {
+  title: string;
+  url?: string;
+  description?: string;
+  image?: string;
+};
 
 const SLUG_OPTIONS = { lower: true, strict: true, trim: true } as const;
 
@@ -40,7 +45,9 @@ const AdminEditBlogPage = () => {
   const [enableFaqSchema, setEnableFaqSchema] = useState(false);
   const [faqs, setFaqs] = useState<FaqItem[]>([{ question: "", answer: "" }]);
   const [enableListSchema, setEnableListSchema] = useState(false);
-  const [listItems, setListItems] = useState<ListItem[]>([{ title: "", url: "", description: "", image: "" }]);
+  const [listItems, setListItems] = useState<ListItem[]>([
+    { title: "", url: "", description: "", image: "" },
+  ]);
 
   const router = useRouter();
   const params = useParams();
@@ -78,14 +85,14 @@ const AdminEditBlogPage = () => {
       setTags(blog.tags || []);
       setImageUrl(blog.image || "");
       const { htmlWithoutFaqSchema, faqs: extractedFaqs } = extractFaqSchema(
-        blog.content || ""
+        blog.content || "",
       );
       const storedFaqs = Array.isArray(blog.faqs) ? blog.faqs : [];
       const resolvedFaqs = storedFaqs?.length
         ? storedFaqs
         : extractedFaqs.length
-        ? extractedFaqs
-        : [{ question: "", answer: "" }];
+          ? extractedFaqs
+          : [{ question: "", answer: "" }];
       const shouldEnableFaq =
         typeof blog.enableFaqSchema === "boolean"
           ? blog.enableFaqSchema
@@ -99,9 +106,17 @@ const AdminEditBlogPage = () => {
       setSlugLocked(true);
       setNewSlug(blog.slug || "");
       // list schema
-      const storedListItems = Array.isArray(blog.listItems) ? blog.listItems : [];
-      setEnableListSchema(Boolean(blog.enableListSchema && storedListItems.length));
-      setListItems(storedListItems.length ? storedListItems : [{ title: "", url: "", description: "", image: "" }]);
+      const storedListItems = Array.isArray(blog.listItems)
+        ? blog.listItems
+        : [];
+      setEnableListSchema(
+        Boolean(blog.enableListSchema && storedListItems.length),
+      );
+      setListItems(
+        storedListItems.length
+          ? storedListItems
+          : [{ title: "", url: "", description: "", image: "" }],
+      );
 
       localStorage.setItem("html-content", htmlWithoutFaqSchema);
     } catch (err) {
@@ -132,7 +147,7 @@ const AdminEditBlogPage = () => {
 
   const updateFaq = (index: number, field: keyof FaqItem, value: string) => {
     setFaqs((prev) =>
-      prev.map((faq, i) => (i === index ? { ...faq, [field]: value } : faq))
+      prev.map((faq, i) => (i === index ? { ...faq, [field]: value } : faq)),
     );
   };
 
@@ -155,11 +170,26 @@ const AdminEditBlogPage = () => {
       setListItems([{ title: "", url: "", description: "", image: "" }]);
     }
   };
-  const updateListItem = (index: number, field: keyof ListItem, value: string) => {
-    setListItems((prev) => prev.map((it, i) => (i === index ? { ...it, [field]: value } : it)));
+  const updateListItem = (
+    index: number,
+    field: keyof ListItem,
+    value: string,
+  ) => {
+    setListItems((prev) =>
+      prev.map((it, i) => (i === index ? { ...it, [field]: value } : it)),
+    );
   };
-  const addListItem = () => setListItems((prev) => [...prev, { title: "", url: "", description: "", image: "" }]);
-  const removeListItem2 = (index: number) => setListItems((prev) => (prev.length <= 1 ? [{ title: "", url: "", description: "", image: "" }] : prev.filter((_, i) => i !== index)));
+  const addListItem = () =>
+    setListItems((prev) => [
+      ...prev,
+      { title: "", url: "", description: "", image: "" },
+    ]);
+  const removeListItem2 = (index: number) =>
+    setListItems((prev) =>
+      prev.length <= 1
+        ? [{ title: "", url: "", description: "", image: "" }]
+        : prev.filter((_, i) => i !== index),
+    );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -370,21 +400,56 @@ const AdminEditBlogPage = () => {
           {enableListSchema && (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Tip: Type <code>[[ITEMLIST]]</code> where you want this list to appear.
-                Or use <code>[[ITEMLIST:table]]</code>, <code>[[ITEMLIST:ol]]</code>, or <code>[[ITEMLIST:ul]]</code>.
+                Tip: Type <code>[[ITEMLIST]]</code> where you want this list to
+                appear. Or use <code>[[ITEMLIST:table]]</code>,{" "}
+                <code>[[ITEMLIST:ol]]</code>, or <code>[[ITEMLIST:ul]]</code>.
               </p>
               {listItems.map((it, index) => (
-                <div key={index} className="space-y-2 rounded-md border border-dashed p-3">
+                <div
+                  key={index}
+                  className="space-y-2 rounded-md border border-dashed p-3"
+                >
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium">Item {index + 1}</p>
-                    <Button type="button" variant="ghost" size="sm" disabled={listItems.length <= 1} onClick={() => removeListItem2(index)}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      disabled={listItems.length <= 1}
+                      onClick={() => removeListItem2(index)}
+                    >
                       Remove
                     </Button>
                   </div>
-                  <Input placeholder="Title (required)" value={it.title} onChange={(e) => updateListItem(index, "title", e.target.value)} />
-                  <Input placeholder="URL (optional)" value={it.url || ""} onChange={(e) => updateListItem(index, "url", e.target.value)} />
-                  <Textarea placeholder="Description (optional)" value={it.description || ""} onChange={(e) => updateListItem(index, "description", e.target.value)} rows={3} />
-                  <Input placeholder="Image URL (optional)" value={it.image || ""} onChange={(e) => updateListItem(index, "image", e.target.value)} />
+                  <Input
+                    placeholder="Title (required)"
+                    value={it.title}
+                    onChange={(e) =>
+                      updateListItem(index, "title", e.target.value)
+                    }
+                  />
+                  <Input
+                    placeholder="URL (optional)"
+                    value={it.url || ""}
+                    onChange={(e) =>
+                      updateListItem(index, "url", e.target.value)
+                    }
+                  />
+                  <Textarea
+                    placeholder="Description (optional)"
+                    value={it.description || ""}
+                    onChange={(e) =>
+                      updateListItem(index, "description", e.target.value)
+                    }
+                    rows={3}
+                  />
+                  <Input
+                    placeholder="Image URL (optional)"
+                    value={it.image || ""}
+                    onChange={(e) =>
+                      updateListItem(index, "image", e.target.value)
+                    }
+                  />
                 </div>
               ))}
               <Button type="button" variant="outline" onClick={addListItem}>

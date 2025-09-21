@@ -15,6 +15,6 @@ export default function Image() {
         }}
       ></div>
     ),
-    size
+    size,
   );
 }

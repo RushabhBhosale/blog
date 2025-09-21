@@ -28,7 +28,7 @@ const AICompletionCommands = ({
                   from: selection.from,
                   to: selection.to,
                 },
-                completion
+                completion,
               )
               .run();
           }}

@@ -32,12 +32,15 @@ const getBlogBySlug = cache(async (slug: string) => {
   await dbReady;
   return await BlogM.findOne({ slug })
     .select(
-      "title metaTitle metaDescription image content createdAt updatedAt author category tags slug imageAlt likes"
+      "title metaTitle metaDescription image content createdAt updatedAt author category tags slug imageAlt likes",
     )
     .lean();
 });
 
-export async function generateMetadata({ params }: any): Promise<Metadata> {
+export async function generateMetadata(context: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const params = await context.params;
   const blog = (await getBlogBySlug(params.slug)) as any;
 
   if (!blog) {
@@ -81,8 +84,10 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
   };
 }
 
-export default async function Blog({ params }: any) {
-  const { slug } = params;
+export default async function Blog(context: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await context.params;
   const blogData: any = await getBlogBySlug(slug);
 
   if (!blogData) {
@@ -92,7 +97,8 @@ export default async function Blog({ params }: any) {
   const canonical = canonicalFor(slug);
   const title = he.decode(blogData.metaTitle || blogData.title);
   const description =
-    blogData.metaDescription || blogData.content.replace(/<[^>]+>/g, "").slice(0, 160);
+    blogData.metaDescription ||
+    blogData.content.replace(/<[^>]+>/g, "").slice(0, 160);
   const imageAbs = blogData.image?.startsWith("http")
     ? blogData.image
     : new URL(blogData.image || "/og-cover.png", SITE).toString();
@@ -107,7 +113,11 @@ export default async function Blog({ params }: any) {
 
   const publisherLogo = new URL("/og-cover.png", SITE).toString();
 
-  const authorSlug = (blogData.author || "").trim().toLowerCase().replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "");
+  const authorSlug = (blogData.author || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/gi, "-")
+    .replace(/^-+|-+$/g, "");
   const authorUrl = authorSlug
     ? new URL(`/author/${encodeURIComponent(authorSlug)}`, SITE).toString()
     : SITE;
@@ -151,7 +161,10 @@ export default async function Blog({ params }: any) {
               "@type": "ListItem",
               position: 2,
               name: categoryName,
-              item: new URL(`/blog/category/${encodeURIComponent(categoryName)}`, SITE).toString(),
+              item: new URL(
+                `/blog/category/${encodeURIComponent(categoryName)}`,
+                SITE,
+              ).toString(),
             },
           ]
         : []),
@@ -175,7 +188,7 @@ export default async function Blog({ params }: any) {
       $match: {
         slug: { $ne: slug },
         $or: [
-          ...(category ? [{ category }] as any[] : []),
+          ...(category ? ([{ category }] as any[]) : []),
           ...(tagList.length ? [{ tags: { $in: tagList } }] : []),
         ],
       },
@@ -185,7 +198,9 @@ export default async function Blog({ params }: any) {
         tagMatches: tagList.length
           ? { $size: { $setIntersection: ["$tags", tagList] } }
           : 0,
-        catBonus: category ? { $cond: [{ $eq: ["$category", category] }, 1, 0] } : 0,
+        catBonus: category
+          ? { $cond: [{ $eq: ["$category", category] }, 1, 0] }
+          : 0,
       },
     },
     {

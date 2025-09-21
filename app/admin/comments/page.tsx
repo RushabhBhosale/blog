@@ -3,7 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import axiosClient from "@/lib/axiosclient";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +33,9 @@ export default function CommentsPage() {
   const fetchComments = async (query?: string) => {
     setLoading(true);
     try {
-      const url = query ? `/comment?q=${encodeURIComponent(query)}` : "/comment";
+      const url = query
+        ? `/comment?q=${encodeURIComponent(query)}`
+        : "/comment";
       const res = await axiosClient.get(url);
       setComments(res.data.comments || []);
     } catch (e) {
@@ -42,8 +51,14 @@ export default function CommentsPage() {
 
   const toggleOffensive = async (c: Comment) => {
     try {
-      await axiosClient.put(`/comment/${c._id}`, { isOffensive: !c.isOffensive });
-      setComments((prev) => prev.map((x) => (x._id === c._id ? { ...x, isOffensive: !c.isOffensive } : x)));
+      await axiosClient.put(`/comment/${c._id}`, {
+        isOffensive: !c.isOffensive,
+      });
+      setComments((prev) =>
+        prev.map((x) =>
+          x._id === c._id ? { ...x, isOffensive: !c.isOffensive } : x,
+        ),
+      );
     } catch (e) {
       toast.error("Failed to update flag");
     }
@@ -61,9 +76,13 @@ export default function CommentsPage() {
   const filtered = useMemo(
     () =>
       comments.filter((c) =>
-        [c.comment, c.slug, c.username].filter(Boolean).join(" ").toLowerCase().includes(q.toLowerCase())
+        [c.comment, c.slug, c.username]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+          .includes(q.toLowerCase()),
       ),
-    [comments, q]
+    [comments, q],
   );
 
   return (
@@ -76,7 +95,11 @@ export default function CommentsPage() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />
-          <Button variant="outline" onClick={() => fetchComments(q)} disabled={loading}>
+          <Button
+            variant="outline"
+            onClick={() => fetchComments(q)}
+            disabled={loading}
+          >
             {loading ? "Searching..." : "Search"}
           </Button>
         </div>
@@ -99,9 +122,14 @@ export default function CommentsPage() {
               <TableCell className="max-w-[360px]">
                 <span className="line-clamp-2">{c.comment}</span>
               </TableCell>
-              <TableCell className="hidden md:table-cell">{c.username || "Anon"}</TableCell>
+              <TableCell className="hidden md:table-cell">
+                {c.username || "Anon"}
+              </TableCell>
               <TableCell>
-                <Link href={`/blog/${c.slug}`} className="text-primary hover:underline">
+                <Link
+                  href={`/blog/${c.slug}`}
+                  className="text-primary hover:underline"
+                >
                   {c.slug}
                 </Link>
               </TableCell>
@@ -116,10 +144,18 @@ export default function CommentsPage() {
                 )}
               </TableCell>
               <TableCell className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => toggleOffensive(c)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => toggleOffensive(c)}
+                >
                   {c.isOffensive ? "Unflag" : "Flag"}
                 </Button>
-                <Button variant="destructive" size="sm" onClick={() => remove(c._id)}>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => remove(c._id)}
+                >
                   Delete
                 </Button>
               </TableCell>

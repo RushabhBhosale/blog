@@ -161,7 +161,7 @@ export const suggestionItems = createSuggestionItems([
       const videoLink: any = prompt("Please enter Youtube Video Link");
       //From https://regexr.com/3dj5t
       const ytregex = new RegExp(
-        /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$/
+        /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$/,
       );
 
       if (ytregex.test(videoLink)) {
@@ -188,7 +188,7 @@ export const suggestionItems = createSuggestionItems([
     command: ({ editor, range }) => {
       const tweetLink: any = prompt("Please enter Twitter Link");
       const tweetRegex = new RegExp(
-        /^https?:\/\/(www\.)?x\.com\/([a-zA-Z0-9_]{1,15})(\/status\/(\d+))?(\/\S*)?$/
+        /^https?:\/\/(www\.)?x\.com\/([a-zA-Z0-9_]{1,15})(\/status\/(\d+))?(\/\S*)?$/,
       );
 
       if (tweetRegex.test(tweetLink)) {

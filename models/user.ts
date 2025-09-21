@@ -9,7 +9,7 @@ const userSchema = new Schema(
     role: { type: String },
     isActive: { type: Boolean },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default models.User || mongoose.model("User", userSchema);

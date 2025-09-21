@@ -12,7 +12,7 @@ export async function GET() {
     console.error("Error finding all categories", error);
     return NextResponse.json(
       { error: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     console.error("Error posting the category", error);
     return NextResponse.json(
       { error: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

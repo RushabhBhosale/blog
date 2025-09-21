@@ -47,7 +47,7 @@ export default function SignInPage() {
     } catch (err: any) {
       console.log("dshg", err);
       toast.error(
-        err.response.data.error || "Error logging user. Something went wrong"
+        err.response.data.error || "Error logging user. Something went wrong",
       );
       setError(err.response?.data?.error || "Something went wrong");
     } finally {

@@ -9,7 +9,7 @@ export async function POST(req: Request) {
       "Missing BLOB_READ_WRITE_TOKEN. Don't forget to add that to your .env file.",
       {
         status: 401,
-      }
+      },
     );
   }
 

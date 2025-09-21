@@ -40,4 +40,3 @@ export async function sendMail(opts: {
   });
   return info;
 }
-

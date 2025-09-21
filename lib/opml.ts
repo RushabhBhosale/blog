@@ -1,7 +1,10 @@
 import "@/lib/db"; // initialize DB once per server instance
 import Blog from "@/models/blog";
 
-const SITE = (process.env.SITE_URL || "https://dailysparks.in").replace(/\/+$/, "");
+const SITE = (process.env.SITE_URL || "https://dailysparks.in").replace(
+  /\/+$/,
+  "",
+);
 
 function escXml(input: string) {
   return input
@@ -13,7 +16,6 @@ function escXml(input: string) {
 }
 
 export async function generateOpmlXml() {
-
   // Distinct categories for visible posts only
   const categories: string[] = await Blog.distinct("category", {
     status: { $ne: "Hide" },

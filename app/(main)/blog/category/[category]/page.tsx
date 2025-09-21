@@ -32,12 +32,12 @@ export async function generateMetadata(context: {
   const { category } = await context.params;
   const canonical = new URL(
     `/blog/category/${encodeURIComponent(category)}`,
-    SITE
+    SITE,
   ).toString();
 
   const title = `Category: ${decodeURIComponent(category)} — Daily Sparks`;
   const description = `Recent posts in ${decodeURIComponent(
-    category
+    category,
   )} on Daily Sparks.`;
 
   return {
@@ -63,7 +63,7 @@ export default async function Category(context: {
   // Case-insensitive exact match for category
   const regex = new RegExp(
     `^${category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
-    "i"
+    "i",
   );
   const blogs = await Blog.find({ category: regex })
     .select("-content")

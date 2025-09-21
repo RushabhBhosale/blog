@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ categoryId: string }> }
+  context: { params: Promise<{ categoryId: string }> },
 ) {
   try {
     const { categoryId } = await context.params;
@@ -14,7 +14,7 @@ export async function GET(
     if (!foundCategory) {
       return NextResponse.json(
         { error: "Category not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -23,14 +23,14 @@ export async function GET(
     console.error("Error finding the category", error);
     return NextResponse.json(
       { error: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PUT(
   req: NextRequest,
-  context: { params: Promise<{ categoryId: string }> }
+  context: { params: Promise<{ categoryId: string }> },
 ) {
   try {
     const token = req.cookies.get("token")?.value;
@@ -57,7 +57,7 @@ export async function PUT(
       {
         title,
       },
-      { new: true }
+      { new: true },
     );
     if (!foundCategory) {
       return NextResponse.json({ error: "Category not found" });
@@ -68,14 +68,14 @@ export async function PUT(
     console.error("Error updating the category", error);
     return NextResponse.json(
       { error: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   req: NextRequest,
-  context: { params: Promise<{ categoryId: string }> }
+  context: { params: Promise<{ categoryId: string }> },
 ) {
   try {
     const token = req.cookies.get("token")?.value;
@@ -94,7 +94,7 @@ export async function DELETE(
     if (!foundCategory) {
       return NextResponse.json(
         { error: "Category not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -103,7 +103,7 @@ export async function DELETE(
     console.error("Error deleting the category", error);
     return NextResponse.json(
       { error: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

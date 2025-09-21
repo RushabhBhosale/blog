@@ -3,7 +3,8 @@ export type FaqItem = {
   answer: string;
 };
 
-const FAQ_SCRIPT_REGEX = /<script[^>]*type=(['"])application\/ld\+json\1[^>]*>([\s\S]*?)<\/script>/gi;
+const FAQ_SCRIPT_REGEX =
+  /<script[^>]*type=(['"])application\/ld\+json\1[^>]*>([\s\S]*?)<\/script>/gi;
 
 type ExtractResult = {
   htmlWithoutFaqSchema: string;
@@ -75,10 +76,12 @@ export const extractFaqSchema = (html: string): ExtractResult => {
 
       faqs = entities
         .map((entity: any) => {
-          const question = typeof entity?.name === "string" ? entity.name.trim() : "";
-          const answer = typeof entity?.acceptedAnswer?.text === "string"
-            ? entity.acceptedAnswer.text.trim()
-            : "";
+          const question =
+            typeof entity?.name === "string" ? entity.name.trim() : "";
+          const answer =
+            typeof entity?.acceptedAnswer?.text === "string"
+              ? entity.acceptedAnswer.text.trim()
+              : "";
 
           if (!question || !answer) return null;
           return { question, answer } as FaqItem;
@@ -125,7 +128,10 @@ export const normalizeFaqItems = (input: any): FaqItem[] => {
     .filter((item) => item.question && item.answer);
 };
 
-export const injectFaqSchemaIntoHtml = (html: string, jsonLd: string): string => {
+export const injectFaqSchemaIntoHtml = (
+  html: string,
+  jsonLd: string,
+): string => {
   if (!html) return html;
   if (!jsonLd.trim().length) return html;
 

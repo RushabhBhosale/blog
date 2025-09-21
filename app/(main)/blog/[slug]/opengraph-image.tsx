@@ -28,6 +28,6 @@ export default function Image() {
     {
       width: size.width,
       height: size.height,
-    }
+    },
   );
 }

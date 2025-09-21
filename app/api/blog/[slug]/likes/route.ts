@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 // Toggle like/unlike a blog by slug
 export async function PATCH(
   req: NextRequest,
-  context: { params: Promise<{ slug: string }> }
+  context: { params: Promise<{ slug: string }> },
 ) {
   try {
     const { slug } = await context.params;
@@ -15,7 +15,7 @@ export async function PATCH(
     if (!userId) {
       return NextResponse.json(
         { error: "User ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -25,10 +25,14 @@ export async function PATCH(
     }
 
     const likesArray = Array.isArray(blog.likes) ? blog.likes : [];
-    const alreadyLiked = likesArray.some((id: any) => id.toString() === userId.toString());
+    const alreadyLiked = likesArray.some(
+      (id: any) => id.toString() === userId.toString(),
+    );
 
     if (alreadyLiked) {
-      blog.likes = likesArray.filter((id: any) => id.toString() !== userId.toString());
+      blog.likes = likesArray.filter(
+        (id: any) => id.toString() !== userId.toString(),
+      );
     } else {
       blog.likes = [...likesArray, userId];
     }
@@ -42,13 +46,13 @@ export async function PATCH(
 
     return NextResponse.json(
       { blog, liked: !alreadyLiked, totalLikes: blog.likes.length },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Error liking/unliking blog", error);
     return NextResponse.json(
       { error: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

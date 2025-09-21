@@ -6,7 +6,10 @@ const Loading = () => {
       <div className="h-7 w-64 bg-muted rounded mb-6" />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[...Array(9)].map((_, i) => (
-          <div key={i} className="rounded-xl overflow-hidden border border-border bg-card">
+          <div
+            key={i}
+            className="rounded-xl overflow-hidden border border-border bg-card"
+          >
             <div className="w-full h-40 bg-muted" />
             <div className="p-4 space-y-2">
               <div className="h-4 w-20 bg-muted rounded" />
@@ -21,4 +24,3 @@ const Loading = () => {
 };
 
 export default Loading;
-

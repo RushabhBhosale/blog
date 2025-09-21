@@ -23,10 +23,5 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   // Only run on protected routes (pages, not APIs)
-  matcher: [
-    "/admin/:path*",
-    "/blog/add",
-    "/blog/:slug/edit",
-  ],
+  matcher: ["/admin/:path*", "/blog/add", "/blog/:slug/edit"],
 };
-

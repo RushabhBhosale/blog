@@ -17,7 +17,10 @@ export async function GET(req: NextRequest) {
     const excludeSlug = url.searchParams.get("excludeSlug") || undefined;
     const tagsParam = url.searchParams.get("tags") || "";
     const titleParam = url.searchParams.get("title") || "";
-    const limit = Math.max(1, Math.min(10, Number(url.searchParams.get("limit") || 5)));
+    const limit = Math.max(
+      1,
+      Math.min(10, Number(url.searchParams.get("limit") || 5)),
+    );
 
     const tags = tagsParam
       .split(",")
@@ -36,7 +39,13 @@ export async function GET(req: NextRequest) {
           $or: [
             { $regexMatch: { input: "$title", regex: tok, options: "i" } },
             { $regexMatch: { input: "$metaTitle", regex: tok, options: "i" } },
-            { $regexMatch: { input: "$metaDescription", regex: tok, options: "i" } },
+            {
+              $regexMatch: {
+                input: "$metaDescription",
+                regex: tok,
+                options: "i",
+              },
+            },
             { $regexMatch: { input: "$content", regex: tok, options: "i" } },
           ],
         },
@@ -78,7 +87,7 @@ export async function GET(req: NextRequest) {
     console.error("Error fetching related blogs:", err);
     return NextResponse.json(
       { error: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

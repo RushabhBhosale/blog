@@ -12,31 +12,31 @@ export async function POST(req: NextRequest) {
     if (!email || !password)
       return NextResponse.json(
         { error: "Email and password are required" },
-        { status: 400 }
+        { status: 400 },
       );
 
     const user = await User.findOne({ email });
     if (!user)
       return NextResponse.json(
         { error: "Invalid credentials" },
-        { status: 401 }
+        { status: 401 },
       );
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
       return NextResponse.json(
         { error: "Invalid credentials" },
-        { status: 401 }
+        { status: 401 },
       );
 
     const token = jwt.sign(
       { userId: user._id, email: user.email, role: user.role, name: user.name },
-      JWT_SECRET
+      JWT_SECRET,
     );
 
     const res = NextResponse.json(
       { role: user.role, message: "Login successful" },
-      { status: 200 }
+      { status: 200 },
     );
     res.cookies.set("token", token, {
       httpOnly: true,
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     console.error("Login error:", err);
     return NextResponse.json(
       { error: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

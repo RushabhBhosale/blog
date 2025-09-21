@@ -2,13 +2,33 @@
 
 import { useEffect, useMemo, useState } from "react";
 import axiosClient from "@/lib/axiosclient";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 
-type User = { _id: string; name?: string; email: string; role?: string; isActive?: boolean; createdAt: string };
+type User = {
+  _id: string;
+  name?: string;
+  email: string;
+  role?: string;
+  isActive?: boolean;
+  createdAt: string;
+};
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -56,15 +76,21 @@ export default function UsersPage() {
 
   const filtered = useMemo(
     () =>
-      users.filter((u) => `${u.name || ""} ${u.email}`.toLowerCase().includes(q.toLowerCase())),
-    [users, q]
+      users.filter((u) =>
+        `${u.name || ""} ${u.email}`.toLowerCase().includes(q.toLowerCase()),
+      ),
+    [users, q],
   );
 
   return (
     <div className="p-4 md:p-6 space-y-4 bg-card rounded-2xl border border-border">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <h1 className="text-lg md:text-2xl font-bold">Users</h1>
-        <Input placeholder="Search name or email..." value={q} onChange={(e) => setQ(e.target.value)} />
+        <Input
+          placeholder="Search name or email..."
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+        />
       </div>
 
       <Table>
@@ -84,7 +110,10 @@ export default function UsersPage() {
               <TableCell className="font-medium">{u.name || "—"}</TableCell>
               <TableCell>{u.email}</TableCell>
               <TableCell>
-                <Select value={u.role || "user"} onValueChange={(val) => setRole(u._id, val)}>
+                <Select
+                  value={u.role || "user"}
+                  onValueChange={(val) => setRole(u._id, val)}
+                >
                   <SelectTrigger className="w-[140px]">
                     <SelectValue />
                   </SelectTrigger>
@@ -103,9 +132,15 @@ export default function UsersPage() {
                   {u.isActive ? "Active" : "Inactive"}
                 </Button>
               </TableCell>
-              <TableCell>{new Date(u.createdAt).toLocaleDateString()}</TableCell>
               <TableCell>
-                <Button variant="destructive" size="sm" onClick={() => remove(u._id)}>
+                {new Date(u.createdAt).toLocaleDateString()}
+              </TableCell>
+              <TableCell>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => remove(u._id)}
+                >
                   Delete
                 </Button>
               </TableCell>

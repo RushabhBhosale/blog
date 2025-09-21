@@ -86,4 +86,3 @@ export const ImageAltSelector = (_props: ImageAltSelectorProps) => {
 };
 
 export default ImageAltSelector;
-

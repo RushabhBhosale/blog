@@ -42,7 +42,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
   const [editText, setEditText] = useState("");
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState<number>(
-    blogDetail?.likes?.length || 0
+    blogDetail?.likes?.length || 0,
   );
   const [liking, setLiking] = useState(false);
 
@@ -57,7 +57,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
     if (user && blog?.likes) {
       const u = user?.userId;
       const likedByUser = (blog.likes as any[])?.some(
-        (id: any) => id?.toString() === u?.toString()
+        (id: any) => id?.toString() === u?.toString(),
       );
       setLiked(!!likedByUser);
     } else {
@@ -107,7 +107,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
         comment: editText,
       });
       setComments((prev) =>
-        prev.map((c) => (c?._id === commentId ? res.data.comment : c))
+        prev.map((c) => (c?._id === commentId ? res.data.comment : c)),
       );
       setEditingId(null);
       setEditText("");
@@ -150,7 +150,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
           ({
             ...prev,
             likes: res.data.blog?.likes || prev.likes,
-          } as any)
+          }) as any,
       );
     } catch (err: any) {
       const reverted = liked;
@@ -222,7 +222,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
                   .trim()
                   .toLowerCase()
                   .replace(/[^a-z0-9]+/gi, "-")
-                  .replace(/^-+|-+$/g, "")
+                  .replace(/^-+|-+$/g, ""),
               )}`}
               className="hover:underline"
             >
@@ -266,7 +266,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
                 <DropdownMenuItem asChild>
                   <a
                     href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(
-                      currentUrl
+                      currentUrl,
                     )}&text=${encodeURIComponent(shareText)}`}
                     target="_blank"
                   >
@@ -276,7 +276,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
                 <DropdownMenuItem asChild>
                   <a
                     href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-                      currentUrl
+                      currentUrl,
                     )}`}
                     target="_blank"
                   >
@@ -286,7 +286,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
                 <DropdownMenuItem asChild>
                   <a
                     href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-                      currentUrl
+                      currentUrl,
                     )}`}
                     target="_blank"
                   >

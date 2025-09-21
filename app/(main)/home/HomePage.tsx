@@ -34,7 +34,7 @@ export default function HomePage({ allblogs }: Props) {
   const travel = byCat("Travel").slice(0, 4);
 
   const categoriesAll = Array.from(
-    new Set(blogs.map((b) => b.category))
+    new Set(blogs.map((b) => b.category)),
   ).filter(Boolean) as string[];
 
   const [email, setEmail] = useState("");

@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ slug: string }> }
+  context: { params: Promise<{ slug: string }> },
 ) {
   try {
     const { slug } = await context.params;
@@ -14,7 +14,7 @@ export async function GET(
     if (!comments || comments.length === 0) {
       return NextResponse.json(
         { error: "No comments found for this blog" },
-        { status: 200 }
+        { status: 200 },
       );
     }
 
@@ -23,14 +23,14 @@ export async function GET(
     console.error("Error finding comments", error);
     return NextResponse.json(
       { error: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function POST(
   req: NextRequest,
-  context: { params: Promise<{ slug: string }> }
+  context: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await context.params;
   const body = await req.json();
@@ -46,7 +46,7 @@ export async function POST(
     console.error("Error posting comment", error);
     return NextResponse.json(
       { error: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

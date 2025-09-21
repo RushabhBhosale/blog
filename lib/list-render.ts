@@ -1,8 +1,13 @@
 export type ListVariant = "table" | "ol" | "ul";
 
 export function renderItemListHtml(
-  items: { title: string; url?: string; description?: string; image?: string }[],
-  opts?: { title?: string; variant?: ListVariant }
+  items: {
+    title: string;
+    url?: string;
+    description?: string;
+    image?: string;
+  }[],
+  opts?: { title?: string; variant?: ListVariant },
 ) {
   const variant: ListVariant = opts?.variant || "ol";
   const safe = items.filter((i) => i && i.title);
@@ -13,17 +18,17 @@ export function renderItemListHtml(
       ch === "&"
         ? "&amp;"
         : ch === "<"
-        ? "&lt;"
-        : ch === ">"
-        ? "&gt;"
-        : ch === '"'
-        ? "&quot;"
-        : "&#39;"
+          ? "&lt;"
+          : ch === ">"
+            ? "&gt;"
+            : ch === '"'
+              ? "&quot;"
+              : "&#39;",
     );
 
   const heading = opts?.title
     ? `<h2 class="text-xl md:text-2xl font-semibold mb-4">${escapeHtml(
-        opts.title
+        opts.title,
       )}</h2>`
     : "";
 
@@ -33,12 +38,12 @@ export function renderItemListHtml(
         const pos = idx + 1;
         const name = it.url
           ? `<a href="${escapeHtml(it.url)}" class="hover:underline" rel="nofollow">${escapeHtml(
-              it.title
+              it.title,
             )}</a>`
           : escapeHtml(it.title);
         const img = it.image
           ? `<img src="${escapeHtml(
-              it.image
+              it.image,
             )}" alt="${escapeHtml(it.title)}" class="w-12 h-12 object-cover rounded" loading="lazy" />`
           : "";
         const desc = it.description ? escapeHtml(it.description) : "";
@@ -73,15 +78,20 @@ export function renderItemListHtml(
     .map((it, idx) => {
       const name = it.url
         ? `<a href="${escapeHtml(it.url)}" class="hover:underline" rel="nofollow">${escapeHtml(
-            it.title
+            it.title,
           )}</a>`
         : escapeHtml(it.title);
-      const desc = it.description ? `<div class="text-sm text-muted-foreground">${escapeHtml(it.description)}</div>` : "";
+      const desc = it.description
+        ? `<div class="text-sm text-muted-foreground">${escapeHtml(it.description)}</div>`
+        : "";
       return `<li class="mb-2">${name}${desc}</li>`;
     })
     .join("\n");
 
-  const listTagOpen = variant === "ul" ? `<ul class="list-disc pl-6">` : `<ol class="list-decimal pl-6">`;
+  const listTagOpen =
+    variant === "ul"
+      ? `<ul class="list-disc pl-6">`
+      : `<ol class="list-decimal pl-6">`;
   const listTagClose = variant === "ul" ? `</ul>` : `</ol>`;
   return `<section class="my-6">${heading}${listTagOpen}\n${li}\n${listTagClose}</section>`;
 }
@@ -90,15 +100,21 @@ export function renderItemListHtml(
 // Supports: <!--ITEMLIST-->, <!--ITEMLIST:table-->, <!--ITEMLIST:ol-->, <!--ITEMLIST:ul-->
 export function replaceItemListPlaceholders(
   html: string,
-  items: { title: string; url?: string; description?: string; image?: string }[],
-  opts?: { title?: string }
+  items: {
+    title: string;
+    url?: string;
+    description?: string;
+    image?: string;
+  }[],
+  opts?: { title?: string },
 ) {
   if (!html) return html;
-  const re = /(?:<!--\s*ITEMLIST(?::(table|ol|ul))?\s*-->)|(?:\[\[ITEMLIST(?::(table|ol|ul))?\]\])/gi;
+  const re =
+    /(?:<!--\s*ITEMLIST(?::(table|ol|ul))?\s*-->)|(?:\[\[ITEMLIST(?::(table|ol|ul))?\]\])/gi;
   return html.replace(re, (_m, variant) =>
     renderItemListHtml(items, {
       title: opts?.title,
       variant: (variant as ListVariant) || "ol",
-    })
+    }),
   );
 }

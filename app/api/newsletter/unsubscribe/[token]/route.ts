@@ -3,7 +3,7 @@ import { unsubscribeByToken } from "@/lib/newsletter";
 
 export async function GET(
   _req: NextRequest,
-  context: { params: Promise<{ token: string }> }
+  context: { params: Promise<{ token: string }> },
 ) {
   try {
     const { token } = await context.params;
@@ -21,4 +21,3 @@ export async function GET(
     return NextResponse.redirect(url);
   }
 }
-

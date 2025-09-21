@@ -10,7 +10,7 @@ const commentSchema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export default models.Comment || model("Comment", commentSchema);

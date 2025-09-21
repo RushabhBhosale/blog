@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     console.error("Error finding the blogs", error);
     return NextResponse.json(
       { error: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

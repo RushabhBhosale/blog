@@ -51,7 +51,7 @@ export default function SignUpPage() {
       toast.success(res.data.message || "User registered successfullt");
     } catch (err: any) {
       toast.error(
-        err.response.data.error || "User not registered. Something went wrong"
+        err.response.data.error || "User not registered. Something went wrong",
       );
       setError(err.response?.data?.error || "Something went wrong");
     } finally {

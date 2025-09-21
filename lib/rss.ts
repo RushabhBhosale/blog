@@ -1,10 +1,16 @@
 import "@/lib/db"; // initialize DB once per server instance
 import Blog from "@/models/blog";
 
-const SITE = (process.env.SITE_URL || "https://dailysparks.in").replace(/\/+$/, "");
+const SITE = (process.env.SITE_URL || "https://dailysparks.in").replace(
+  /\/+$/,
+  "",
+);
 
 function stripHtml(html: string) {
-  return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  return html
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function escXml(input: string) {
@@ -22,11 +28,13 @@ type RssOptions = {
 };
 
 export async function generateRssXml(opts: RssOptions = {}) {
-
   const query: any = { status: { $ne: "Hide" } };
   if (opts.category) {
     // Case-insensitive exact match for category (same as category page)
-    const regex = new RegExp(`^${opts.category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i");
+    const regex = new RegExp(
+      `^${opts.category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+      "i",
+    );
     query.category = regex;
   }
 
@@ -47,7 +55,7 @@ export async function generateRssXml(opts: RssOptions = {}) {
         : undefined;
       const description = stripHtml(b.metaDescription || b.content || "").slice(
         0,
-        300
+        300,
       );
       const pubDate = new Date(b.createdAt || Date.now()).toUTCString();
 

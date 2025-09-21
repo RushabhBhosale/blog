@@ -45,7 +45,7 @@ const blogSchema = new Schema(
       default: [],
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Indexes to speed up common queries
@@ -56,7 +56,12 @@ try {
   blogSchema.index({ slug: 1 }, { unique: true });
   blogSchema.index({ category: 1 });
   blogSchema.index({ tags: 1 });
-  blogSchema.index({ title: "text", metaTitle: "text", metaDescription: "text", content: "text" });
+  blogSchema.index({
+    title: "text",
+    metaTitle: "text",
+    metaDescription: "text",
+    content: "text",
+  });
 } catch (_) {
   // In case indexes are registered multiple times in dev reloads
 }

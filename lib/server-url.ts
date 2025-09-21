@@ -10,4 +10,3 @@ export function apiUrl(path: string) {
   const p = path.startsWith("/") ? path : `/${path}`;
   return `${getBaseUrl()}/api${p}`;
 }
-

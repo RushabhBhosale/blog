@@ -56,7 +56,7 @@ export function useMyCompletion(endpoint: string) {
         setIsLoading(false);
       }
     },
-    [endpoint]
+    [endpoint],
   );
 
   return { completion, complete, isLoading };

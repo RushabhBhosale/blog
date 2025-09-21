@@ -15,7 +15,7 @@ export async function POST(req: Request): Promise<Response> {
       "Missing OPENROUTER_API_KEY - make sure to add it to your .env file.",
       {
         status: 400,
-      }
+      },
     );
   }
 
@@ -28,7 +28,7 @@ export async function POST(req: Request): Promise<Response> {
     });
 
     const { success, limit, reset, remaining } = await ratelimit.limit(
-      `novel_ratelimit_${ip}`
+      `novel_ratelimit_${ip}`,
     );
 
     if (!success) {
@@ -130,7 +130,7 @@ export async function POST(req: Request): Promise<Response> {
         frequency_penalty: 0,
         presence_penalty: 0,
       }),
-    }
+    },
   );
 
   // Return the stream directly to the client

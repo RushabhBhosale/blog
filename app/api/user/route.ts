@@ -18,10 +18,16 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const users = await User.find({}, "name email role isActive createdAt").sort({ createdAt: -1 });
+    const users = await User.find(
+      {},
+      "name email role isActive createdAt",
+    ).sort({ createdAt: -1 });
     return NextResponse.json({ users }, { status: 200 });
   } catch (error) {
     console.error("Error fetching users", error);
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 },
+    );
   }
 }

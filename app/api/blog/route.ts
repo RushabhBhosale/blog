@@ -26,7 +26,6 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-
     const token = req.cookies.get("token")?.value;
     if (!token)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -58,15 +57,12 @@ export async function POST(req: NextRequest) {
     if (!title || !content || !category) {
       return NextResponse.json(
         { error: "Title, content, and category are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (authorId && decoded.userId !== authorId) {
-      return NextResponse.json(
-        { error: "Author mismatch" },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "Author mismatch" }, { status: 403 });
     }
 
     const slugSource =
@@ -78,34 +74,40 @@ export async function POST(req: NextRequest) {
     if (!normalizedSlug) {
       return NextResponse.json(
         { error: "Unable to generate slug" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const sanitizedFaqs = normalizeFaqItems(faqs);
     const sanitizedListItems = normalizeListItems(listItems);
     const shouldEnableFaq = Boolean(enableFaqSchema && sanitizedFaqs.length);
-    const shouldEnableList = Boolean(enableListSchema && sanitizedListItems.length);
+    const shouldEnableList = Boolean(
+      enableListSchema && sanitizedListItems.length,
+    );
 
     const incomingContent = typeof content === "string" ? content : "";
     const { htmlWithoutFaqSchema } = extractFaqSchema(incomingContent);
     let finalContent = htmlWithoutFaqSchema;
     // Replace any <!--ITEMLIST[:variant]--> placeholders with visible markup
     if (shouldEnableList) {
-      finalContent = replaceItemListPlaceholders(finalContent, sanitizedListItems, {
-        title,
-      });
+      finalContent = replaceItemListPlaceholders(
+        finalContent,
+        sanitizedListItems,
+        {
+          title,
+        },
+      );
     }
     if (shouldEnableFaq) {
       finalContent = injectFaqSchemaIntoHtml(
         finalContent,
-        buildFaqJsonLd(sanitizedFaqs)
+        buildFaqJsonLd(sanitizedFaqs),
       );
     }
     if (shouldEnableList) {
       finalContent = injectListSchemaIntoHtml(
         finalContent,
-        buildItemListJsonLd(sanitizedListItems, { name: title })
+        buildItemListJsonLd(sanitizedListItems, { name: title }),
       );
     }
 
@@ -142,7 +144,7 @@ export async function POST(req: NextRequest) {
     console.error("Error posting the blog", error);
     return NextResponse.json(
       { error: "Something went wrong" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

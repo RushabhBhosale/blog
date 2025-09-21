@@ -58,18 +58,21 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-60 p-0" sideOffset={10}>
-        <div className="flex p-1" onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            e.stopPropagation();
-            if (!inputRef.current) return;
-            const url = getUrlFromString(inputRef.current.value);
-            if (url) {
-              editor.chain().focus().setLink({ href: url }).run();
-              onOpenChange(false);
+        <div
+          className="flex p-1"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              e.stopPropagation();
+              if (!inputRef.current) return;
+              const url = getUrlFromString(inputRef.current.value);
+              if (url) {
+                editor.chain().focus().setLink({ href: url }).run();
+                onOpenChange(false);
+              }
             }
-          }
-        }}>
+          }}
+        >
           <input
             ref={inputRef}
             type="text"
@@ -93,14 +96,19 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
               <Trash className="h-4 w-4" />
             </Button>
           ) : (
-            <Button size="icon" className="h-8" type="button" onClick={() => {
-              if (!inputRef.current) return;
-              const url = getUrlFromString(inputRef.current.value);
-              if (url) {
-                editor.chain().focus().setLink({ href: url }).run();
-                onOpenChange(false);
-              }
-            }}>
+            <Button
+              size="icon"
+              className="h-8"
+              type="button"
+              onClick={() => {
+                if (!inputRef.current) return;
+                const url = getUrlFromString(inputRef.current.value);
+                if (url) {
+                  editor.chain().focus().setLink({ href: url }).run();
+                  onOpenChange(false);
+                }
+              }}
+            >
               <Check className="h-4 w-4" />
             </Button>
           )}

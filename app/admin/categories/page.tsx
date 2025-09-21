@@ -2,7 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import axiosClient from "@/lib/axiosclient";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -44,7 +51,9 @@ export default function CategoriesPage() {
     if (!title) return;
     try {
       const res = await axiosClient.put(`/category/${id}`, { title });
-      setCategories((p) => p.map((c) => (c._id === id ? res.data.category : c)));
+      setCategories((p) =>
+        p.map((c) => (c._id === id ? res.data.category : c)),
+      );
     } catch {
       toast.error("Failed to update");
     }
@@ -60,8 +69,9 @@ export default function CategoriesPage() {
   };
 
   const filtered = useMemo(
-    () => categories.filter((c) => c.title.toLowerCase().includes(q.toLowerCase())),
-    [categories, q]
+    () =>
+      categories.filter((c) => c.title.toLowerCase().includes(q.toLowerCase())),
+    [categories, q],
   );
 
   return (
@@ -69,7 +79,11 @@ export default function CategoriesPage() {
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <h1 className="text-lg md:text-2xl font-bold">Categories</h1>
         <div className="flex gap-2">
-          <Input placeholder="Filter..." value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input
+            placeholder="Filter..."
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
         </div>
       </div>
 
@@ -101,7 +115,11 @@ export default function CategoriesPage() {
                 {new Date(c.createdAt).toLocaleDateString()}
               </TableCell>
               <TableCell>
-                <Button variant="destructive" size="sm" onClick={() => remove(c._id)}>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => remove(c._id)}
+                >
                   Delete
                 </Button>
               </TableCell>
@@ -113,20 +131,45 @@ export default function CategoriesPage() {
   );
 }
 
-function InlineEdit({ value, onSave }: { value: string; onSave: (v: string) => void }) {
+function InlineEdit({
+  value,
+  onSave,
+}: {
+  value: string;
+  onSave: (v: string) => void;
+}) {
   const [v, setV] = useState(value);
   const [editing, setEditing] = useState(false);
   useEffect(() => setV(value), [value]);
   return editing ? (
     <div className="flex gap-2">
       <Input value={v} onChange={(e) => setV(e.target.value)} />
-      <Button size="sm" onClick={() => { setEditing(false); onSave(v); }}>Save</Button>
-      <Button variant="outline" size="sm" onClick={() => { setV(value); setEditing(false); }}>Cancel</Button>
+      <Button
+        size="sm"
+        onClick={() => {
+          setEditing(false);
+          onSave(v);
+        }}
+      >
+        Save
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => {
+          setV(value);
+          setEditing(false);
+        }}
+      >
+        Cancel
+      </Button>
     </div>
   ) : (
     <div className="flex items-center gap-2">
       <span className="font-medium">{value}</span>
-      <Button size="sm" variant="outline" onClick={() => setEditing(true)}>Edit</Button>
+      <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
+        Edit
+      </Button>
     </div>
   );
 }

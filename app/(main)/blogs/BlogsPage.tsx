@@ -50,8 +50,8 @@ const BlogsPage = ({ allblogs }: Props) => {
           blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           blog?.author?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           blog.tags.some((tag) =>
-            tag.toLowerCase().includes(searchQuery.toLowerCase())
-          )
+            tag.toLowerCase().includes(searchQuery.toLowerCase()),
+          ),
       );
     }
 
@@ -112,7 +112,7 @@ const BlogsPage = ({ allblogs }: Props) => {
     } else {
       const startPage = Math.max(
         1,
-        currentPage - Math.floor(maxVisiblePages / 2)
+        currentPage - Math.floor(maxVisiblePages / 2),
       );
       const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 

@@ -26,13 +26,20 @@ export async function notifySubscribersOfNewBlog(blog: {
   author?: string;
   createdAt?: string | Date;
 }) {
-  const subscribers: { email: string; token: string }[] = await Subscriber.find().select(
-    "email token"
-  );
+  const subscribers: { email: string; token: string }[] =
+    await Subscriber.find().select("email token");
   if (!subscribers?.length) return { sent: 0 };
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || process.env.VERCEL_URL || "";
-  const fullBase = baseUrl?.startsWith("http") ? baseUrl : baseUrl ? `https://${baseUrl}` : "";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    process.env.NEXTAUTH_URL ||
+    process.env.VERCEL_URL ||
+    "";
+  const fullBase = baseUrl?.startsWith("http")
+    ? baseUrl
+    : baseUrl
+      ? `https://${baseUrl}`
+      : "";
   const blogUrl = `${fullBase}/blog/${blog.slug}`;
 
   const results = await Promise.allSettled(
@@ -40,10 +47,15 @@ export async function notifySubscribersOfNewBlog(blog: {
       sendMail({
         to: s.email,
         subject: `New post: ${blog.title}`,
-        html: renderNewBlogHtml({ blog, blogUrl, token: s.token, baseUrl: fullBase }),
+        html: renderNewBlogHtml({
+          blog,
+          blogUrl,
+          token: s.token,
+          baseUrl: fullBase,
+        }),
         text: `A new blog post is live: ${blog.title}\n${blogUrl}\n\nUnsubscribe: ${fullBase}/api/newsletter/unsubscribe/${s.token}`,
-      })
-    )
+      }),
+    ),
   );
   const sent = results.filter((r) => r.status === "fulfilled").length;
   return { sent, total: subscribers.length };

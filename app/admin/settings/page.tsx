@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 import axiosClient from "@/lib/axiosclient";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 type Subscriber = { _id: string; email: string; createdAt: string };
 
@@ -22,7 +29,9 @@ export default function SettingsPage() {
         <p className="text-sm text-muted-foreground">Subscribers</p>
       </div>
 
-      <div className="text-sm text-muted-foreground">Total subscribers: {subs.length}</div>
+      <div className="text-sm text-muted-foreground">
+        Total subscribers: {subs.length}
+      </div>
 
       <Table>
         <TableHeader>
@@ -35,7 +44,9 @@ export default function SettingsPage() {
           {subs.map((s) => (
             <TableRow key={s._id}>
               <TableCell>{s.email}</TableCell>
-              <TableCell>{new Date(s.createdAt).toLocaleDateString()}</TableCell>
+              <TableCell>
+                {new Date(s.createdAt).toLocaleDateString()}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
