@@ -197,7 +197,9 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
             {blog.hub?.slug && (
               <li className="flex items-center">
                 <Link
-                  href={`/blogs/${encodeURIComponent(blog.category)}/${encodeURIComponent(blog.hub.slug)}`}
+                  href={`/blogs/${encodeURIComponent(
+                    blog.category
+                  )}/${encodeURIComponent(blog.hub.slug)}`}
                   className="hover:underline"
                 >
                   {blog.hub?.title || blog.hub.slug}
@@ -368,12 +370,16 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
         <h3 className="font-semibold text-lg mb-2">Related Blogs</h3>
         {relatedBlogs.length ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-3">
-            {relatedBlogs.map((b) => (
+            {relatedBlogs.map((b: any) => (
               <Link
                 key={b._id}
                 href={
                   (b as any)?.hub?.slug
-                    ? `/blogs/${encodeURIComponent(b.category)}/${encodeURIComponent((b as any).hub.slug)}/${encodeURIComponent(b.slug)}`
+                    ? `/blogs/${encodeURIComponent(
+                        b.category
+                      )}/${encodeURIComponent(
+                        (b as any).hub.slug
+                      )}/${encodeURIComponent(b.slug)}`
                     : `/blog/${b.slug}`
                 }
                 className="flex bg-card/70 border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition"

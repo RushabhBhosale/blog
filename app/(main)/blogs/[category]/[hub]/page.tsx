@@ -7,7 +7,7 @@ export default async function HubPage(context: {
   params: Promise<{ category: string; hub: string }>;
 }) {
   const { category, hub } = await context.params;
-  const { posts, hub: hubDoc } = await getPostsByHub(category, hub);
+  const { posts, hub: hubDoc }: any = await getPostsByHub(category, hub);
   if (!hubDoc) return null;
   return (
     <main className="max-w-3xl mx-auto px-4 py-8">
@@ -43,7 +43,9 @@ export default async function HubPage(context: {
         {posts.map((p: any) => (
           <li key={p.slug}>
             <Link
-              href={`/blogs/${encodeURIComponent(p.category)}/${encodeURIComponent(hub)}/${encodeURIComponent(p.slug)}`}
+              href={`/blogs/${encodeURIComponent(
+                p.category
+              )}/${encodeURIComponent(hub)}/${encodeURIComponent(p.slug)}`}
               className="underline"
             >
               {p.title}

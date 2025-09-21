@@ -2,13 +2,13 @@ import { NextResponse } from "next/server";
 import "@/lib/db"; // initialize DB once per server instance
 import Blog from "@/models/blog";
 
-export async function GET(
-  _: Request,
-  { params }: { params: { category: string; hub: string } },
-) {
+export async function GET(_: Request, { params }: { params: any }) {
   const { category, hub } = params;
   const posts = await Blog.find({
-    category: new RegExp(`^${category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i"),
+    category: new RegExp(
+      `^${category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+      "i"
+    ),
     "hub.slug": hub,
     status: { $ne: "Hide" },
   })
@@ -17,4 +17,3 @@ export async function GET(
     .lean();
   return NextResponse.json({ posts });
 }
-
