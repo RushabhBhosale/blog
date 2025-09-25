@@ -47,14 +47,18 @@ const blogSchema = new Schema(
       default: [],
     },
     status: { type: String, enum: ["Draft", "Published", "Pending", "Hide"] },
-    likes: {
-      type: [Schema.Types.ObjectId],
-      ref: "User",
-      default: [],
-    },
-    // Optional hub association
-    hub: { type: HubSubSchema, default: undefined },
+  likes: {
+    type: [Schema.Types.ObjectId],
+    ref: "User",
+    default: [],
   },
+  // Optional hub association
+  hub: { type: HubSubSchema, default: undefined },
+  // Lightweight analytics + reading stats
+  viewCount: { type: Number, default: 0 },
+  readingTimeMinutes: { type: Number },
+  wordCount: { type: Number },
+},
   { timestamps: true },
 );
 

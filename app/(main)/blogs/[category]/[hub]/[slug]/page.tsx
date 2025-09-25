@@ -19,7 +19,7 @@ async function fetchBlog(slug: string) {
   await dbReady;
   return await Blog.findOne({ slug })
     .select(
-      "title metaTitle metaDescription image content createdAt updatedAt author authorId category tags slug imageAlt likes hub status",
+      "title metaTitle metaDescription image content createdAt updatedAt author authorId category tags slug imageAlt likes hub status viewCount readingTimeMinutes wordCount",
     )
     .lean();
 }

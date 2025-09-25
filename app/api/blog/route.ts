@@ -20,6 +20,15 @@ import { replaceItemListPlaceholders } from "@/lib/list-render";
 
 const slugOptions = { lower: true, strict: true, trim: true } as const;
 
+function stripHtmlToText(html: string) {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export async function GET() {
   const blogs = await Blog.find().select("-content").sort({ createdAt: -1 });
   return NextResponse.json({ blogs }, { status: 200 });
@@ -59,7 +68,7 @@ export async function POST(req: NextRequest) {
     if (!title || !content || !category) {
       return NextResponse.json(
         { error: "Title, content, and category are required" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -76,7 +85,7 @@ export async function POST(req: NextRequest) {
     if (!normalizedSlug) {
       return NextResponse.json(
         { error: "Unable to generate slug" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -84,7 +93,7 @@ export async function POST(req: NextRequest) {
     const sanitizedListItems = normalizeListItems(listItems);
     const shouldEnableFaq = Boolean(enableFaqSchema && sanitizedFaqs.length);
     const shouldEnableList = Boolean(
-      enableListSchema && sanitizedListItems.length,
+      enableListSchema && sanitizedListItems.length
     );
 
     const incomingContent = typeof content === "string" ? content : "";
@@ -97,29 +106,33 @@ export async function POST(req: NextRequest) {
         sanitizedListItems,
         {
           title,
-        },
+        }
       );
     }
     if (shouldEnableFaq) {
       finalContent = injectFaqSchemaIntoHtml(
         finalContent,
-        buildFaqJsonLd(sanitizedFaqs),
+        buildFaqJsonLd(sanitizedFaqs)
       );
     }
     if (shouldEnableList) {
       finalContent = injectListSchemaIntoHtml(
         finalContent,
-        buildItemListJsonLd(sanitizedListItems, { name: title }),
+        buildItemListJsonLd(sanitizedListItems, { name: title })
       );
     }
 
     // Determine publication status based on user policy
     let status: "Draft" | "Published" | "Pending" | "Hide" = "Published";
     try {
-      const dbUser = await User.findById(decoded.userId).lean();
+      const dbUser: any = await User.findById(decoded.userId).lean();
       const canAuto = dbUser?.role === "admin" || dbUser?.canAutoPublish;
       status = canAuto ? "Published" : "Pending";
     } catch {}
+
+    const plain = stripHtmlToText(finalContent || "");
+    const words = plain ? plain.split(/\s+/).filter(Boolean).length : 0;
+    const readingTimeMinutes = Math.max(1, Math.ceil(words / 200));
 
     const newBlog = await Blog.create({
       title,
@@ -138,7 +151,12 @@ export async function POST(req: NextRequest) {
       faqs: shouldEnableFaq ? sanitizedFaqs : [],
       enableListSchema: shouldEnableList,
       listItems: shouldEnableList ? sanitizedListItems : [],
-      hub: hub && typeof hub === "object" ? { slug: hub.slug, title: hub.title } : undefined,
+      hub:
+        hub && typeof hub === "object"
+          ? { slug: hub.slug, title: hub.title }
+          : undefined,
+      wordCount: words,
+      readingTimeMinutes,
     });
 
     // Fire-and-forget email notifications; do not block response
@@ -156,7 +174,7 @@ export async function POST(req: NextRequest) {
     console.error("Error posting the blog", error);
     return NextResponse.json(
       { error: "Something went wrong" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

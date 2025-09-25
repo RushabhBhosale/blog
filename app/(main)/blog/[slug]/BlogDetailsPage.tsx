@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { BlogInterface } from "../../home/page";
 import { CommentInterface } from "./page";
 import Link from "next/link";
@@ -45,6 +45,16 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
     blogDetail?.likes?.length || 0
   );
   const [liking, setLiking] = useState(false);
+  const readingTime = useMemo(() => {
+    const rt = (blogDetail as any)?.readingTimeMinutes;
+    if (typeof rt === "number" && rt > 0) return rt;
+    const words = (blogDetail?.content || "")
+      .replace(/<[^>]+>/g, " ")
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean).length;
+    return Math.max(1, Math.ceil(words / 200));
+  }, [blogDetail]);
 
   const params = useParams();
   const { slug } = params;
@@ -242,6 +252,7 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
               By {blog.author}
             </Link>
             <span>{new Date(blog.createdAt!).toLocaleDateString()}</span>
+            <span>• {readingTime} min read</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -364,6 +375,69 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
             </div>
           </section>
         )}
+        {/* Comments */}
+        <section className="mt-10 border-t border-border pt-6">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-3">Comments</h2>
+          <form onSubmit={handleCommentSubmit} className="space-y-2">
+            <Textarea
+              placeholder={user ? "Write a comment..." : "Sign in to comment"}
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              disabled={!user || posting}
+              rows={3}
+            />
+            <Button type="submit" disabled={!user || posting}>
+              {posting ? "Posting..." : "Post Comment"}
+            </Button>
+          </form>
+
+          <div className="mt-6 space-y-4">
+            {comments.map((c) => {
+              const isOwner = user && (c as any)?.user && String((c as any).user) === String(user.userId);
+              return (
+                <div key={c._id} className="rounded-md border border-border p-3">
+                  <div className="text-sm text-muted-foreground flex items-center justify-between">
+                    <span>
+                      <strong className="text-foreground">{c.username || "User"}</strong>
+                      <span className="ml-2">{new Date(c.createdAt).toLocaleString()}</span>
+                    </span>
+                    {isOwner && (
+                      <span className="flex gap-2">
+                        {editingId === c._id ? (
+                          <>
+                            <Button size="sm" variant="secondary" onClick={() => handleUpdate(c._id)}>
+                              Save
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>
+                              Cancel
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button size="sm" variant="outline" onClick={() => { setEditingId(c._id); setEditText(c.comment); }}>
+                              Edit
+                            </Button>
+                            <Button size="sm" variant="destructive" onClick={() => handleDelete(c._id)}>
+                              Delete
+                            </Button>
+                          </>
+                        )}
+                      </span>
+                    )}
+                  </div>
+                  {editingId === c._id ? (
+                    <Textarea className="mt-2" value={editText} onChange={(e) => setEditText(e.target.value)} rows={3} />
+                  ) : (
+                    <p className="mt-2 text-foreground whitespace-pre-wrap">{c.comment}</p>
+                  )}
+                </div>
+              );
+            })}
+            {comments.length === 0 && (
+              <p className="text-sm text-muted-foreground">Be the first to comment.</p>
+            )}
+          </div>
+        </section>
       </div>
 
       <div className="md:w-1/4 w-full flex flex-col gap-3 sticky top-24 self-start">

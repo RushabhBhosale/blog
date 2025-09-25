@@ -17,6 +17,15 @@ import { replaceItemListPlaceholders } from "@/lib/list-render";
 
 const slugOptions = { lower: true, strict: true, trim: true } as const;
 
+function stripHtmlToText(html: string) {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export async function GET(
   req: Request,
   context: { params: Promise<{ slug: string }> },
@@ -144,9 +153,16 @@ export async function PUT(
       update.$unset = { hub: "" };
     }
 
+    const plain = stripHtmlToText(finalContent || "");
+    const words = plain ? plain.split(/\s+/).filter(Boolean).length : 0;
+    const readingTimeMinutes = Math.max(1, Math.ceil(words / 200));
+
     const updatedBlog = await blog.findOneAndUpdate(
       { slug },
-      update,
+      {
+        ...update,
+        $set: { ...(update.$set || {}), wordCount: words, readingTimeMinutes },
+      },
       { new: true },
     );
 

@@ -28,6 +28,7 @@ export interface BlogInterface {
   metaTitle?: string;
   metaDescription?: string;
   likes: any;
+  viewCount: number;
   comment: any;
   enableFaqSchema?: boolean;
   faqs?: { question: string; answer: string }[];
