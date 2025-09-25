@@ -26,6 +26,7 @@ interface Post {
   slug: string;
   title: string;
   category: string;
+  status?: string;
   createdAt: string;
 }
 
@@ -94,6 +95,7 @@ const PostsPage = () => {
             <TableRow>
               <TableHead>Title</TableHead>
               <TableHead className="hidden md:inline">Category</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -109,6 +111,33 @@ const PostsPage = () => {
                   {new Date(post.createdAt).toLocaleDateString()}
                 </TableCell>
                 <TableCell className="flex gap-2">
+                  <Select
+                    value={post.status || "Draft"}
+                    onValueChange={async (val) => {
+                      try {
+                        await axiosClient.patch(`/blog/${post.slug}/status`, {
+                          status: val,
+                        });
+                        setPosts((p) =>
+                          p.map((x) =>
+                            x._id === post._id ? { ...x, status: val } : x,
+                          ),
+                        );
+                      } catch {
+                        // ignore
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="w-[140px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Draft">Draft</SelectItem>
+                      <SelectItem value="Pending">Pending</SelectItem>
+                      <SelectItem value="Published">Published</SelectItem>
+                      <SelectItem value="Hide">Hide</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <Button asChild variant="outline" size="sm">
                     <Link href={`/admin/posts/${post.slug}`}>Edit</Link>
                   </Button>

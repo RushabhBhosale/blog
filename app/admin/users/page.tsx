@@ -27,6 +27,7 @@ type User = {
   email: string;
   role?: string;
   isActive?: boolean;
+  canAutoPublish?: boolean;
   createdAt: string;
 };
 
@@ -65,6 +66,17 @@ export default function UsersPage() {
     }
   };
 
+  const setPosting = async (id: string, canAutoPublish: boolean) => {
+    try {
+      await axiosClient.put(`/user/${id}`, { canAutoPublish });
+      setUsers((p) =>
+        p.map((u) => (u._id === id ? { ...u, canAutoPublish } : u)),
+      );
+    } catch {
+      toast.error("Failed to update posting policy");
+    }
+  };
+
   const remove = async (id: string) => {
     try {
       await axiosClient.delete(`/user/${id}`);
@@ -100,6 +112,7 @@ export default function UsersPage() {
             <TableHead>Email</TableHead>
             <TableHead>Role</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Posting</TableHead>
             <TableHead>Joined</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -131,6 +144,22 @@ export default function UsersPage() {
                 >
                   {u.isActive ? "Active" : "Inactive"}
                 </Button>
+              </TableCell>
+              <TableCell>
+                <Select
+                  value={u.canAutoPublish ? "auto" : "approval"}
+                  onValueChange={(val) =>
+                    setPosting(u._id, val === "auto" ? true : false)
+                  }
+                >
+                  <SelectTrigger className="w-[160px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="auto">Auto publish</SelectItem>
+                    <SelectItem value="approval">Needs approval</SelectItem>
+                  </SelectContent>
+                </Select>
               </TableCell>
               <TableCell>
                 {new Date(u.createdAt).toLocaleDateString()}

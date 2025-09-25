@@ -39,6 +39,8 @@ export async function PUT(
     const update: any = {};
     if (typeof body.role === "string") update.role = body.role;
     if (typeof body.isActive === "boolean") update.isActive = body.isActive;
+    if (typeof body.canAutoPublish === "boolean")
+      update.canAutoPublish = body.canAutoPublish;
     if (!Object.keys(update).length) {
       return NextResponse.json(
         { error: "No valid fields to update" },

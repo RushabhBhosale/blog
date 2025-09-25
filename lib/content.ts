@@ -25,7 +25,7 @@ export async function getPostsByHub(categorySlug: string, hubSlug: string) {
   const posts = await Blog.find({
     "hub.slug": hubSlug,
     category: new RegExp(`^${categorySlug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i"),
-    status: { $ne: "Hide" },
+    status: "Published",
   })
     .sort({ createdAt: -1 })
     .select("title slug category hub")

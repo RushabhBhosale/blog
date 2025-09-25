@@ -7,7 +7,9 @@ import type { ISitemapField } from "next-sitemap";
 export const runtime = "nodejs";
 
 export async function GET() {
-  const blogs = await Blog.find().select("slug updatedAt category hub");
+  const blogs = await Blog.find({ status: "Published" }).select(
+    "slug updatedAt category hub",
+  );
   const blogFields: ISitemapField[] = blogs.map((blog: any) => {
     const loc = blog?.hub?.slug && blog?.category
       ? `https://dailysparks.in/blogs/${encodeURIComponent(blog.category)}/${encodeURIComponent(blog.hub.slug)}/${encodeURIComponent(blog.slug)}`

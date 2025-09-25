@@ -19,7 +19,7 @@ async function fetchBlog(slug: string) {
   await dbReady;
   return await Blog.findOne({ slug })
     .select(
-      "title metaTitle metaDescription image content createdAt updatedAt author authorId category tags slug imageAlt likes hub",
+      "title metaTitle metaDescription image content createdAt updatedAt author authorId category tags slug imageAlt likes hub status",
     )
     .lean();
 }
@@ -59,7 +59,8 @@ export default async function Page(context: {
 }) {
   const { category, hub, slug } = await context.params;
   const blogData: any = await fetchBlog(slug);
-  if (!blogData) notFound();
+  const canView = !blogData?.status || blogData?.status === "Published";
+  if (!blogData || !canView) notFound();
   const catOk = new RegExp(`^${category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i").test(
     blogData.category || "",
   );

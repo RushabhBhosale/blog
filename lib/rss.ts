@@ -28,7 +28,7 @@ type RssOptions = {
 };
 
 export async function generateRssXml(opts: RssOptions = {}) {
-  const query: any = { status: { $ne: "Hide" } };
+  const query: any = { status: "Published" };
   if (opts.category) {
     // Case-insensitive exact match for category (same as category page)
     const regex = new RegExp(

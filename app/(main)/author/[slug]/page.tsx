@@ -55,7 +55,9 @@ export default async function AuthorPage({ params }: { params: any }) {
   const re = authorRegexFromSlug(slug);
   const blogs = await Blog.find({ author: re })
     .sort({ createdAt: -1 })
-    .select("title slug image imageAlt category author authorId createdAt")
+    .select(
+      "title slug image imageAlt category author authorId createdAt status hub",
+    )
     .lean();
 
   let user: any = null;
@@ -175,34 +177,53 @@ export default async function AuthorPage({ params }: { params: any }) {
         <p className="text-muted-foreground">No posts yet.</p>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {blogs.map((b: any) => (
-            <Link
-              key={b._id}
-              href={`/blog/${encodeURIComponent(b.slug)}`}
-              className="group rounded-lg overflow-hidden border border-border bg-card/70 hover:shadow-md transition"
-            >
-              <div className="relative w-full h-44">
-                <Image
-                  src={b.image}
-                  alt={b.imageAlt || b.title}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover"
-                />
-              </div>
-              <div className="p-4">
-                <div className="text-xs text-muted-foreground mb-1">
-                  {b.category}
+          {blogs.map((b: any) => {
+            const href = b?.hub?.slug && b?.category
+              ? `/blogs/${encodeURIComponent(b.category)}/${encodeURIComponent(b.hub.slug)}/${encodeURIComponent(b.slug)}`
+              : `/blog/${encodeURIComponent(b.slug)}`;
+            const badge = String(b.status || "");
+            const badgeCls =
+              badge === "Published"
+                ? "bg-emerald-100 text-emerald-700 border-emerald-200"
+                : badge === "Pending"
+                ? "bg-amber-100 text-amber-700 border-amber-200"
+                : badge === "Draft"
+                ? "bg-slate-100 text-slate-700 border-slate-200"
+                : badge === "Hide"
+                ? "bg-rose-100 text-rose-700 border-rose-200"
+                : "bg-muted text-muted-foreground border-border";
+            return (
+              <Link
+                key={b._id}
+                href={href}
+                className="group rounded-lg overflow-hidden border border-border bg-card/70 hover:shadow-md transition"
+              >
+                <div className="relative w-full h-44">
+                  <Image
+                    src={b.image}
+                    alt={b.imageAlt || b.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover"
+                  />
+                  <div className={`absolute top-2 left-2 px-2 py-0.5 rounded text-[11px] border ${badgeCls}`}>
+                    {badge || "—"}
+                  </div>
                 </div>
-                <h2 className="text-base font-semibold line-clamp-2 group-hover:underline">
-                  {b.title}
-                </h2>
-                <div className="text-xs text-muted-foreground mt-2">
-                  By {b.author} • {new Date(b.createdAt).toLocaleDateString()}
+                <div className="p-4">
+                  <div className="text-xs text-muted-foreground mb-1">
+                    {b.category}
+                  </div>
+                  <h2 className="text-base font-semibold line-clamp-2 group-hover:underline">
+                    {b.title}
+                  </h2>
+                  <div className="text-xs text-muted-foreground mt-2">
+                    By {b.author} • {new Date(b.createdAt).toLocaleDateString()}
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

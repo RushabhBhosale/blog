@@ -7,7 +7,9 @@ const userSchema = new Schema(
     password: { type: String, required: true },
     imageUrl: { type: String },
     role: { type: String },
-    isActive: { type: Boolean },
+    isActive: { type: Boolean, default: true },
+    // Posting policy: if true, user posts auto‑publish; else require approval
+    canAutoPublish: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

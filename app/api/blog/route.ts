@@ -1,5 +1,6 @@
 import "@/lib/db"; // initialize DB once per server instance
 import Blog from "@/models/blog";
+import User from "@/models/user";
 import { NextRequest, NextResponse } from "next/server";
 import { notifySubscribersOfNewBlog } from "@/lib/newsletter";
 import slugify from "slugify";
@@ -112,6 +113,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Determine publication status based on user policy
+    let status: "Draft" | "Published" | "Pending" | "Hide" = "Published";
+    try {
+      const dbUser = await User.findById(decoded.userId).lean();
+      const canAuto = dbUser?.role === "admin" || dbUser?.canAutoPublish;
+      status = canAuto ? "Published" : "Pending";
+    } catch {}
+
     const newBlog = await Blog.create({
       title,
       slug: normalizedSlug,
@@ -124,6 +133,7 @@ export async function POST(req: NextRequest) {
       metaDescription,
       author: decoded.name || decoded.email,
       authorId: decoded.userId,
+      status,
       enableFaqSchema: shouldEnableFaq,
       faqs: shouldEnableFaq ? sanitizedFaqs : [],
       enableListSchema: shouldEnableList,

@@ -40,7 +40,7 @@ const getBlogBySlug = cache(async (slug: string) => {
   await dbReady;
   return await BlogM.findOne({ slug })
     .select(
-      "title metaTitle metaDescription image content createdAt updatedAt author authorId category tags slug imageAlt likes hub"
+      "title metaTitle metaDescription image content createdAt updatedAt author authorId category tags slug imageAlt likes hub status"
     )
     .lean();
 });
@@ -97,8 +97,8 @@ export default async function Blog(context: {
 }) {
   const { slug } = await context.params;
   const blogData: any = await getBlogBySlug(slug);
-
-  if (!blogData) {
+  const canView = !blogData?.status || blogData?.status === "Published";
+  if (!blogData || !canView) {
     return <div>Blog not found</div>;
   }
 

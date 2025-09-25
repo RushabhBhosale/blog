@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
 
     const users = await User.find(
       {},
-      "name email role isActive createdAt",
+      "name email role isActive canAutoPublish createdAt",
     ).sort({ createdAt: -1 });
     return NextResponse.json({ users }, { status: 200 });
   } catch (error) {

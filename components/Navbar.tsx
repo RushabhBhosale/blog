@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, X, Plus, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/utils/useAuth";
@@ -9,7 +9,14 @@ import { usePathname } from "next/navigation";
 
 export default function BlogNavbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { isAuthenticated, signOut } = useAuth();
+  const { isAuthenticated, signOut, user } = useAuth();
+  const toSlug = (s: string) =>
+    (s || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/gi, "-")
+      .replace(/^-+|-+$/g, "");
+  const authorSlug = toSlug(user?.name || user?.email || "");
   const pathname = usePathname();
 
   const categories = [
@@ -21,6 +28,22 @@ export default function BlogNavbar() {
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
   ];
+
+  // Lock body scroll and close on Escape when menu is open
+  useEffect(() => {
+    if (isOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key === "Escape") setIsOpen(false);
+      };
+      window.addEventListener("keydown", onKey);
+      return () => {
+        window.removeEventListener("keydown", onKey);
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [isOpen]);
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -57,6 +80,11 @@ export default function BlogNavbar() {
           <div className="hidden lg:flex items-center space-x-3">
             {isAuthenticated ? (
               <>
+                <Link href={authorSlug ? `/author/${authorSlug}` : "/"}>
+                  <Button size="sm" variant="outline" className="text-gray-700">
+                    My Posts
+                  </Button>
+                </Link>
                 <Link href="/blog/add">
                   <Button
                     size="sm"
@@ -99,57 +127,98 @@ export default function BlogNavbar() {
           </button>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation: slide-in from right with backdrop */}
         {isOpen && (
-          <div className="lg:hidden border-t border-gray-200">
-            <div className="py-4 space-y-2">
-              {categories.map((cat) => (
-                <Link
-                  key={cat.name}
-                  href={cat.href}
-                  className={`block px-4 py-3 rounded-lg text-sm font-medium ${
-                    pathname === cat.href
-                      ? "bg-blue-50 text-blue-600 border border-blue-200"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  }`}
+          <div className="lg:hidden fixed inset-0 z-50" role="dialog" aria-modal="true">
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 bg-black/40 backdrop-blur-[1px] transition-opacity duration-200 opacity-100"
+              onClick={() => setIsOpen(false)}
+            />
+            {/* Panel */}
+            <div
+              className={`absolute inset-y-0 right-0 w-[85%] max-w-sm sm:max-w-md bg-white shadow-2xl rounded-l-2xl transform transition-transform duration-300 ease-out ${
+                isOpen ? "translate-x-0" : "translate-x-full"
+              }`}
+            >
+              <div className="flex items-center justify-between p-4 border-b">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">DS</span>
+                  </div>
+                  <span className="font-semibold">Daily Sparks</span>
+                </div>
+                <button
+                  aria-label="Close menu"
                   onClick={() => setIsOpen(false)}
+                  className="p-2 rounded-md hover:bg-gray-50 text-gray-600"
                 >
-                  {cat.name}
-                </Link>
-              ))}
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
 
-              <div className="pt-4 border-t border-gray-200 space-y-2">
-                {isAuthenticated ? (
-                  <>
-                    <Link href="/blog/add" onClick={() => setIsOpen(false)}>
-                      <Button className="w-full bg-primary hover:bg-blue-700 text-white justify-start">
-                        <Plus className="w-4 h-4 mr-2" />
-                        New Post
+              <div className="h-[calc(100vh-64px)] overflow-y-auto">
+                <nav className="p-3">
+                  <p className="px-3 pb-2 text-xs uppercase tracking-wide text-muted-foreground">Browse</p>
+                  <ul className="space-y-1">
+                    {categories.map((cat) => (
+                      <li key={cat.name}>
+                        <Link
+                          href={cat.href}
+                          className={`block rounded-lg px-3 py-2 text-sm font-medium transition ${
+                            pathname === cat.href
+                              ? "bg-primary/10 text-primary border border-primary/30"
+                              : "text-gray-700 hover:bg-gray-50"
+                          }`}
+                          onClick={() => setIsOpen(false)}
+                        >
+                          {cat.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+
+                <div className="mx-3 my-2 border-t border-gray-200" />
+
+                <div className="p-3 space-y-2">
+                  {isAuthenticated ? (
+                    <>
+                      <Link
+                        href={authorSlug ? `/author/${authorSlug}` : "/"}
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <Button variant="outline" className="w-full justify-start">
+                          My Posts
+                        </Button>
+                      </Link>
+                      <Link href="/blog/add" onClick={() => setIsOpen(false)}>
+                        <Button className="w-full justify-start">
+                          <Plus className="w-4 h-4 mr-2" />
+                          New Post
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-gray-700 hover:bg-gray-50"
+                        onClick={() => {
+                          signOut();
+                          setIsOpen(false);
+                        }}
+                      >
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Sign Out
+                      </Button>
+                    </>
+                  ) : (
+                    <Link href="/signin" onClick={() => setIsOpen(false)}>
+                      <Button variant="outline" className="w-full justify-start">
+                        <User className="w-4 h-4 mr-2" />
+                        Sign In
                       </Button>
                     </Link>
-                    <Button
-                      variant="ghost"
-                      className="w-full text-gray-600 hover:bg-gray-50 hover:text-gray-900 justify-start"
-                      onClick={() => {
-                        signOut();
-                        setIsOpen(false);
-                      }}
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Sign Out
-                    </Button>
-                  </>
-                ) : (
-                  <Link href="/signin" onClick={() => setIsOpen(false)}>
-                    <Button
-                      variant="outline"
-                      className="w-full border-gray-300 text-gray-600 hover:bg-gray-50 hover:text-gray-900 justify-start"
-                    >
-                      <User className="w-4 h-4 mr-2" />
-                      Sign In
-                    </Button>
-                  </Link>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           </div>

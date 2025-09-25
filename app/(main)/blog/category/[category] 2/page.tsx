@@ -1,6 +1,5 @@
 import CategoryPage from "./Category";
-import "@/lib/db"; // initialize DB once per server instance
-import { dbReady } from "@/lib/db";
+import { connectDB } from "@/lib/db";
 import Blog from "@/models/blog";
 import type { Metadata } from "next";
 
@@ -20,19 +19,14 @@ export interface BlogInterface {
   metaDescription?: string;
   likes: any;
   comment: any;
-  enableFaqSchema?: boolean;
-  faqs?: { question: string; answer: string }[];
-  hub?: { slug?: string; title?: string };
 }
 
 const SITE = "https://dailysparks.in";
 
-export async function generateMetadata(context: {
-  params: Promise<{ category: string }>;
-}): Promise<Metadata> {
-  const { category } = await context.params;
+export async function generateMetadata({ params }: any): Promise<Metadata> {
+  const category = params?.category ?? "";
   const canonical = new URL(
-    `/blogs/${encodeURIComponent(category)}`,
+    `/blog/category/${encodeURIComponent(category)}`,
     SITE
   ).toString();
 
@@ -60,13 +54,11 @@ export default async function Category(context: {
 }) {
   const { category } = await context.params;
   console.log("sss", category);
-  await dbReady;
+
+  await connectDB();
   // Case-insensitive exact match for category
-  const regex = new RegExp(
-    `^${category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
-    "i"
-  );
-  const blogs = await Blog.find({ category: regex, status: "Published" })
+  const regex = new RegExp(`^${category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i");
+  const blogs = await Blog.find({ category: regex })
     .select("-content")
     .sort({ createdAt: -1 })
     .lean();
