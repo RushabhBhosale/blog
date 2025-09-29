@@ -19,7 +19,7 @@ async function fetchBlog(slug: string) {
   await dbReady;
   return await Blog.findOne({ slug })
     .select(
-      "title metaTitle metaDescription image content createdAt updatedAt author authorId category tags slug imageAlt likes hub status viewCount readingTimeMinutes wordCount",
+      "title metaTitle metaDescription image content createdAt updatedAt author authorId category tags slug imageAlt likes hub status viewCount readingTimeMinutes wordCount enableFaqSchema faqs",
     )
     .lean();
 }
@@ -145,6 +145,25 @@ export default async function Page(context: {
     ],
   } as const;
 
+  const faqSchema =
+    blogData?.enableFaqSchema && Array.isArray(blogData?.faqs) && blogData.faqs.length
+      ? {
+          "@type": "FAQPage",
+          mainEntity: blogData.faqs.map((faq: any) => ({
+            "@type": "Question",
+            name: faq.question,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: faq.answer,
+            },
+          })),
+        }
+      : null;
+
+  const graphItems = faqSchema
+    ? [blogPosting, breadcrumbList, faqSchema]
+    : [blogPosting, breadcrumbList];
+
   // related posts (same as /blog/[slug])
   await dbReady;
   const tagList: string[] = Array.isArray(blogData?.tags) ? blogData.tags : [];
@@ -180,7 +199,10 @@ export default async function Page(context: {
         id="jsonld-blog-hub"
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({ "@context": "https://schema.org", "@graph": [blogPosting, breadcrumbList] }),
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": graphItems,
+          }),
         }}
       />
       <BlogDetailsPage
