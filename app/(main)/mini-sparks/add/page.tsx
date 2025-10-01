@@ -7,7 +7,13 @@ import slugify from "slugify";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAuth } from "@/utils/useAuth";
 import { toast } from "sonner";
 import { ImageUploader } from "@/components/ImageUploader";
@@ -20,7 +26,7 @@ export default function AddMiniSparkPage() {
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [kind, setKind] = useState("movie");
-  const [rating, setRating] = useState<number | "">("");
+  const [rating, setRating] = useState("");
   const [location, setLocation] = useState("");
   const [format, setFormat] = useState("movie");
   const [language, setLanguage] = useState("English");
@@ -37,7 +43,11 @@ export default function AddMiniSparkPage() {
     e.preventDefault();
     if (!isAuthenticated) return toast.error("Sign in to post");
     if (!title || !content) return toast.error("Title and content required");
-    const wc = content.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
+    const wc = content
+      .replace(/<[^>]+>/g, " ")
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean).length;
     if (wc < 50 || wc > 350) {
       toast.error("Keep it short: about 100–250 words");
       return;
@@ -67,10 +77,16 @@ export default function AddMiniSparkPage() {
     <div className="max-w-2xl mx-auto px-4 py-10">
       <h1 className="text-2xl font-bold mb-4">Write a Mini Spark</h1>
       <form onSubmit={submit} className="space-y-4">
-        <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <Input
+          placeholder="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Select value={kind} onValueChange={setKind}>
-            <SelectTrigger><SelectValue placeholder="Type" /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue placeholder="Type" />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="movie">Movie</SelectItem>
               <SelectItem value="travel">Travel</SelectItem>
@@ -78,28 +94,40 @@ export default function AddMiniSparkPage() {
               <SelectItem value="other">Other</SelectItem>
             </SelectContent>
           </Select>
-          <Input placeholder="Location (optional)" value={location} onChange={(e) => setLocation(e.target.value)} />
           <Input
-            placeholder="Rating 1–10 (movies)"
-            type="number"
-            min={1}
-            max={10}
-            value={rating as any}
-            onChange={(e) => setRating(e.target.value ? Number(e.target.value) : "")}
+            placeholder="Location (optional)"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+          />
+          <Input
+            placeholder="Rating"
+            type="text"
+            inputMode="decimal"
+            value={rating}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (/^\d*\.?\d*$/.test(val)) {
+                setRating(val);
+              }
+            }}
             disabled={kind !== "movie"}
           />
         </div>
         {kind === "movie" && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Select value={format} onValueChange={setFormat}>
-              <SelectTrigger><SelectValue placeholder="Format" /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder="Format" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="movie">Movie</SelectItem>
                 <SelectItem value="tvseries">TV Series</SelectItem>
               </SelectContent>
             </Select>
             <Select value={language} onValueChange={setLanguage}>
-              <SelectTrigger><SelectValue placeholder="Language" /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder="Language" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="English">English</SelectItem>
                 <SelectItem value="Hindi">Hindi</SelectItem>
@@ -134,7 +162,9 @@ export default function AddMiniSparkPage() {
           onChange={(e) => setContent(e.target.value)}
           rows={8}
         />
-        <Button type="submit" disabled={posting} className="w-full">{posting ? "Posting..." : "Publish Mini Spark"}</Button>
+        <Button type="submit" disabled={posting} className="w-full">
+          {posting ? "Posting..." : "Publish Mini Spark"}
+        </Button>
       </form>
     </div>
   );

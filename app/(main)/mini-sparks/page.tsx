@@ -60,7 +60,15 @@ export default async function MiniSparksPage() {
                 dangerouslySetInnerHTML={{ __html: it.content }}
               />
               {typeof it.rating === "number" && (
-                <div className="mt-2 text-amber-500 text-sm">{"★".repeat(it.rating)}{"☆".repeat(10 - it.rating)} <span className="text-muted-foreground">{it.rating}/10</span></div>
+                <div className="mt-2 flex items-center gap-2 text-sm">
+                  <div className="h-1.5 w-24 rounded bg-slate-200">
+                    <div
+                      className="h-1.5 rounded bg-amber-500"
+                      style={{ width: `${Math.max(0, Math.min(100, it.rating * 10))}%` }}
+                    />
+                  </div>
+                  <span className="text-muted-foreground">{(Math.round(it.rating * 10) / 10).toFixed(1)}/10</span>
+                </div>
               )}
             </div>
           </Link>

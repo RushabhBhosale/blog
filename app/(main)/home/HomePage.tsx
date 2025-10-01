@@ -221,7 +221,15 @@ export default function HomePage({ allblogs, miniSparks }: Props) {
                         dangerouslySetInnerHTML={{ __html: m.content }}
                       />
                       {typeof m.rating === "number" && (
-                        <div className="mt-2 text-amber-500 text-sm">{"★".repeat(m.rating)}{"☆".repeat(10 - m.rating)} <span className="text-muted-foreground">{m.rating}/10</span></div>
+                        <div className="mt-2 flex items-center gap-2 text-sm">
+                          <div className="h-1.5 w-24 rounded bg-slate-200">
+                            <div
+                              className="h-1.5 rounded bg-amber-500"
+                              style={{ width: `${Math.max(0, Math.min(100, m.rating * 10))}%` }}
+                            />
+                          </div>
+                          <span className="text-muted-foreground">{(Math.round(m.rating * 10) / 10).toFixed(1)}/10</span>
+                        </div>
                       )}
                     </div>
                   </Link>

@@ -60,7 +60,15 @@ export default async function MiniSparkDetail(context: { params: Promise<{ slug:
         ) : null}
         <span>{new Date(it.createdAt).toLocaleDateString()}</span>
         {typeof it.rating === "number" && (
-          <span className="text-amber-500">{"★".repeat(it.rating)}{"☆".repeat(10 - it.rating)} <span className="text-muted-foreground">{it.rating}/10</span></span>
+          <span className="flex items-center gap-2">
+            <span className="h-1.5 w-24 rounded bg-slate-200 inline-block">
+              <span
+                className="block h-1.5 rounded bg-amber-500"
+                style={{ width: `${Math.max(0, Math.min(100, it.rating * 10))}%` }}
+              />
+            </span>
+            <span className="text-muted-foreground">{(Math.round(it.rating * 10) / 10).toFixed(1)}/10</span>
+          </span>
         )}
       </div>
       {it.image ? (
