@@ -384,6 +384,8 @@ export default function EditBlogPage() {
           </SelectContent>
         </Select>
 
+        {/* Mini Sparks have movie/TV and language fields. Blog posts do not. */}
+
         {/* Hub selector/creator (optional) */}
         {category ? (
           <div className="space-y-2">

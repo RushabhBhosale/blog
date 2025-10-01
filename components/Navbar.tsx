@@ -25,6 +25,7 @@ export default function BlogNavbar() {
     { name: "Tech", href: "/blogs/tech" },
     { name: "Travel", href: "/blogs/travel" },
     { name: "Media", href: "/blogs/media" },
+    { name: "Mini Sparks", href: "/mini-sparks" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
   ];

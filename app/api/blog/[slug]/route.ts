@@ -72,6 +72,8 @@ export async function PUT(
       enableListSchema,
       listItems,
       hub,
+      format,
+      language,
     } = await req.json();
 
     if (!title || !content || !image || !author || !category) {
@@ -161,7 +163,15 @@ export async function PUT(
       { slug },
       {
         ...update,
-        $set: { ...(update.$set || {}), wordCount: words, readingTimeMinutes },
+        $set: {
+          ...(update.$set || {}),
+          wordCount: words,
+          readingTimeMinutes,
+          ...(typeof format === "string" && ["movie", "tvseries"].includes(format)
+            ? { format }
+            : {}),
+          ...(typeof language === "string" ? { language } : {}),
+        },
       },
       { new: true },
     );

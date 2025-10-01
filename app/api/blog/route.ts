@@ -63,6 +63,8 @@ export async function POST(req: NextRequest) {
       enableListSchema,
       listItems,
       hub,
+      format,
+      language,
     } = await req.json();
 
     if (!title || !content || !category) {
@@ -157,6 +159,11 @@ export async function POST(req: NextRequest) {
           : undefined,
       wordCount: words,
       readingTimeMinutes,
+      format:
+        typeof format === "string" && ["movie", "tvseries"].includes(format)
+          ? format
+          : undefined,
+      language: typeof language === "string" ? language : undefined,
     });
 
     // Fire-and-forget email notifications; do not block response

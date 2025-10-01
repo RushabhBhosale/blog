@@ -6,10 +6,12 @@ import { BlogInterface } from "./page";
 import axiosClient from "@/lib/axiosclient";
 import { toast } from "sonner";
 
-type Props = { allblogs: BlogInterface[] };
+type Mini = { _id: string; title: string; slug: string; content: string; kind?: string; rating?: number; createdAt?: string; image?: string; imageAlt?: string };
+type Props = { allblogs: BlogInterface[]; miniSparks?: Mini[] };
 
-export default function HomePage({ allblogs }: Props) {
+export default function HomePage({ allblogs, miniSparks }: Props) {
   const blogs = allblogs || [];
+  const minis = miniSparks || [];
 
   const fmt = (d?: string) =>
     d
@@ -184,6 +186,49 @@ export default function HomePage({ allblogs }: Props) {
               ))}
             </div>
           </section>
+
+          {!!minis.length && (
+            <section>
+              <SectionHeader
+                title="Mini Sparks"
+                href="/mini-sparks"
+                cta="View all →"
+                sub="Short movie reviews and travel notes"
+              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {minis.slice(0, 6).map((m) => (
+                  <Link
+                    key={m._id}
+                    href={`/mini-sparks/${encodeURIComponent(m.slug)}`}
+                    className="rounded-xl border border-border bg-card hover:shadow-sm transition overflow-hidden"
+                  >
+                    {m.image ? (
+                      <div className="relative w-full aspect-[16/9]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={m.image} alt={m.imageAlt || m.title} className="w-full h-full object-cover" />
+                      </div>
+                    ) : null}
+                    <div className="p-4 text-xs text-muted-foreground flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                        {m.kind || "mini"}
+                      </span>
+                      <span>{fmt(m.createdAt)}</span>
+                    </div>
+                    <div className="px-4 pb-4">
+                      <h3 className="font-semibold line-clamp-2">{m.title}</h3>
+                      <p
+                        className="mt-2 text-sm text-muted-foreground line-clamp-3"
+                        dangerouslySetInnerHTML={{ __html: m.content }}
+                      />
+                      {typeof m.rating === "number" && (
+                        <div className="mt-2 text-amber-500 text-sm">{"★".repeat(m.rating)}{"☆".repeat(10 - m.rating)} <span className="text-muted-foreground">{m.rating}/10</span></div>
+                      )}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
 
           <section>
             <SectionHeader

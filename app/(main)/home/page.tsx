@@ -3,6 +3,7 @@ import HomePage from "./HomePage";
 import "@/lib/db"; // initialize DB once per server instance
 import { dbReady } from "@/lib/db";
 import Blog from "@/models/blog";
+import MiniSpark from "@/models/minispark";
 
 export const metadata: Metadata = {
   title: "Daily Sparks – Fresh Ideas, Every Day",
@@ -43,5 +44,11 @@ export default async function Home() {
     .select("-content")
     .sort({ createdAt: -1 })
     .lean();
-  return <HomePage allblogs={JSON.parse(JSON.stringify(blogs))} />;
+  const minis = await MiniSpark.find().sort({ createdAt: -1 }).limit(8).lean();
+  return (
+    <HomePage
+      allblogs={JSON.parse(JSON.stringify(blogs))}
+      miniSparks={JSON.parse(JSON.stringify(minis))}
+    />
+  );
 }
