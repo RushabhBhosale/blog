@@ -1,6 +1,7 @@
 import "@/lib/db"; // initialize DB once per server instance
 import Blog from "@/models/blog";
 import Category from "@/models/category";
+import MiniSpark from "@/models/minispark";
 import { getServerSideSitemap } from "next-sitemap";
 import type { ISitemapField } from "next-sitemap";
 
@@ -41,10 +42,20 @@ export async function GET() {
     },
   ];
 
+  // Mini Sparks entries
+  const minis = await MiniSpark.find().select("slug updatedAt");
+  const miniFields: ISitemapField[] = minis.map((m: any) => ({
+    loc: `https://dailysparks.in/mini-sparks/${encodeURIComponent(m.slug)}`,
+    lastmod: m.updatedAt?.toISOString(),
+    changefreq: "weekly" as const,
+    priority: 0.6,
+  }));
+
   const allFields: ISitemapField[] = [
     ...staticFields,
     ...categoryFields,
     ...blogFields,
+    ...miniFields,
   ];
 
   return getServerSideSitemap(allFields);
