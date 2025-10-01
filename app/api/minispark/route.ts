@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
     const rating = body?.rating ? Number(body.rating) : undefined;
     const location = (body?.location || "").toString().trim() || undefined;
     const tags: string[] = Array.isArray(body?.tags) ? body.tags : [];
+    const verdict: string | undefined = (body?.verdict || "").toString().trim() || undefined;
     const incomingSlug: string = (body?.slug || "").toString().trim();
     const image: string | undefined = (body?.image || "").toString().trim() || undefined;
     const imageAlt: string | undefined = (body?.imageAlt || "").toString();
@@ -68,6 +69,7 @@ export async function POST(req: NextRequest) {
       rating,
       location,
       tags,
+      verdict,
       author: decoded.name || decoded.email,
       authorId: decoded.userId,
       image,

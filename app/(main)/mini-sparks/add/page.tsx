@@ -34,6 +34,9 @@ export default function AddMiniSparkPage() {
   const [format, setFormat] = useState("movie");
   const [language, setLanguage] = useState("English");
   const [content, setContent] = useState("");
+  const [verdict, setVerdict] = useState("");
+  const [tagInput, setTagInput] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
   const [posting, setPosting] = useState(false);
   const [image, setImage] = useState("");
   const [imageAlt, setImageAlt] = useState("");
@@ -66,6 +69,8 @@ export default function AddMiniSparkPage() {
       }
       if (image) body.image = image;
       if (imageAlt) body.imageAlt = imageAlt;
+      if (verdict) body.verdict = verdict;
+      if (tags.length) body.tags = tags;
       await axios.post("/api/minispark", body, { withCredentials: true });
       toast.success("Mini Spark posted");
       router.push("/mini-sparks");
@@ -162,6 +167,73 @@ export default function AddMiniSparkPage() {
             onChange={(e) => setImageAlt(e.target.value)}
           />
         </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Input
+            placeholder="Verdict (e.g., Must Watch, Recommended)"
+            value={verdict}
+            onChange={(e) => setVerdict(e.target.value)}
+          />
+          <Input
+            placeholder="Add tags (comma or Enter)"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === ",") {
+                e.preventDefault();
+                const parts = tagInput
+                  .split(",")
+                  .map((t) => t.trim())
+                  .filter(Boolean);
+                if (parts.length) {
+                  const set = new Set(tags.map((t) => t.toLowerCase()));
+                  const merged = [...tags];
+                  parts.forEach((p) => {
+                    if (!set.has(p.toLowerCase())) {
+                      set.add(p.toLowerCase());
+                      merged.push(p);
+                    }
+                  });
+                  setTags(merged);
+                  setTagInput("");
+                }
+              }
+            }}
+            onBlur={() => {
+              const parts = tagInput
+                .split(",")
+                .map((t) => t.trim())
+                .filter(Boolean);
+              if (parts.length) {
+                const set = new Set(tags.map((t) => t.toLowerCase()));
+                const merged = [...tags];
+                parts.forEach((p) => {
+                  if (!set.has(p.toLowerCase())) {
+                    set.add(p.toLowerCase());
+                    merged.push(p);
+                  }
+                });
+                setTags(merged);
+                setTagInput("");
+              }
+            }}
+          />
+        </div>
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {tags.map((t) => (
+              <span key={t} className="px-2 py-0.5 rounded-full bg-muted text-foreground text-xs">
+                {t}
+                <button
+                  type="button"
+                  className="ml-2 text-muted-foreground hover:text-foreground"
+                  onClick={() => setTags(tags.filter((x) => x !== t))}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
         <Textarea
           placeholder="Your short review / experience (100–250 words). You can paste plain text or simple HTML."
           value={content}

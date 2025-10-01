@@ -29,6 +29,9 @@ export default function EditMiniSparkPage() {
   const [content, setContent] = useState("");
   const [image, setImage] = useState("");
   const [imageAlt, setImageAlt] = useState("");
+  const [verdict, setVerdict] = useState("");
+  const [tagInput, setTagInput] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -49,6 +52,8 @@ export default function EditMiniSparkPage() {
         setContent(it.content || "");
         setImage(it.image || "");
         setImageAlt(it.imageAlt || "");
+        setVerdict(it.verdict || "");
+        setTags(Array.isArray(it.tags) ? it.tags : []);
       } catch {
         toast.error("Failed to load Mini Spark");
         router.replace("/mini-sparks");
@@ -71,6 +76,8 @@ export default function EditMiniSparkPage() {
         content,
         image,
         imageAlt,
+        verdict: verdict || undefined,
+        tags,
       }, { withCredentials: true });
       toast.success("Mini Spark updated");
       router.push(`/mini-sparks/${encodeURIComponent(slug)}`);
@@ -149,6 +156,73 @@ export default function EditMiniSparkPage() {
           <ImageUploader onUpload={(url) => setImage(url)} />
           <Input placeholder="Image alt text (optional)" value={imageAlt} onChange={(e) => setImageAlt(e.target.value)} />
         </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Input
+            placeholder="Verdict (e.g., Must Watch, Recommended)"
+            value={verdict}
+            onChange={(e) => setVerdict(e.target.value)}
+          />
+          <Input
+            placeholder="Add tags (comma or Enter)"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === ",") {
+                e.preventDefault();
+                const parts = tagInput
+                  .split(",")
+                  .map((t) => t.trim())
+                  .filter(Boolean);
+                if (parts.length) {
+                  const set = new Set(tags.map((t) => t.toLowerCase()));
+                  const merged = [...tags];
+                  parts.forEach((p) => {
+                    if (!set.has(p.toLowerCase())) {
+                      set.add(p.toLowerCase());
+                      merged.push(p);
+                    }
+                  });
+                  setTags(merged);
+                  setTagInput("");
+                }
+              }
+            }}
+            onBlur={() => {
+              const parts = tagInput
+                .split(",")
+                .map((t) => t.trim())
+                .filter(Boolean);
+              if (parts.length) {
+                const set = new Set(tags.map((t) => t.toLowerCase()));
+                const merged = [...tags];
+                parts.forEach((p) => {
+                  if (!set.has(p.toLowerCase())) {
+                    set.add(p.toLowerCase());
+                    merged.push(p);
+                  }
+                });
+                setTags(merged);
+                setTagInput("");
+              }
+            }}
+          />
+        </div>
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {tags.map((t) => (
+              <span key={t} className="px-2 py-0.5 rounded-full bg-muted text-foreground text-xs">
+                {t}
+                <button
+                  type="button"
+                  className="ml-2 text-muted-foreground hover:text-foreground"
+                  onClick={() => setTags(tags.filter((x) => x !== t))}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
         <Textarea
           placeholder="Your short review / experience"
           value={content}
@@ -160,4 +234,3 @@ export default function EditMiniSparkPage() {
     </div>
   );
 }
-

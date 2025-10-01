@@ -34,7 +34,7 @@ export async function PUT(
     }
     const body = await req.json();
     const update: any = {};
-    ["title", "content", "kind", "location", "image", "imageAlt", "language"].forEach((k) => {
+    ["title", "content", "kind", "location", "image", "imageAlt", "language", "verdict"].forEach((k) => {
       if (typeof body?.[k] === "string") update[k] = body[k];
     });
     if (typeof body?.format === "string") {
