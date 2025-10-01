@@ -48,8 +48,8 @@ export default function AddMiniSparkPage() {
       .trim()
       .split(/\s+/)
       .filter(Boolean).length;
-    if (wc < 50 || wc > 350) {
-      toast.error("Keep it short: about 100–250 words");
+    if (wc < 20) {
+      toast.error("Too short review");
       return;
     }
     try {
