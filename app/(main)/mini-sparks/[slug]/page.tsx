@@ -21,6 +21,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const it: any = await getOne(slug);
+
   const title = it?.title ? `${it.title} — Mini Sparks` : "Mini Spark";
   const description =
     it?.content
@@ -28,16 +29,46 @@ export async function generateMetadata({
       .replace(/\s+/g, " ")
       .trim()
       .slice(0, 160) || "A Mini Spark";
+
   const canonical = new URL(
     `/mini-sparks/${encodeURIComponent(slug)}`,
     SITE
   ).toString();
+  const ogImage = it?.image ?? `${SITE}/og/minisparks-og.jpg`;
+  const published = it?.createdAt
+    ? new Date(it.createdAt).toISOString()
+    : undefined;
+  const modified = it?.updatedAt
+    ? new Date(it.updatedAt).toISOString()
+    : published;
+
   return {
     title,
     description,
     alternates: { canonical },
     metadataBase: new URL(SITE),
-    openGraph: { title, description, url: canonical },
+    openGraph: {
+      type: "article",
+      url: canonical,
+      title,
+      description,
+      images: [{ url: ogImage, width: 1200, height: 630 }],
+      locale: (it?.language || "en").replace("_", "-"),
+      siteName: "DailySparks",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
+    },
+    robots: { index: true, follow: true, "max-image-preview": "large" },
+    other: {
+      "article:published_time": published || "",
+      "article:modified_time": modified || "",
+      "article:section": it?.kind || "",
+      "article:tag": Array.isArray(it?.tags) ? it.tags.join(",") : "",
+    },
   };
 }
 
@@ -63,9 +94,27 @@ export default async function MiniSparkDetail(context: {
         ? "TVSeries"
         : "Movie"
       : "CreativeWork";
+  const dateStr = it.createdAt
+    ? new Date(it.createdAt).toLocaleDateString("en-IN", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    : "";
+
+  const ratingPercent =
+    typeof it.rating === "number"
+      ? Math.max(0, Math.min(100, it.rating * 10))
+      : null;
+  const ratingText =
+    typeof it.rating === "number"
+      ? (Math.round(it.rating * 10) / 10).toFixed(1)
+      : null;
 
   const reviewLd = {
     "@type": "Review",
+    "@id": `${canonical}#review`,
+    inLanguage: it.language || "en",
     name: it.title,
     url: canonical,
     datePublished: it.createdAt
@@ -73,7 +122,11 @@ export default async function MiniSparkDetail(context: {
       : undefined,
     reviewBody,
     author: it.author ? { "@type": "Person", name: it.author } : undefined,
-    itemReviewed: { "@type": itemType, name: it.title },
+    itemReviewed: {
+      "@type": itemType,
+      "@id": `${canonical}#item`,
+      name: it.title,
+    },
     ...(typeof it.rating === "number"
       ? {
           reviewRating: {
@@ -101,32 +154,24 @@ export default async function MiniSparkDetail(context: {
     ],
   } as const;
 
-  const dateStr = it.createdAt
-    ? new Date(it.createdAt).toLocaleDateString("en-IN", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      })
-    : "";
-
-  const ratingPercent =
-    typeof it.rating === "number"
-      ? Math.max(0, Math.min(100, it.rating * 10))
-      : null;
-  const ratingText =
-    typeof it.rating === "number"
-      ? (Math.round(it.rating * 10) / 10).toFixed(1)
-      : null;
+  const webPageLd = {
+    "@type": "WebPage",
+    "@id": `${canonical}#webpage`,
+    url: canonical,
+    name: it.title,
+    inLanguage: it.language || "en",
+    isPartOf: { "@type": "WebSite", name: "DailySparks", url: SITE },
+  } as const;
 
   return (
     <main className="max-w-3xl mx-auto px-4 py-6">
       <Script
-        id="jsonld-minispark-review"
+        id="jsonld-minispark"
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@graph": [reviewLd, breadcrumbLd],
+            "@graph": [reviewLd, breadcrumbLd, webPageLd],
           }),
         }}
       />
@@ -186,6 +231,9 @@ export default async function MiniSparkDetail(context: {
           <img
             src={it.image}
             alt={it.imageAlt || it.title}
+            width={1280}
+            height={720}
+            loading="lazy"
             className="w-full h-auto object-cover transition-transform duration-300 hover:scale-[1.01]"
           />
         </figure>
