@@ -187,14 +187,14 @@ export default function HomePage({ allblogs, miniSparks }: Props) {
             </div>
           </section>
 
-          {!!minis.length && (
-            <section>
-              <SectionHeader
-                title="Mini Sparks"
-                href="/mini-sparks"
-                cta="View all →"
-                sub="Short movie reviews and travel notes"
-              />
+          <section>
+            <SectionHeader
+              title="Mini Sparks"
+              href="/mini-sparks"
+              cta="View all →"
+              sub="Short movie reviews, travel notes, and thoughts"
+            />
+            {minis.length ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {minis.slice(0, 6).map((m) => (
                   <Link
@@ -235,8 +235,10 @@ export default function HomePage({ allblogs, miniSparks }: Props) {
                   </Link>
                 ))}
               </div>
-            </section>
-          )}
+            ) : (
+              <p className="text-sm text-muted-foreground">No Mini Sparks yet.</p>
+            )}
+          </section>
 
           <section>
             <SectionHeader
