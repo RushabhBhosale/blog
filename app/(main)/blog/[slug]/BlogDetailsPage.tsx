@@ -1,187 +1,54 @@
-"use client";
-import React, { useEffect, useMemo, useState } from "react";
-import { BlogInterface } from "../../home/page";
-import { CommentInterface } from "./page";
-import Link from "next/link";
 import Image from "next/image";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Heart,
-  Pencil,
-  PencilIcon,
-  Trash,
-  Share2,
-  Link as LinkIcon,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import axiosClient from "@/lib/axiosclient";
-import { toast } from "sonner";
-import { useParams } from "next/navigation";
-import { useAuth } from "@/utils/useAuth";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import Link from "next/link";
+import { BlogInterface } from "../../home/page";
+import LikeButton from "@/components/blog/LikeButton";
+import ShareMenu from "@/components/blog/ShareMenu";
+import ViewCounter from "@/components/blog/ViewCounter";
+import CommentsSection from "@/components/blog/CommentsSection";
+
+const SITE = "https://dailysparks.in";
 
 type Props = {
-  blogDetail: BlogInterface;
+  blogDetail: BlogInterface & {
+    viewCount?: number;
+    readingTimeMinutes?: number;
+    wordCount?: number;
+  };
   relatedAllBlogs: BlogInterface[];
 };
 
-const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
-  const { user } = useAuth();
-  const [blog, setBlog] = useState<BlogInterface>(blogDetail);
-  const [relatedBlogs, setRelatedBlogs] =
-    useState<BlogInterface[]>(relatedAllBlogs);
-  const [comments, setComments] = useState<CommentInterface[]>([]);
-  const [newComment, setNewComment] = useState("");
-  const [posting, setPosting] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editText, setEditText] = useState("");
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState<number>(
-    blogDetail?.likes?.length || 0
-  );
-  const [liking, setLiking] = useState(false);
-  const readingTime = useMemo(() => {
-    const rt = (blogDetail as any)?.readingTimeMinutes;
-    if (typeof rt === "number" && rt > 0) return rt;
-    const words = (blogDetail?.content || "")
-      .replace(/<[^>]+>/g, " ")
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean).length;
-    return Math.max(1, Math.ceil(words / 200));
-  }, [blogDetail]);
+function readingTimeFromBlog(blog: Props["blogDetail"]) {
+  if (typeof blog.readingTimeMinutes === "number" && blog.readingTimeMinutes > 0) {
+    return blog.readingTimeMinutes;
+  }
+  const words = (blog.content || "")
+    .replace(/<[^>]+>/g, " ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
+  return Math.max(1, Math.ceil(words / 200));
+}
 
-  const params = useParams();
-  const { slug } = params;
+function canonicalPath(blog: Props["blogDetail"]) {
+  if (blog.hub?.slug && blog.category) {
+    return `/blogs/${encodeURIComponent(blog.category)}/${encodeURIComponent(
+      blog.hub.slug,
+    )}/${encodeURIComponent(blog.slug || "")}`;
+  }
+  return `/blog/${encodeURIComponent(blog.slug || "")}`;
+}
 
-  useEffect(() => {
-    fetchComments();
-  }, [slug]);
-
-  useEffect(() => {
-    if (user && blog?.likes) {
-      const u = user?.userId;
-      const likedByUser = (blog.likes as any[])?.some(
-        (id: any) => id?.toString() === u?.toString()
-      );
-      setLiked(!!likedByUser);
-    } else {
-      setLiked(false);
-    }
-    setLikeCount(blog?.likes?.length || 0);
-  }, [user, blog]);
-
-  const fetchComments = async () => {
-    try {
-      const res = await axiosClient.get(`/blog/${slug}/comment`);
-      setComments(res.data.comments || []);
-    } catch (err) {
-      console.error("Error fetching comments:", err);
-      setComments([]);
-    }
-  };
-
-  const handleCommentSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) {
-      toast.error("You must be logged in to comment");
-      return;
-    }
-    if (!newComment.trim()) return;
-    try {
-      setPosting(true);
-      const res = await axiosClient.post(`/blog/${slug}/comment`, {
-        comment: newComment,
-        userId: user?.userId,
-        username: user?.name,
-      });
-      setComments((prev) => [res.data.comment, ...prev]);
-      setNewComment("");
-      toast.success("Comment posted successfully");
-    } catch (err: any) {
-      console.error("Error posting comment:", err);
-      toast.error(err?.response?.data?.error || "Something went wrong");
-    } finally {
-      setPosting(false);
-    }
-  };
-
-  const handleUpdate = async (commentId: string) => {
-    try {
-      const res = await axiosClient.put(`/blog/${slug}/comment/${commentId}`, {
-        comment: editText,
-      });
-      setComments((prev) =>
-        prev.map((c) => (c?._id === commentId ? res.data.comment : c))
-      );
-      setEditingId(null);
-      setEditText("");
-      toast.success("Comment updated successfully");
-    } catch (err: any) {
-      console.error("Error updating comment:", err);
-      toast.error(err?.response?.data?.error || "Something went wrong");
-    }
-  };
-
-  const handleDelete = async (commentId: string) => {
-    try {
-      await axiosClient.delete(`/blog/${slug}/comment/${commentId}`);
-      setComments((prev) => prev.filter((c) => c?._id !== commentId));
-      toast.success("Comment deleted successfully");
-    } catch (err: any) {
-      console.error("Error deleting comment:", err);
-      toast.error(err?.response?.data?.error || "Something went wrong");
-    }
-  };
-
-  const toggleLike = async () => {
-    if (!user) {
-      toast.error("You must be logged in to like");
-      return;
-    }
-    try {
-      if (liking) return;
-      setLiking(true);
-      const nextLiked = !liked;
-      setLiked(nextLiked);
-      setLikeCount((c) => (nextLiked ? c + 1 : Math.max(0, c - 1)));
-      const res = await axiosClient.patch(`/blog/${slug}/likes`, {
-        userId: user.userId,
-      });
-      setLiked(res.data.liked);
-      setLikeCount(res.data.totalLikes);
-      setBlog(
-        (prev) =>
-          ({
-            ...prev,
-            likes: res.data.blog?.likes || prev.likes,
-          } as any)
-      );
-    } catch (err: any) {
-      const reverted = liked;
-      setLiked(reverted);
-      setLikeCount((c) => (reverted ? c + 1 : Math.max(0, c - 1)));
-      console.error("Error toggling like:", err);
-      toast.error(err?.response?.data?.error || "Something went wrong");
-    } finally {
-      setLiking(false);
-    }
-  };
-
-  const currentUrl = typeof window !== "undefined" ? window.location.href : "";
-  const shareText = `Check out this post: ${blog.title}`;
-
-  if (!blog) return <div className="text-center py-20">Blog not found.</div>;
+export default function BlogDetailsPage({ blogDetail, relatedAllBlogs }: Props) {
+  const readingTime = readingTimeFromBlog(blogDetail);
+  const likeIds = Array.isArray(blogDetail.likes)
+    ? blogDetail.likes.map((id: any) => id?.toString()).filter(Boolean)
+    : [];
+  const sharePath = canonicalPath(blogDetail);
+  const shareUrl = `${SITE}${sharePath}`;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 md:py-12 flex flex-col md:flex-row gap-8">
       <div className="md:w-3/4 flex flex-col gap-6 md:gap-6">
-        {/* Breadcrumbs */}
         <nav
           aria-label="Breadcrumb"
           className="text-sm text-muted-foreground -mb-2"
@@ -193,40 +60,40 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
               </Link>
               <span className="mx-2">›</span>
             </li>
-            {blog.category && (
+            {blogDetail.category && (
               <li className="flex items-center">
                 <Link
-                  href={`/blogs/${encodeURIComponent(blog.category)}`}
+                  href={`/blogs/${encodeURIComponent(blogDetail.category)}`}
                   className="hover:underline"
                 >
-                  {blog.category}
+                  {blogDetail.category}
                 </Link>
                 <span className="mx-2">›</span>
               </li>
             )}
-            {blog.hub?.slug && (
+            {blogDetail.hub?.slug && (
               <li className="flex items-center">
                 <Link
-                  href={`/blogs/${encodeURIComponent(
-                    blog.category
-                  )}/${encodeURIComponent(blog.hub.slug)}`}
+                  href={`/blogs/${encodeURIComponent(blogDetail.category)}/${encodeURIComponent(
+                    blogDetail.hub.slug,
+                  )}`}
                   className="hover:underline"
                 >
-                  {blog.hub?.title || blog.hub.slug}
+                  {blogDetail.hub.title || blogDetail.hub.slug}
                 </Link>
                 <span className="mx-2">›</span>
               </li>
             )}
             <li className="text-foreground truncate max-w-full">
-              {blog.title}
+              {blogDetail.title}
             </li>
           </ol>
         </nav>
 
         <div className="relative w-full h-56 sm:h-64 md:h-96 rounded-xl shadow-lg overflow-hidden">
           <Image
-            src={blog.image}
-            alt={blog.imageAlt || blog.title}
+            src={blogDetail.image}
+            alt={blogDetail.imageAlt || blogDetail.title}
             fill
             sizes="(max-width: 768px) 100vw, 75vw"
             className="object-cover"
@@ -237,110 +104,42 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div className="md:mb-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             <span className="px-2 py-1 bg-card/50 rounded-full">
-              {blog.category}
+              {blogDetail.category}
             </span>
             <Link
               href={`/author/${encodeURIComponent(
-                (blog.author || "")
+                (blogDetail.author || "")
                   .trim()
                   .toLowerCase()
                   .replace(/[^a-z0-9]+/gi, "-")
-                  .replace(/^-+|-+$/g, "")
+                  .replace(/^-+|-+$/g, ""),
               )}`}
               className="hover:underline"
             >
-              By {blog.author}
+              By {blogDetail.author}
             </Link>
-            <span>{new Date(blog.createdAt!).toLocaleDateString()}</span>
+            <span>{new Date(blogDetail.createdAt!).toLocaleDateString()}</span>
             <span>• {readingTime} min read</span>
+            <ViewCounter slug={blogDetail.slug || ""} initialViews={blogDetail.viewCount || 0} />
           </div>
 
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={toggleLike}
-              disabled={liking}
-              className="flex items-center gap-2"
-            >
-              <Heart
-                size={16}
-                className={
-                  liked ? "fill-red-500 text-red-500" : "text-foreground"
-                }
-              />
-              <span className="text-sm">{likeCount}</span>
-            </Button>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <Share2 size={16} />
-                  <span className="text-sm">Share</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={async () => {
-                    await navigator.clipboard.writeText(currentUrl);
-                    toast.success("Link copied to clipboard");
-                  }}
-                >
-                  <LinkIcon size={14} className="mr-2" /> Copy Link
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <a
-                    href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(
-                      currentUrl
-                    )}&text=${encodeURIComponent(shareText)}`}
-                    target="_blank"
-                  >
-                    X (Twitter)
-                  </a>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <a
-                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-                      currentUrl
-                    )}`}
-                    target="_blank"
-                  >
-                    Facebook
-                  </a>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <a
-                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-                      currentUrl
-                    )}`}
-                    target="_blank"
-                  >
-                    LinkedIn
-                  </a>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {user?.userId === blog.authorId && (
-              <Link href={`/blog/${blog.slug}/edit`}>
-                <Button variant="secondary">
-                  <PencilIcon size={16} />
-                </Button>
-              </Link>
-            )}
+            <LikeButton slug={blogDetail.slug || ""} initialLikes={likeIds} />
+            <ShareMenu url={shareUrl} title={blogDetail.title} />
           </div>
         </div>
 
         <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-foreground md:mb-6">
-          {blog.title}
+          {blogDetail.title}
         </h1>
 
-        <div
-          dangerouslySetInnerHTML={{ __html: blog.content }}
+        <article
           className="prose prose-slate max-w-full text-foreground novel-content"
-        ></div>
+          dangerouslySetInnerHTML={{ __html: blogDetail.content }}
+        />
 
         <div className="mt-8 flex flex-wrap gap-3">
-          {blog.tags.map((tag) => (
+          {blogDetail.tags.map((tag) => (
             <span
               key={tag}
               className="px-3 py-1 bg-black/50 text-white rounded-full text-sm"
@@ -350,13 +149,13 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
           ))}
         </div>
 
-        {blog?.enableFaqSchema && (blog?.faqs?.length || 0) > 0 && (
+        {blogDetail?.enableFaqSchema && (blogDetail?.faqs?.length || 0) > 0 && (
           <section className="mt-10 border-t border-border pt-6">
             <h2 className="text-xl sm:text-2xl font-semibold md:mb-4">
               Frequently Asked Questions
             </h2>
             <div className="space-y-3">
-              {blog.faqs!.map((faq, idx) => (
+              {blogDetail.faqs!.map((faq, idx) => (
                 <details
                   key={idx}
                   className="group rounded-md border border-border bg-card/60 p-4"
@@ -375,115 +174,51 @@ const BlogDetailsPage = ({ blogDetail, relatedAllBlogs }: Props) => {
             </div>
           </section>
         )}
-        {/* Comments */}
-        <section className="mt-10 border-t border-border pt-6">
-          <h2 className="text-xl sm:text-2xl font-semibold mb-3">Comments</h2>
-          <form onSubmit={handleCommentSubmit} className="space-y-2">
-            <Textarea
-              placeholder={user ? "Write a comment..." : "Sign in to comment"}
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              disabled={!user || posting}
-              rows={3}
-            />
-            <Button type="submit" disabled={!user || posting}>
-              {posting ? "Posting..." : "Post Comment"}
-            </Button>
-          </form>
 
-          <div className="mt-6 space-y-4">
-            {comments.map((c) => {
-              const isOwner = user && (c as any)?.user && String((c as any).user) === String(user.userId);
-              return (
-                <div key={c._id} className="rounded-md border border-border p-3">
-                  <div className="text-sm text-muted-foreground flex items-center justify-between">
-                    <span>
-                      <strong className="text-foreground">{c.username || "User"}</strong>
-                      <span className="ml-2">{new Date(c.createdAt).toLocaleString()}</span>
-                    </span>
-                    {isOwner && (
-                      <span className="flex gap-2">
-                        {editingId === c._id ? (
-                          <>
-                            <Button size="sm" variant="secondary" onClick={() => handleUpdate(c._id)}>
-                              Save
-                            </Button>
-                            <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>
-                              Cancel
-                            </Button>
-                          </>
-                        ) : (
-                          <>
-                            <Button size="sm" variant="outline" onClick={() => { setEditingId(c._id); setEditText(c.comment); }}>
-                              Edit
-                            </Button>
-                            <Button size="sm" variant="destructive" onClick={() => handleDelete(c._id)}>
-                              Delete
-                            </Button>
-                          </>
-                        )}
-                      </span>
-                    )}
-                  </div>
-                  {editingId === c._id ? (
-                    <Textarea className="mt-2" value={editText} onChange={(e) => setEditText(e.target.value)} rows={3} />
-                  ) : (
-                    <p className="mt-2 text-foreground whitespace-pre-wrap">{c.comment}</p>
-                  )}
-                </div>
-              );
-            })}
-            {comments.length === 0 && (
-              <p className="text-sm text-muted-foreground">Be the first to comment.</p>
-            )}
-          </div>
-        </section>
+        <CommentsSection slug={blogDetail.slug || ""} />
       </div>
 
-      <div className="md:w-1/4 w-full flex flex-col gap-3 sticky top-24 self-start">
+      <aside className="md:w-1/4 w-full flex flex-col gap-3 sticky top-24 self-start">
         <h3 className="font-semibold text-lg mb-2">Related Blogs</h3>
-        {relatedBlogs.length ? (
+        {relatedAllBlogs.length ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-3">
-            {relatedBlogs.map((b: any) => (
-              <Link
-                key={b._id}
-                href={
-                  (b as any)?.hub?.slug
-                    ? `/blogs/${encodeURIComponent(
-                        b.category
-                      )}/${encodeURIComponent(
-                        (b as any).hub.slug
-                      )}/${encodeURIComponent(b.slug)}`
-                    : `/blog/${b.slug}`
-                }
-                className="flex bg-card/70 border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition"
-              >
-                <div className="relative w-24 h-full overflow-hidden shrink-0">
-                  <Image
-                    src={b.image}
-                    alt={b.imageAlt || b.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 25vw"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="p-2">
-                  <h4 className="text-sm font-medium text-foreground line-clamp-2">
-                    {b.title}
-                  </h4>
-                  <span className="text-xs text-muted-foreground">
-                    By {b.author}
-                  </span>
-                </div>
-              </Link>
-            ))}
+            {relatedAllBlogs.map((b) => {
+              const path = (b as any)?.hub?.slug
+                ? `/blogs/${encodeURIComponent(b.category)}/${encodeURIComponent(
+                    (b as any).hub.slug,
+                  )}/${encodeURIComponent(b.slug || "")}`
+                : `/blog/${b.slug}`;
+              return (
+                <Link
+                  key={b._id}
+                  href={path}
+                  className="flex bg-card/70 border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition"
+                >
+                  <div className="relative w-24 h-full overflow-hidden shrink-0">
+                    <Image
+                      src={b.image}
+                      alt={b.imageAlt || b.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 25vw"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="p-2">
+                    <h4 className="text-sm font-medium text-foreground line-clamp-2">
+                      {b.title}
+                    </h4>
+                    <span className="text-xs text-muted-foreground">
+                      By {b.author}
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         ) : (
           <p className="text-xs text-muted-foreground">No related blogs.</p>
         )}
-      </div>
+      </aside>
     </div>
   );
-};
-
-export default BlogDetailsPage;
+}

@@ -6,21 +6,9 @@ import BlogM from "@/models/blog";
 import { Metadata } from "next";
 import Script from "next/script";
 import he from "he";
-export const revalidate = 60;
 import { cache } from "react";
 
-export interface CommentInterface {
-  _id: string;
-  comment: string;
-  user: {
-    name: string;
-    email: string;
-    imageUrl?: string;
-    _id?: string;
-  };
-  username: string;
-  createdAt: string;
-}
+export const revalidate = 60;
 
 const SITE = "https://dailysparks.in";
 
@@ -43,6 +31,39 @@ const getBlogBySlug = cache(async (slug: string) => {
       "title metaTitle metaDescription image content createdAt updatedAt author authorId category tags slug imageAlt likes hub status viewCount readingTimeMinutes wordCount enableFaqSchema faqs"
     )
     .lean();
+});
+
+const getRelatedBlogs = cache(async (slug: string, category: string, tagList: string[]) => {
+  await dbReady;
+  return BlogM.aggregate([
+    {
+      $match: {
+        slug: { $ne: slug },
+        $or: [
+          ...(category ? ([{ category }] as any[]) : []),
+          ...(tagList.length ? [{ tags: { $in: tagList } }] : []),
+        ],
+      },
+    },
+    {
+      $addFields: {
+        tagMatches: tagList.length
+          ? { $size: { $setIntersection: ["$tags", tagList] } }
+          : 0,
+        catBonus: category
+          ? { $cond: [{ $eq: ["$category", category] }, 1, 0] }
+          : 0,
+      },
+    },
+    {
+      $addFields: {
+        score: { $add: [{ $multiply: ["$tagMatches", 3] }, "$catBonus"] },
+      },
+    },
+    { $sort: { score: -1, createdAt: -1 } },
+    { $limit: 6 },
+    { $project: { content: 0 } },
+  ]);
 });
 
 export async function generateMetadata(context: {
@@ -234,36 +255,7 @@ export default async function Blog(context: {
   const category = blogData?.category || "";
   const tagList: string[] = Array.isArray(blogData?.tags) ? blogData.tags : [];
 
-  await dbReady;
-  const related = await BlogM.aggregate([
-    {
-      $match: {
-        slug: { $ne: slug },
-        $or: [
-          ...(category ? ([{ category }] as any[]) : []),
-          ...(tagList.length ? [{ tags: { $in: tagList } }] : []),
-        ],
-      },
-    },
-    {
-      $addFields: {
-        tagMatches: tagList.length
-          ? { $size: { $setIntersection: ["$tags", tagList] } }
-          : 0,
-        catBonus: category
-          ? { $cond: [{ $eq: ["$category", category] }, 1, 0] }
-          : 0,
-      },
-    },
-    {
-      $addFields: {
-        score: { $add: [{ $multiply: ["$tagMatches", 3] }, "$catBonus"] },
-      },
-    },
-    { $sort: { score: -1, createdAt: -1 } },
-    { $limit: 6 },
-    { $project: { content: 0 } },
-  ]);
+  const related = await getRelatedBlogs(slug, category, tagList);
 
   return (
     <>
