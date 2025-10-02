@@ -12,13 +12,13 @@ export default function ViewCounter({ slug, initialViews }: Props) {
   const [views, setViews] = useState(initialViews);
 
   useEffect(() => {
-    if (!slug) return;
+    if (!slug || typeof window === "undefined") return;
     const key = `viewed:${slug}`;
-    if (typeof window === "undefined") return;
     if (sessionStorage.getItem(key)) return;
-    sessionStorage.setItem(key, "1");
-    (async () => {
+
+    const run = async () => {
       try {
+        sessionStorage.setItem(key, "1");
         const res = await axiosClient.post(`/blog/${slug}/views`);
         if (typeof res.data?.views === "number") {
           setViews(res.data.views);
@@ -26,9 +26,21 @@ export default function ViewCounter({ slug, initialViews }: Props) {
       } catch {
         // Ignore view increment errors silently
       }
-    })();
+    };
+
+    const win = window as any;
+    if (typeof win.requestIdleCallback === "function") {
+      const idleId = win.requestIdleCallback(run, { timeout: 2000 });
+      return () => {
+        if (typeof win.cancelIdleCallback === "function") {
+          win.cancelIdleCallback(idleId);
+        }
+      };
+    }
+
+    const timer = window.setTimeout(run, 1500);
+    return () => window.clearTimeout(timer);
   }, [slug]);
 
   return <span>• {views} views</span>;
 }
-

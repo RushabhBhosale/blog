@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axiosClient from "@/lib/axiosclient";
 import { useAuth } from "@/utils/useAuth";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,22 +28,57 @@ export default function CommentsSection({ slug }: Props) {
   const [posting, setPosting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
+  const [shouldFetch, setShouldFetch] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!slug) return;
+    if (shouldFetch || typeof window === "undefined") return;
+    const node = containerRef.current;
+    if (!node) return;
+
+    if (!("IntersectionObserver" in window)) {
+      setShouldFetch(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setShouldFetch(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [shouldFetch]);
+
+  useEffect(() => {
+    if (!slug || !shouldFetch) return;
+    let cancelled = false;
     (async () => {
       try {
         setLoading(true);
         const res = await axiosClient.get(`/blog/${slug}/comment`);
-        setComments(res.data.comments || []);
+        if (!cancelled) {
+          setComments(res.data.comments || []);
+        }
       } catch (err) {
-        console.error("Error fetching comments:", err);
-        setComments([]);
+        if (!cancelled) {
+          console.error("Error fetching comments:", err);
+          setComments([]);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     })();
-  }, [slug]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [slug, shouldFetch]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,6 +88,7 @@ export default function CommentsSection({ slug }: Props) {
     }
     if (!newComment.trim()) return;
     try {
+      setShouldFetch(true);
       setPosting(true);
       const res = await axiosClient.post(`/blog/${slug}/comment`, {
         comment: newComment,
@@ -105,13 +141,16 @@ export default function CommentsSection({ slug }: Props) {
   };
 
   return (
-    <section className="mt-10 border-t border-border pt-6">
+    <section
+      ref={containerRef}
+      className="mt-10 border-t border-border pt-6">
       <h2 className="text-xl sm:text-2xl font-semibold mb-3">Comments</h2>
       <form onSubmit={handleSubmit} className="space-y-2">
         <Textarea
           placeholder={user ? "Write a comment..." : "Sign in to comment"}
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
+          onFocus={() => setShouldFetch(true)}
           disabled={!user || posting}
           rows={3}
         />
@@ -121,7 +160,9 @@ export default function CommentsSection({ slug }: Props) {
       </form>
 
       <div className="mt-6 space-y-4">
-        {loading ? (
+        {!shouldFetch ? (
+          <p className="text-sm text-muted-foreground">Scroll to load comments.</p>
+        ) : loading ? (
           <p className="text-sm text-muted-foreground">Loading comments...</p>
         ) : comments.length === 0 ? (
           <p className="text-sm text-muted-foreground">Be the first to comment.</p>
@@ -207,4 +248,3 @@ export default function CommentsSection({ slug }: Props) {
     </section>
   );
 }
-

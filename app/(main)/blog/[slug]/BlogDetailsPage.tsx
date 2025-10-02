@@ -1,10 +1,23 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 import { BlogInterface } from "../../home/page";
 import LikeButton from "@/components/blog/LikeButton";
 import ShareMenu from "@/components/blog/ShareMenu";
 import ViewCounter from "@/components/blog/ViewCounter";
-import CommentsSection from "@/components/blog/CommentsSection";
+import dynamic from "next/dynamic";
+
+const CommentsSection = dynamic(
+  () => import("@/components/blog/CommentsSection"),
+  {
+    ssr: false,
+    loading: () => (
+      <section className="mt-10 border-t border-border pt-6 text-sm text-muted-foreground">
+        Loading comments…
+      </section>
+    ),
+  }
+);
 
 const SITE = "https://dailysparks.in";
 
@@ -18,7 +31,10 @@ type Props = {
 };
 
 function readingTimeFromBlog(blog: Props["blogDetail"]) {
-  if (typeof blog.readingTimeMinutes === "number" && blog.readingTimeMinutes > 0) {
+  if (
+    typeof blog.readingTimeMinutes === "number" &&
+    blog.readingTimeMinutes > 0
+  ) {
     return blog.readingTimeMinutes;
   }
   const words = (blog.content || "")
@@ -32,13 +48,16 @@ function readingTimeFromBlog(blog: Props["blogDetail"]) {
 function canonicalPath(blog: Props["blogDetail"]) {
   if (blog.hub?.slug && blog.category) {
     return `/blogs/${encodeURIComponent(blog.category)}/${encodeURIComponent(
-      blog.hub.slug,
+      blog.hub.slug
     )}/${encodeURIComponent(blog.slug || "")}`;
   }
   return `/blog/${encodeURIComponent(blog.slug || "")}`;
 }
 
-export default function BlogDetailsPage({ blogDetail, relatedAllBlogs }: Props) {
+export default function BlogDetailsPage({
+  blogDetail,
+  relatedAllBlogs,
+}: Props) {
   const readingTime = readingTimeFromBlog(blogDetail);
   const likeIds = Array.isArray(blogDetail.likes)
     ? blogDetail.likes.map((id: any) => id?.toString()).filter(Boolean)
@@ -74,9 +93,9 @@ export default function BlogDetailsPage({ blogDetail, relatedAllBlogs }: Props) 
             {blogDetail.hub?.slug && (
               <li className="flex items-center">
                 <Link
-                  href={`/blogs/${encodeURIComponent(blogDetail.category)}/${encodeURIComponent(
-                    blogDetail.hub.slug,
-                  )}`}
+                  href={`/blogs/${encodeURIComponent(
+                    blogDetail.category
+                  )}/${encodeURIComponent(blogDetail.hub.slug)}`}
                   className="hover:underline"
                 >
                   {blogDetail.hub.title || blogDetail.hub.slug}
@@ -112,7 +131,7 @@ export default function BlogDetailsPage({ blogDetail, relatedAllBlogs }: Props) 
                   .trim()
                   .toLowerCase()
                   .replace(/[^a-z0-9]+/gi, "-")
-                  .replace(/^-+|-+$/g, ""),
+                  .replace(/^-+|-+$/g, "")
               )}`}
               className="hover:underline"
             >
@@ -120,7 +139,10 @@ export default function BlogDetailsPage({ blogDetail, relatedAllBlogs }: Props) 
             </Link>
             <span>{new Date(blogDetail.createdAt!).toLocaleDateString()}</span>
             <span>• {readingTime} min read</span>
-            <ViewCounter slug={blogDetail.slug || ""} initialViews={blogDetail.viewCount || 0} />
+            <ViewCounter
+              slug={blogDetail.slug || ""}
+              initialViews={blogDetail.viewCount || 0}
+            />
           </div>
 
           <div className="flex items-center gap-2">
@@ -184,8 +206,10 @@ export default function BlogDetailsPage({ blogDetail, relatedAllBlogs }: Props) 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-3">
             {relatedAllBlogs.map((b) => {
               const path = (b as any)?.hub?.slug
-                ? `/blogs/${encodeURIComponent(b.category)}/${encodeURIComponent(
-                    (b as any).hub.slug,
+                ? `/blogs/${encodeURIComponent(
+                    b.category
+                  )}/${encodeURIComponent(
+                    (b as any).hub.slug
                   )}/${encodeURIComponent(b.slug || "")}`
                 : `/blog/${b.slug}`;
               return (
