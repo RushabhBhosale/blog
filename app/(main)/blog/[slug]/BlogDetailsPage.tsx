@@ -6,6 +6,8 @@ import LikeButton from "@/components/blog/LikeButton";
 import ShareMenu from "@/components/blog/ShareMenu";
 import ViewCounter from "@/components/blog/ViewCounter";
 import dynamic from "next/dynamic";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/utils/useAuth";
 
 const CommentsSection = dynamic(
   () => import("@/components/blog/CommentsSection"),
@@ -58,12 +60,22 @@ export default function BlogDetailsPage({
   blogDetail,
   relatedAllBlogs,
 }: Props) {
+  const { user } = useAuth();
   const readingTime = readingTimeFromBlog(blogDetail);
   const likeIds = Array.isArray(blogDetail.likes)
     ? blogDetail.likes.map((id: any) => id?.toString()).filter(Boolean)
     : [];
   const sharePath = canonicalPath(blogDetail);
   const shareUrl = `${SITE}${sharePath}`;
+  const blogAuthorId = blogDetail.authorId
+    ? typeof blogDetail.authorId === "string"
+      ? blogDetail.authorId
+      : (blogDetail.authorId as any)?.toString?.() ?? ""
+    : "";
+  const authUserId = user?.userId ? String(user.userId) : "";
+  const isOwner = Boolean(authUserId && blogAuthorId && authUserId === blogAuthorId);
+  const isAdmin = (user?.role || "").toString().toLowerCase() === "admin";
+  const canEdit = Boolean(blogDetail.slug && (isOwner || isAdmin));
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 md:py-12 flex flex-col md:flex-row gap-8">
@@ -148,6 +160,11 @@ export default function BlogDetailsPage({
           <div className="flex items-center gap-2">
             <LikeButton slug={blogDetail.slug || ""} initialLikes={likeIds} />
             <ShareMenu url={shareUrl} title={blogDetail.title} />
+            {canEdit && (
+              <Link href={`/blog/${encodeURIComponent(blogDetail.slug || "")}/edit`}>
+                <Button size="sm" variant="outline">Edit</Button>
+              </Link>
+            )}
           </div>
         </div>
 
