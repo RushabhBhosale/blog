@@ -24,8 +24,9 @@ export default function BlogNavbar() {
     { name: "Anime", href: "/blogs/anime" },
     { name: "Tech", href: "/blogs/tech" },
     { name: "Travel", href: "/blogs/travel" },
+    // { name: "Travel Stories", href: "/travel" },
     { name: "Media", href: "/blogs/media" },
-    { name: "Mini Sparks", href: "/mini-sparks" },
+    // { name: "Mini Sparks", href: "/mini-sparks" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
   ];
@@ -51,11 +52,11 @@ export default function BlogNavbar() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2 shrink-0">
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-sm">DS</span>
             </div>
-            <span className="text-xl font-bold text-gray-900">
+            <span className="text-xl shrink-0 font-bold text-gray-900">
               Daily Sparks
             </span>
           </Link>
@@ -130,7 +131,11 @@ export default function BlogNavbar() {
 
         {/* Mobile Navigation: slide-in from right with backdrop */}
         {isOpen && (
-          <div className="lg:hidden fixed inset-0 z-50" role="dialog" aria-modal="true">
+          <div
+            className="lg:hidden fixed inset-0 z-50"
+            role="dialog"
+            aria-modal="true"
+          >
             {/* Backdrop */}
             <div
               className="absolute inset-0 bg-black/40 backdrop-blur-[1px] transition-opacity duration-200 opacity-100"
@@ -160,7 +165,9 @@ export default function BlogNavbar() {
 
               <div className="h-[calc(100vh-64px)] overflow-y-auto">
                 <nav className="p-3">
-                  <p className="px-3 pb-2 text-xs uppercase tracking-wide text-muted-foreground">Browse</p>
+                  <p className="px-3 pb-2 text-xs uppercase tracking-wide text-muted-foreground">
+                    Browse
+                  </p>
                   <ul className="space-y-1">
                     {categories.map((cat) => (
                       <li key={cat.name}>
@@ -189,7 +196,10 @@ export default function BlogNavbar() {
                         href={authorSlug ? `/author/${authorSlug}` : "/"}
                         onClick={() => setIsOpen(false)}
                       >
-                        <Button variant="outline" className="w-full justify-start">
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start"
+                        >
                           My Posts
                         </Button>
                       </Link>
@@ -213,7 +223,10 @@ export default function BlogNavbar() {
                     </>
                   ) : (
                     <Link href="/signin" onClick={() => setIsOpen(false)}>
-                      <Button variant="outline" className="w-full justify-start">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                      >
                         <User className="w-4 h-4 mr-2" />
                         Sign In
                       </Button>
