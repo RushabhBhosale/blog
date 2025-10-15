@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { BlogInterface } from "../../home/page";
 import LikeButton from "@/components/blog/LikeButton";
 import ShareMenu from "@/components/blog/ShareMenu";
@@ -73,9 +74,65 @@ export default function BlogDetailsPage({
       : (blogDetail.authorId as any)?.toString?.() ?? ""
     : "";
   const authUserId = user?.userId ? String(user.userId) : "";
-  const isOwner = Boolean(authUserId && blogAuthorId && authUserId === blogAuthorId);
+  const isOwner = Boolean(
+    authUserId && blogAuthorId && authUserId === blogAuthorId
+  );
   const isAdmin = (user?.role || "").toString().toLowerCase() === "admin";
   const canEdit = Boolean(blogDetail.slug && (isOwner || isAdmin));
+  const tags = Array.isArray(blogDetail.tags) ? blogDetail.tags : [];
+
+  const [toc, setToc] = useState<
+    Array<{ id: string; text: string; level: number }>
+  >([]);
+
+  const slugify = useMemo(
+    () => (str: string) =>
+      str
+        .toLowerCase()
+        .trim()
+        .replace(/[\s/|]+/g, "-")
+        .replace(/&/g, "and")
+        .replace(/[^\w-]+/g, "")
+        .replace(/-{2,}/g, "-")
+        .replace(/^-+|-+$/g, ""),
+    []
+  );
+
+  useEffect(() => {
+    const article = document.querySelector<HTMLElement>(".novel-content");
+    if (!article) return;
+
+    const headings = Array.from(
+      article.querySelectorAll<HTMLElement>("h2, h3")
+    ).filter((heading) => heading.innerText.trim().length > 0);
+
+    if (!headings.length) {
+      setToc([]);
+      return;
+    }
+
+    const usedIds = new Map<string, number>();
+    const items: Array<{ id: string; text: string; level: number }> = [];
+
+    headings.forEach((heading, index) => {
+      const baseRaw = slugify(heading.innerText);
+      const baseId = baseRaw || heading.id || `section-${index + 1}`;
+      const count = usedIds.get(baseId) || 0;
+      const uniqueId = count === 0 ? baseId : `${baseId}-${count + 1}`;
+      usedIds.set(baseId, count + 1);
+
+      if (!heading.id) heading.id = uniqueId;
+      items.push({
+        id: heading.id,
+        text: heading.innerText,
+        level: heading.tagName === "H3" ? 3 : 2,
+      });
+    });
+
+    setToc(items);
+  }, [blogDetail.slug, blogDetail.content, slugify]);
+
+  const hasToc = toc.length >= 2;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 md:py-12 flex flex-col md:flex-row gap-8">
@@ -161,8 +218,12 @@ export default function BlogDetailsPage({
             <LikeButton slug={blogDetail.slug || ""} initialLikes={likeIds} />
             <ShareMenu url={shareUrl} title={blogDetail.title} />
             {canEdit && (
-              <Link href={`/blog/${encodeURIComponent(blogDetail.slug || "")}/edit`}>
-                <Button size="sm" variant="outline">Edit</Button>
+              <Link
+                href={`/blog/${encodeURIComponent(blogDetail.slug || "")}/edit`}
+              >
+                <Button size="sm" variant="outline">
+                  Edit
+                </Button>
               </Link>
             )}
           </div>
@@ -178,7 +239,7 @@ export default function BlogDetailsPage({
         />
 
         <div className="mt-8 flex flex-wrap gap-3">
-          {blogDetail.tags.map((tag) => (
+          {tags.map((tag) => (
             <span
               key={tag}
               className="px-3 py-1 bg-black/50 text-white rounded-full text-sm"
@@ -217,48 +278,93 @@ export default function BlogDetailsPage({
         <CommentsSection slug={blogDetail.slug || ""} />
       </div>
 
-      <aside className="md:w-1/4 w-full flex flex-col gap-3 sticky top-24 self-start">
-        <h3 className="font-semibold text-lg mb-2">Related Blogs</h3>
-        {relatedAllBlogs.length ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-3">
-            {relatedAllBlogs.map((b) => {
-              const path = (b as any)?.hub?.slug
-                ? `/blogs/${encodeURIComponent(
-                    b.category
-                  )}/${encodeURIComponent(
-                    (b as any).hub.slug
-                  )}/${encodeURIComponent(b.slug || "")}`
-                : `/blog/${b.slug}`;
-              return (
-                <Link
-                  key={b._id}
-                  href={path}
-                  className="flex bg-card/70 border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition"
-                >
-                  <div className="relative w-24 h-full overflow-hidden shrink-0">
-                    <Image
-                      src={b.image}
-                      alt={b.imageAlt || b.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 25vw"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="p-2">
-                    <h4 className="text-sm font-medium text-foreground line-clamp-2">
-                      {b.title}
-                    </h4>
-                    <span className="text-xs text-muted-foreground">
-                      By {b.author}
-                    </span>
-                  </div>
-                </Link>
-              );
-            })}
+      <aside className="md:w-1/4 w-full flex flex-col gap-4 sticky top-24 self-start">
+        {/* {hasToc ? (
+          <div className="space-y-3">
+            <nav
+              aria-label="On this page"
+              className="hidden md:block rounded-xl border border-border bg-card/80 p-4 shadow-sm"
+            >
+              <h3 className="text-sm font-semibold text-foreground">
+                On this page
+              </h3>
+              <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                {toc.map((item) => (
+                  <li key={item.id} className={item.level === 3 ? "ml-3" : ""}>
+                    <a
+                      href={`#${item.id}`}
+                      className="block hover:text-primary transition-colors"
+                    >
+                      {item.text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            <details className="md:hidden rounded-xl border border-border bg-card/80 p-4 shadow-sm">
+              <summary className="text-sm font-semibold text-foreground cursor-pointer">
+                On this page
+              </summary>
+              <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                {toc.map((item) => (
+                  <li key={item.id} className={item.level === 3 ? "ml-3" : ""}>
+                    <a
+                      href={`#${item.id}`}
+                      className="block hover:text-primary transition-colors"
+                    >
+                      {item.text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </details>
           </div>
-        ) : (
-          <p className="text-xs text-muted-foreground">No related blogs.</p>
-        )}
+        ) : null} */}
+
+        <div>
+          <h3 className="font-semibold text-lg mb-2">Related Blogs</h3>
+          {relatedAllBlogs.length ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-3">
+              {relatedAllBlogs.map((b) => {
+                const path = (b as any)?.hub?.slug
+                  ? `/blogs/${encodeURIComponent(
+                      b.category
+                    )}/${encodeURIComponent(
+                      (b as any).hub.slug
+                    )}/${encodeURIComponent(b.slug || "")}`
+                  : `/blog/${b.slug}`;
+                return (
+                  <Link
+                    key={b._id}
+                    href={path}
+                    className="flex bg-card/70 border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition"
+                  >
+                    <div className="relative w-24 h-full overflow-hidden shrink-0">
+                      <Image
+                        src={b.image}
+                        alt={b.imageAlt || b.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 25vw"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="p-2">
+                      <h4 className="text-sm font-medium text-foreground line-clamp-2">
+                        {b.title}
+                      </h4>
+                      <span className="text-xs text-muted-foreground">
+                        By {b.author}
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">No related blogs.</p>
+          )}
+        </div>
       </aside>
     </div>
   );

@@ -6,12 +6,32 @@ import { BlogInterface } from "./page";
 import axiosClient from "@/lib/axiosclient";
 import { toast } from "sonner";
 
-type Mini = { _id: string; title: string; slug: string; content: string; kind?: string; rating?: number; createdAt?: string; image?: string; imageAlt?: string };
+type Mini = {
+  _id: string;
+  title: string;
+  slug: string;
+  content: string;
+  kind?: string;
+  rating?: number;
+  createdAt?: string;
+  image?: string;
+  imageAlt?: string;
+};
 type Props = { allblogs: BlogInterface[]; miniSparks?: Mini[] };
 
 export default function HomePage({ allblogs, miniSparks }: Props) {
   const blogs = allblogs || [];
   const minis = miniSparks || [];
+
+  const SEO_CATEGORY = "seo";
+
+  const seoBlogs = blogs.filter(
+    (b) => b.category?.toLowerCase() === SEO_CATEGORY
+  );
+
+  const primaryBlogs = blogs.filter(
+    (b) => b.category?.toLowerCase() !== SEO_CATEGORY
+  );
 
   const fmt = (d?: string) =>
     d
@@ -23,20 +43,22 @@ export default function HomePage({ allblogs, miniSparks }: Props) {
       : "";
 
   const byCat = (name: string) =>
-    blogs.filter((b) => b.category?.toLowerCase() === name.toLowerCase());
+    primaryBlogs.filter(
+      (b) => b.category?.toLowerCase() === name.toLowerCase()
+    );
 
-  const spotlight = blogs[0];
-  const latest = blogs.slice(1, 9);
-  const mustMain = blogs[9] || blogs[1];
-  const mustSide = blogs.slice(10, 13);
-  const editors = blogs[13] || blogs[2];
+  const spotlight = primaryBlogs[0];
+  const latest = primaryBlogs.slice(1, 9);
+  const mustMain = primaryBlogs[9] || primaryBlogs[1];
+  const mustSide = primaryBlogs.slice(10, 13);
+  const editors = primaryBlogs[13] || primaryBlogs[2];
 
   const anime = byCat("Anime").slice(0, 4);
   const tech = byCat("Tech").slice(0, 4);
   const travel = byCat("Travel").slice(0, 4);
 
   const categoriesAll = Array.from(
-    new Set(blogs.map((b) => b.category)),
+    new Set(primaryBlogs.map((b) => b.category))
   ).filter(Boolean) as string[];
 
   const [email, setEmail] = useState("");
@@ -85,7 +107,9 @@ export default function HomePage({ allblogs, miniSparks }: Props) {
 
   const blogUrl = (b: BlogInterface) =>
     (b as any)?.hub?.slug && b.category
-      ? `/blogs/${encodeURIComponent(b.category)}/${encodeURIComponent((b as any).hub.slug!)}/${encodeURIComponent(b.slug || "")}`
+      ? `/blogs/${encodeURIComponent(b.category)}/${encodeURIComponent(
+          (b as any).hub.slug!
+        )}/${encodeURIComponent(b.slug || "")}`
       : `/blog/${b.slug}`;
 
   const CardSm = ({ b }: { b: BlogInterface }) => (
@@ -174,20 +198,22 @@ export default function HomePage({ allblogs, miniSparks }: Props) {
             </section>
           )}
 
-          <section>
-            <SectionHeader
-              title="Latest from Daily Sparks"
-              href="/blogs"
-              sub="Fresh drops across Anime, Tech, and Travel"
-            />
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-              {latest.map((b) => (
-                <CardSm key={b._id} b={b} />
-              ))}
-            </div>
-          </section>
+          {latest.length > 0 && (
+            <section>
+              <SectionHeader
+                title="Latest from Daily Sparks"
+                href="/blogs"
+                sub="Fresh drops across Anime, Tech, and Travel"
+              />
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+                {latest.map((b) => (
+                  <CardSm key={b._id} b={b} />
+                ))}
+              </div>
+            </section>
+          )}
 
-          <section>
+          {/* <section>
             <SectionHeader
               title="Mini Sparks"
               href="/mini-sparks"
@@ -204,8 +230,11 @@ export default function HomePage({ allblogs, miniSparks }: Props) {
                   >
                     {m.image ? (
                       <div className="relative w-full aspect-[16/9]">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={m.image} alt={m.imageAlt || m.title} className="w-full h-full object-cover" />
+                        <img
+                          src={m.image}
+                          alt={m.imageAlt || m.title}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                     ) : null}
                     <div className="p-4 text-xs text-muted-foreground flex items-center gap-2">
@@ -225,10 +254,17 @@ export default function HomePage({ allblogs, miniSparks }: Props) {
                           <div className="h-1.5 w-24 rounded bg-slate-200">
                             <div
                               className="h-1.5 rounded bg-amber-500"
-                              style={{ width: `${Math.max(0, Math.min(100, m.rating * 10))}%` }}
+                              style={{
+                                width: `${Math.max(
+                                  0,
+                                  Math.min(100, m.rating * 10)
+                                )}%`,
+                              }}
                             />
                           </div>
-                          <span className="text-muted-foreground">{(Math.round(m.rating * 10) / 10).toFixed(1)}/10</span>
+                          <span className="text-muted-foreground">
+                            {(Math.round(m.rating * 10) / 10).toFixed(1)}/10
+                          </span>
                         </div>
                       )}
                     </div>
@@ -236,81 +272,85 @@ export default function HomePage({ allblogs, miniSparks }: Props) {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">No Mini Sparks yet.</p>
+              <p className="text-sm text-muted-foreground">
+                No Mini Sparks yet.
+              </p>
             )}
-          </section>
+          </section> */}
 
-          <section>
-            <SectionHeader
-              title="Must Read"
-              href="/blogs?sort=featured"
-              cta="More →"
-            />
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              {mustMain && (
-                <Link
-                  href={blogUrl(mustMain)}
-                  className="lg:col-span-2 group"
-                >
-                  <article className="relative overflow-hidden rounded-2xl border border-border">
-                    <div className="relative w-full aspect-[3/2] md:aspect-[16/8]">
-                      <Image
-                        src={mustMain.image}
-                        alt={mustMain.imageAlt || mustMain.title}
-                        fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                        sizes="(min-width:1024px) 720px, 100vw"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-                    </div>
-                    <div className="absolute inset-x-0 bottom-0 p-6">
-                      <span className="hidden md:block px-2.5 py-1 rounded-full bg-primary text-primary-foreground text-[11px] font-semibold w-fit">
-                        {mustMain.category}
-                      </span>
-                      <h3 className="mt-3 font-bold text-white leading-tight line-clamp-2">
-                        {mustMain.title}
-                      </h3>
-                      <p className="mt-1 text-white/85 text-sm">
-                        By {mustMain.author} • {fmt(mustMain.createdAt)}
-                      </p>
-                    </div>
-                  </article>
-                </Link>
-              )}
-              <div className="space-y-4">
-                {mustSide.map((b) => (
-                  <Link key={b._id} href={blogUrl(b)} className="block">
-                    <article className="flex gap-3 rounded-xl border border-border bg-card p-3 hover:bg-muted/40 transition">
-                      <div className="relative w-32 shrink-0 overflow-hidden rounded-lg">
-                        <div className="relative w-full aspect-[10/6.15]">
-                          <Image
-                            src={b.image}
-                            alt={b.imageAlt || b.title}
-                            fill
-                            className="object-cover"
-                            sizes="160px"
-                          />
-                        </div>
+          {(mustMain || mustSide.length > 0) && (
+            <section>
+              <SectionHeader
+                title="Must Read"
+                href="/blogs?sort=featured"
+                cta="More →"
+              />
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                {mustMain && (
+                  <Link
+                    href={blogUrl(mustMain)}
+                    className="lg:col-span-2 group"
+                  >
+                    <article className="relative overflow-hidden rounded-2xl border border-border">
+                      <div className="relative w-full aspect-[3/2] md:aspect-[16/8]">
+                        <Image
+                          src={mustMain.image}
+                          alt={mustMain.imageAlt || mustMain.title}
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                          sizes="(min-width:1024px) 720px, 100vw"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
                       </div>
-                      <div className="min-w-0">
-                        <div className="mb-1 flex items-center gap-2">
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
-                            {b.category}
-                          </span>
-                          <span className="text-[11px] text-muted-foreground">
-                            {fmt(b.createdAt)}
-                          </span>
-                        </div>
-                        <h4 className="text-sm font-semibold leading-snug line-clamp-2">
-                          {b.title}
-                        </h4>
+                      <div className="absolute inset-x-0 bottom-0 p-6">
+                        <span className="hidden md:block px-2.5 py-1 rounded-full bg-primary text-primary-foreground text-[11px] font-semibold w-fit">
+                          {mustMain.category}
+                        </span>
+                        <h3 className="mt-3 font-bold text-white leading-tight line-clamp-2">
+                          {mustMain.title}
+                        </h3>
+                        <p className="mt-1 text-white/85 text-sm">
+                          By {mustMain.author} • {fmt(mustMain.createdAt)}
+                        </p>
                       </div>
                     </article>
                   </Link>
-                ))}
+                )}
+                <div className="space-y-4">
+                  {mustSide.map((b) => (
+                    <Link key={b._id} href={blogUrl(b)} className="block">
+                      <article className="flex gap-3 rounded-xl border border-border bg-card p-3 hover:bg-muted/40 transition">
+                        <div className="relative w-32 shrink-0 overflow-hidden rounded-lg">
+                          <div className="relative w-full aspect-[10/6.15]">
+                            <Image
+                              src={b.image}
+                              alt={b.imageAlt || b.title}
+                              fill
+                              className="object-cover"
+                              sizes="160px"
+                            />
+                          </div>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="mb-1 flex items-center gap-2">
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
+                              {b.category}
+                            </span>
+                            <span className="text-[11px] text-muted-foreground">
+                              {fmt(b.createdAt)}
+                            </span>
+                          </div>
+                          <h4 className="text-sm font-semibold leading-snug line-clamp-2">
+                            {b.title}
+                          </h4>
+                        </div>
+                      </article>
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
+          )}
 
           {editors && (
             <section className="relative">
@@ -390,7 +430,7 @@ export default function HomePage({ allblogs, miniSparks }: Props) {
             </section>
           )}
 
-          <section className="rounded-2xl border border-border bg-card p-8 text-center">
+          {/* <section className="rounded-2xl border border-border bg-card p-8 text-center">
             <h3 className="text-xl md:text-2xl font-bold">
               Get the Daily Sparks Newsletter
             </h3>
@@ -412,6 +452,46 @@ export default function HomePage({ allblogs, miniSparks }: Props) {
               >
                 {loading ? "Subscribing..." : "Subscribe"}
               </button>
+            </div>
+          </section> */}
+
+          {!!seoBlogs.length && (
+            <section>
+              <SectionHeader
+                title="Digital Growth & SEO"
+                href="/blogs?category=SEO"
+                cta="Browse SEO →"
+                sub="Insights, strategies, and guides on SEO, backlinks, and digital growth to help boost your website’s online presence."
+              />
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+                {seoBlogs.map((b) => (
+                  <CardSm key={b._id} b={b} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          <section className="rounded-2xl border border-border bg-card p-8 text-center">
+            <h3 className="text-xl md:text-2xl font-bold">
+              Write for Daily Sparks
+            </h3>
+            <p className="mt-1 text-muted-foreground">
+              Passionate about Anime, Tech, or Travel? Pitch your story and get
+              featured.
+            </p>
+            <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+              <Link
+                href="/contact"
+                className="rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground"
+              >
+                Share Your Idea
+              </Link>
+              <Link
+                href="/signup"
+                className="rounded-xl border border-border px-6 py-3 font-semibold text-foreground hover:bg-muted/40 transition"
+              >
+                Create an Account & write blogs
+              </Link>
             </div>
           </section>
         </main>

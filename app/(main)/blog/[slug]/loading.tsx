@@ -1,48 +1,38 @@
-import React from "react";
+"use client";
 
-const Loading = () => {
+import Skeleton from "@/components/ui/skeleton";
+
+export default function BlogLoading() {
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6 md:py-12 animate-pulse">
-      {/* Breadcrumbs */}
-      <div className="h-4 w-40 bg-muted rounded mb-4" />
-
-      {/* Cover image */}
-      <div className="w-full h-56 sm:h-64 md:h-96 rounded-xl bg-muted mb-6" />
-
-      {/* Title and meta */}
-      <div className="space-y-3 mb-6">
-        <div className="h-7 bg-muted rounded w-3/4" />
-        <div className="h-4 bg-muted rounded w-1/2" />
-        <div className="flex items-center gap-3 mt-2">
-          <div className="h-9 w-20 bg-muted rounded-full" />
-          <div className="h-9 w-16 bg-muted rounded-full" />
-          <div className="h-9 w-14 bg-muted rounded-full" />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Article body */}
-        <div className="md:col-span-2 space-y-4">
-          <div className="h-4 bg-muted rounded w-11/12" />
-          <div className="h-4 bg-muted rounded w-10/12" />
-          <div className="h-4 bg-muted rounded w-9/12" />
-          <div className="h-4 bg-muted rounded w-full" />
-          <div className="h-4 bg-muted rounded w-8/12" />
-          <div className="h-64 bg-muted rounded" />
-          <div className="h-4 bg-muted rounded w-10/12" />
-          <div className="h-4 bg-muted rounded w-9/12" />
-          <div className="h-4 bg-muted rounded w-7/12" />
+    <div className="max-w-7xl mx-auto px-4 py-10">
+      <div className="grid grid-cols-1 md:grid-cols-[2fr,1fr] gap-8">
+        <div className="space-y-6">
+          <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
+            <Skeleton className="h-6 w-24 rounded-full" />
+            <Skeleton className="h-6 w-20 rounded-full" />
+          </div>
+          <Skeleton className="h-12 w-3/4 rounded-xl" />
+          <Skeleton className="w-full h-72 rounded-2xl" />
+          <div className="space-y-4">
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <Skeleton key={idx} className="h-5 w-full rounded-md" />
+            ))}
+          </div>
+          <div className="flex gap-2">
+            {Array.from({ length: 4 }).map((_, idx) => (
+              <Skeleton key={idx} className="h-9 w-20 rounded-full" />
+            ))}
+          </div>
         </div>
 
-        {/* Sidebar */}
         <div className="space-y-4">
-          <div className="h-5 bg-muted rounded w-32" />
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="flex gap-3">
-              <div className="h-16 w-24 bg-muted rounded" />
-              <div className="flex-1 space-y-2">
-                <div className="h-4 bg-muted rounded w-10/12" />
-                <div className="h-4 bg-muted rounded w-8/12" />
+          <Skeleton className="h-6 w-40 rounded-md" />
+          {Array.from({ length: 3 }).map((_, idx) => (
+            <div key={idx} className="flex gap-3">
+              <Skeleton className="h-20 w-20 rounded-lg" />
+              <div className="flex-1 space-y-3">
+                <Skeleton className="h-4 w-3/4 rounded-md" />
+                <Skeleton className="h-4 w-1/2 rounded-md" />
               </div>
             </div>
           ))}
@@ -50,6 +40,4 @@ const Loading = () => {
       </div>
     </div>
   );
-};
-
-export default Loading;
+}
