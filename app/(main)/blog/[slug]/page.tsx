@@ -7,6 +7,7 @@ import { Metadata } from "next";
 import Script from "next/script";
 import he from "he";
 import { cache } from "react";
+import { extractFaqSchema } from "@/lib/faq-schema";
 
 export const revalidate = 60;
 
@@ -122,6 +123,9 @@ export default async function Blog(context: {
   if (!blogData || !canView) {
     return <div>Blog not found</div>;
   }
+
+  const { htmlWithoutFaqSchema } = extractFaqSchema(blogData?.content || "");
+  blogData.content = htmlWithoutFaqSchema;
 
   const canonical = canonicalFor(blogData);
   const title = he.decode(blogData.metaTitle || blogData.title);

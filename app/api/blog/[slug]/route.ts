@@ -118,12 +118,6 @@ export async function PUT(
         },
       );
     }
-    if (shouldEnableFaq) {
-      finalContent = injectFaqSchemaIntoHtml(
-        finalContent,
-        buildFaqJsonLd(sanitizedFaqs),
-      );
-    }
     if (shouldEnableList) {
       finalContent = injectListSchemaIntoHtml(
         finalContent,

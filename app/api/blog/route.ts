@@ -111,12 +111,6 @@ export async function POST(req: NextRequest) {
         }
       );
     }
-    if (shouldEnableFaq) {
-      finalContent = injectFaqSchemaIntoHtml(
-        finalContent,
-        buildFaqJsonLd(sanitizedFaqs)
-      );
-    }
     if (shouldEnableList) {
       finalContent = injectListSchemaIntoHtml(
         finalContent,

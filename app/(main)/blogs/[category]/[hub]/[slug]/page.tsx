@@ -1,5 +1,6 @@
 import "@/lib/db"; // initialize DB once per server instance
 import { dbReady } from "@/lib/db";
+import { extractFaqSchema } from "@/lib/faq-schema";
 import Blog from "@/models/blog";
 import type { Metadata } from "next";
 import Script from "next/script";
@@ -65,6 +66,9 @@ export default async function Page(context: {
     blogData.category || "",
   );
   if (!catOk || blogData?.hub?.slug !== hub) notFound();
+
+  const { htmlWithoutFaqSchema } = extractFaqSchema(blogData?.content || "");
+  blogData.content = htmlWithoutFaqSchema;
 
   const canonical = canonicalFor(category, hub, slug);
   const title = he.decode(blogData.metaTitle || blogData.title);
