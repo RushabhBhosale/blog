@@ -24,6 +24,130 @@ const CommentsSection = dynamic(
 
 const SITE = "https://dailysparks.in";
 
+function pathFor(blog: BlogInterface & { hub?: any }) {
+  return (blog as any)?.hub?.slug && blog.category
+    ? `/blogs/${encodeURIComponent(blog.category)}/${encodeURIComponent(
+        (blog as any).hub.slug!
+      )}/${encodeURIComponent(blog.slug || "")}`
+    : `/blog/${encodeURIComponent(blog.slug || "")}`;
+}
+
+function pickRelated(related: BlogInterface[], category?: string, count = 2) {
+  const seen = new Set<string>();
+  const picks: BlogInterface[] = [];
+  const normalizedCategory = category?.toLowerCase().trim();
+
+  related.forEach((item) => {
+    const slug = item?.slug;
+    if (!slug || seen.has(slug) || picks.length >= count) return;
+    if (
+      normalizedCategory &&
+      (item?.category || "").toLowerCase().trim() !== normalizedCategory
+    ) {
+      return;
+    }
+    seen.add(slug);
+    picks.push(item);
+  });
+
+  return picks;
+}
+
+function buildInlineHTML(links: { href: string; title: string }[]) {
+  if (!links.length) return "";
+
+  const items =
+    links.length === 1
+      ? `<a href="${links[0].href}" class="text-primary underline-offset-2 hover:underline">${links[0].title}</a>`
+      : links
+          .map(
+            (link, index) =>
+              `${index === links.length - 1 ? "and " : ""}<a href="${
+                link.href
+              }" class="text-primary underline-offset-2 hover:underline">${
+                link.title
+              }</a>`
+          )
+          .join(", ");
+
+  return `
+  <aside data-ds-related="1" class="not-prose mt-6 mb-8 text-[15px] leading-relaxed text-muted-foreground">
+    If you liked this post, check out ${items}.
+  </aside>`;
+}
+
+function injectRelatedIntoHtml(
+  html: string,
+  related: BlogInterface[],
+  category?: string,
+) {
+  if (!html || !related?.length) return html;
+
+  const picks = pickRelated(related, category, 2).map((blog) => ({
+    href: pathFor(blog),
+    title: blog.title,
+  }));
+
+  if (!picks.length) return html;
+
+  if (typeof window !== "undefined" && "DOMParser" in window) {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+      if (doc.querySelector('[data-ds-related="1"]')) return html;
+
+      const paragraphs = Array.from(
+        doc.querySelectorAll("p"),
+      ).filter((p) => p.innerText.trim().length > 0);
+
+      const target =
+        paragraphs[2] ||
+        paragraphs[paragraphs.length - 1] ||
+        doc.querySelector("h2") ||
+        doc.body.firstElementChild;
+
+      const wrapper = doc.createElement("div");
+      wrapper.innerHTML = buildInlineHTML(picks);
+      const node = wrapper.firstElementChild;
+
+      if (target?.parentNode && node) {
+        target.parentNode.insertBefore(node, target.nextSibling);
+        return doc.body.innerHTML;
+      }
+    } catch {
+      // noop — fall back to string injection
+    }
+  }
+
+  const marker = "</p>";
+  let count = 0;
+  let cursor = 0;
+  let insertAt = -1;
+
+  while (true) {
+    const nextIndex = html.indexOf(marker, cursor);
+    if (nextIndex === -1) break;
+    count += 1;
+    cursor = nextIndex + marker.length;
+    if (count === 3) {
+      insertAt = cursor;
+      break;
+    }
+  }
+
+  if (insertAt === -1 && count > 0) {
+    insertAt = cursor;
+  }
+
+  if (insertAt !== -1) {
+    const before = html.slice(0, insertAt);
+    const after = html.slice(insertAt);
+    return `${before}${buildInlineHTML(picks)}${after}`;
+  }
+
+  return `${buildInlineHTML(picks)}${html}`;
+}
+
 type Props = {
   blogDetail: BlogInterface & {
     viewCount?: number;
@@ -134,6 +258,16 @@ export default function BlogDetailsPage({
 
   const hasToc = toc.length >= 2;
 
+  const enhancedHtml = useMemo(
+    () =>
+      injectRelatedIntoHtml(
+        blogDetail.content || "",
+        relatedAllBlogs,
+        blogDetail.category,
+      ),
+    [blogDetail.content, relatedAllBlogs, blogDetail.category],
+  );
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 md:py-12 flex flex-col md:flex-row gap-8">
       <div className="md:w-3/4 flex flex-col gap-6 md:gap-6">
@@ -235,7 +369,7 @@ export default function BlogDetailsPage({
 
         <article
           className="prose prose-slate max-w-full text-foreground novel-content"
-          dangerouslySetInnerHTML={{ __html: blogDetail.content }}
+          dangerouslySetInnerHTML={{ __html: enhancedHtml }}
         />
 
         <div className="mt-8 flex flex-wrap gap-3">
