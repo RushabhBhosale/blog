@@ -149,12 +149,15 @@ export default async function Page(context: {
     blogData?.enableFaqSchema && Array.isArray(blogData?.faqs) && blogData.faqs.length
       ? {
           "@type": "FAQPage",
+          "@id": `${canonical}#faq`,
+          inLanguage: "en",
+          url: canonical,
           mainEntity: blogData.faqs.map((faq: any) => ({
             "@type": "Question",
-            name: faq.question,
+            name: (faq.question || "").trim(),
             acceptedAnswer: {
               "@type": "Answer",
-              text: faq.answer,
+              text: (faq.answer || "").trim(),
             },
           })),
         }
