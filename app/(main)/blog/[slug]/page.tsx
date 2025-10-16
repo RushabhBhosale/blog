@@ -85,8 +85,11 @@ export async function generateMetadata(context: {
   }
 
   const title = he.decode(blog.metaTitle || blog.title);
+  const contentForMeta =
+    typeof blog.content === "string" ? blog.content : "";
   const description =
-    blog.metaDescription || blog.content.replace(/<[^>]+>/g, "").slice(0, 160);
+    blog.metaDescription ||
+    contentForMeta.replace(/<[^>]+>/g, "").slice(0, 160);
 
   const canonical = canonicalFor(blog);
   const imageAbs = blog.image?.startsWith("http")
@@ -129,9 +132,11 @@ export default async function Blog(context: {
 
   const canonical = canonicalFor(blogData);
   const title = he.decode(blogData.metaTitle || blogData.title);
+  const contentForDescription =
+    typeof blogData.content === "string" ? blogData.content : "";
   const description =
     blogData.metaDescription ||
-    blogData.content.replace(/<[^>]+>/g, "").slice(0, 160);
+    contentForDescription.replace(/<[^>]+>/g, "").slice(0, 160);
   const imageAbs = blogData.image?.startsWith("http")
     ? blogData.image
     : new URL(blogData.image || "/og-cover.png", SITE).toString();

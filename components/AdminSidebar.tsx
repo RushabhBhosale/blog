@@ -10,22 +10,23 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import axiosClient from "@/lib/axiosclient";
 
 const navItems = [
-  { name: "Dashboard", href: "/admin", icon: LayoutDashboard, badge: null },
-  { name: "Posts", href: "/admin/posts", icon: FileText, badge: "12" },
-  { name: "Comments", href: "/admin/comments", icon: FileText, badge: "12" },
+  { name: "Dashboard", href: "/admin", icon: LayoutDashboard, badgeKey: null },
+  { name: "Posts", href: "/admin/posts", icon: FileText, badgeKey: "posts" },
+  { name: "Comments", href: "/admin/comments", icon: FileText, badgeKey: "comments" },
   {
     name: "Categories",
     href: "/admin/categories",
     icon: FolderOpen,
-    badge: null,
+    badgeKey: "categories",
   },
-  { name: "Users", href: "/admin/users", icon: Users, badge: "3" },
-  { name: "Settings", href: "/admin/settings", icon: Settings, badge: null },
+  { name: "Users", href: "/admin/users", icon: Users, badgeKey: "users" },
+  { name: "Settings", href: "/admin/settings", icon: Settings, badgeKey: null },
 ];
 
 const AdminSidebar = ({
@@ -36,6 +37,42 @@ const AdminSidebar = ({
   setSidebarOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
   const [activeItem, setActiveItem] = useState("Dashboard");
+  const [counts, setCounts] = useState({
+    posts: 0,
+    comments: 0,
+    categories: 0,
+    users: 0,
+  });
+  const [loadingCounts, setLoadingCounts] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        setLoadingCounts(true);
+        const [posts, comments, categories, users] = await Promise.all([
+          axiosClient.get("/blog").catch(() => ({ data: { blogs: [] } })),
+          axiosClient.get("/comment").catch(() => ({ data: { comments: [] } })),
+          axiosClient.get("/category").catch(() => ({ data: { category: [] } })),
+          axiosClient.get("/user").catch(() => ({ data: { users: [] } })),
+        ]);
+        if (!cancelled) {
+          setCounts({
+            posts: (posts.data.blogs || []).length,
+            comments: (comments.data.comments || []).length,
+            categories: (categories.data.category || []).length,
+            users: (users.data.users || []).length,
+          });
+        }
+      } finally {
+        if (!cancelled) setLoadingCounts(false);
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <>
@@ -93,6 +130,10 @@ const AdminSidebar = ({
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeItem === item.name;
+            const badgeValue =
+              item.badgeKey && item.badgeKey in counts
+                ? counts[item.badgeKey as keyof typeof counts] ?? 0
+                : 0;
             return (
               <Link
                 key={item.name}
@@ -119,7 +160,11 @@ const AdminSidebar = ({
                   <span>{item.name}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  {item.badge && <Badge>{item.badge}</Badge>}
+                  {item.badgeKey
+                    ? loadingCounts
+                      ? <Badge>--</Badge>
+                      : <Badge>{badgeValue}</Badge>
+                    : null}
                 </div>
               </Link>
             );
