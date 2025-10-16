@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
+export const metadata: Metadata = {
   metadataBase: new URL("https://dailysparks.in"),
   title: "Daily Sparks ⚡ Fresh Ideas, Every Day",
   description:
@@ -41,10 +41,10 @@ export const metadata = {
     siteName: "Daily Sparks",
     images: [
       {
-        url: "/og",
+        url: "https://dailysparks.in/opengraph.png",
         width: 1200,
         height: 630,
-        alt: "Daily Sparks Cover",
+        alt: "Daily Sparks social preview",
       },
     ],
     type: "website",
@@ -53,7 +53,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Daily Sparks ⚡ Fresh Ideas, Every Day",
     description: "Anime, tech, and travel stories that ignite your curiosity.",
-    images: ["https://dailysparks.in/og-image.jpg"],
+    images: ["https://dailysparks.in/opengraph.png"],
     creator: "@yourhandle",
   },
 };
