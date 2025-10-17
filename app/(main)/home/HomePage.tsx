@@ -430,31 +430,6 @@ export default function HomePage({ allblogs, miniSparks }: Props) {
             </section>
           )}
 
-          {/* <section className="rounded-2xl border border-border bg-card p-8 text-center">
-            <h3 className="text-xl md:text-2xl font-bold">
-              Get the Daily Sparks Newsletter
-            </h3>
-            <p className="mt-1 text-muted-foreground">
-              Hand-picked Anime, Tech, Cinema and Travel — weekly.
-            </p>
-            <div className="mx-auto mt-4 flex max-w-md flex-col gap-3 sm:flex-row">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-              <button
-                onClick={subscribe}
-                disabled={loading}
-                className="rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground disabled:opacity-60"
-              >
-                {loading ? "Subscribing..." : "Subscribe"}
-              </button>
-            </div>
-          </section> */}
-
           {!!seoBlogs.length && (
             <section>
               <SectionHeader
@@ -471,27 +446,67 @@ export default function HomePage({ allblogs, miniSparks }: Props) {
             </section>
           )}
 
-          <section className="rounded-2xl border border-border bg-card p-8 text-center">
-            <h3 className="text-xl md:text-2xl font-bold">
-              Write for Daily Sparks
-            </h3>
-            <p className="mt-1 text-muted-foreground">
-              Passionate about Anime, Tech, or Travel? Pitch your story and get
-              featured.
-            </p>
-            <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <Link
-                href="/contact"
-                className="rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground"
-              >
-                Share Your Idea
-              </Link>
-              <Link
-                href="/signup"
-                className="rounded-xl border border-border px-6 py-3 font-semibold text-foreground hover:bg-muted/40 transition"
-              >
-                Create an Account & write blogs
-              </Link>
+          <section className="rounded-2xl border border-border bg-card px-6 py-8 md:px-8">
+            <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+              <div>
+                <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                  Daily Sparks Newsletter
+                </span>
+                <h3 className="mt-3 text-xl md:text-2xl font-bold">
+                  Fresh reads in your inbox
+                </h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Join Daily Sparks for weekly drops on anime, tech, and travel.
+                  No spam — just the stories worth reading.
+                </p>
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                    aria-label="Email address"
+                  />
+                  <button
+                    onClick={subscribe}
+                    disabled={loading}
+                    className="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+                  >
+                    {loading ? "Subscribing..." : "Subscribe"}
+                  </button>
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Stay current with Daily Sparks — unsubscribe anytime.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-border bg-muted/30 p-6 md:p-8">
+                <span className="inline-flex items-center gap-2 rounded-full bg-foreground/10 px-3 py-1 text-xs font-semibold text-foreground">
+                  Write with us
+                </span>
+                <h3 className="mt-3 text-xl md:text-2xl font-bold">
+                  Share your Daily Spark
+                </h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Have a guide, review, or story that fits Daily Sparks? Pitch
+                  it and start publishing with our community.
+                </p>
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                  <Link
+                    href="/contact"
+                    className="flex-1 rounded-xl bg-primary px-6 py-3 text-center text-sm font-semibold text-primary-foreground"
+                  >
+                    Share your idea
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="flex-1 rounded-xl border border-border px-6 py-3 text-center text-sm font-semibold text-foreground transition hover:bg-muted/40"
+                  >
+                    Create an account
+                  </Link>
+                </div>
+              </div>
             </div>
           </section>
         </main>

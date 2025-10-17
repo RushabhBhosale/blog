@@ -1,5 +1,4 @@
 import {
-  ChevronRight,
   FileText,
   FolderOpen,
   LayoutDashboard,
@@ -14,28 +13,55 @@ import React, { Dispatch, SetStateAction, useState } from "react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 
-const navItems = [
-  { name: "Dashboard", href: "/admin", icon: LayoutDashboard, badge: null },
-  { name: "Posts", href: "/admin/posts", icon: FileText, badge: "12" },
-  { name: "Comments", href: "/admin/comments", icon: FileText, badge: "12" },
+type SidebarCounts = {
+  posts?: number;
+  comments?: number;
+  users?: number;
+};
+
+const baseNavItems = [
+  { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { name: "Posts", href: "/admin/posts", icon: FileText, badgeKey: "posts" },
+  {
+    name: "Comments",
+    href: "/admin/comments",
+    icon: FileText,
+    badgeKey: "comments",
+  },
   {
     name: "Categories",
     href: "/admin/categories",
     icon: FolderOpen,
-    badge: null,
   },
-  { name: "Users", href: "/admin/users", icon: Users, badge: "3" },
-  { name: "Settings", href: "/admin/settings", icon: Settings, badge: null },
+  { name: "Users", href: "/admin/users", icon: Users, badgeKey: "users" },
+  { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
 const AdminSidebar = ({
   sidebarOpen,
   setSidebarOpen,
+  counts = {},
 }: {
   sidebarOpen: boolean;
   setSidebarOpen: Dispatch<SetStateAction<boolean>>;
+  counts?: SidebarCounts;
 }) => {
   const [activeItem, setActiveItem] = useState("Dashboard");
+
+  const navItems = baseNavItems.map((item) => {
+    const key = item.badgeKey as keyof SidebarCounts | undefined;
+    const rawValue =
+      key && typeof counts[key] === "number" ? Number(counts[key]) : undefined;
+    return {
+      ...item,
+      badge:
+        typeof rawValue === "number" && rawValue > 0
+          ? rawValue > 99
+            ? "99+"
+            : rawValue.toString()
+          : null,
+    };
+  });
 
   return (
     <>

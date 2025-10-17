@@ -41,10 +41,11 @@ export const metadata = {
     siteName: "Daily Sparks",
     images: [
       {
-        url: "/og",
+        url: "/opengraph-image",
         width: 1200,
         height: 630,
         alt: "Daily Sparks Cover",
+        type: "image/png",
       },
     ],
     type: "website",
@@ -53,7 +54,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Daily Sparks ⚡ Fresh Ideas, Every Day",
     description: "Anime, tech, and travel stories that ignite your curiosity.",
-    images: ["https://dailysparks.in/og-image.jpg"],
+    images: ["https://dailysparks.in/opengraph-image"],
     creator: "@yourhandle",
   },
 };
