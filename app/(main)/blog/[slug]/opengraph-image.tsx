@@ -29,7 +29,7 @@ export default async function Image({
 }) {
   const { slug } = await params;
   await dbReady;
-  const blog = await Blog.findOne({ slug })
+  const blog: any = await Blog.findOne({ slug })
     .select("title category metaTitle image")
     .lean();
 
@@ -148,6 +148,6 @@ export default async function Image({
     {
       width: size.width,
       height: size.height,
-    },
+    }
   );
 }

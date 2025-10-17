@@ -23,7 +23,6 @@ import mongoose, { Schema, models, model } from "mongoose";
 );
 
   try {
-    miniSparkSchema.index({ slug: 1 }, { unique: true });
     miniSparkSchema.index({ kind: 1, createdAt: -1 });
     miniSparkSchema.index({ format: 1, createdAt: -1 });
     miniSparkSchema.index({ language: 1 });

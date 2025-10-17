@@ -13,9 +13,7 @@ const HubSchema = new Schema(
 );
 
 try {
-  HubSchema.index({ slug: 1 }, { unique: true });
   HubSchema.index({ categorySlug: 1 });
 } catch (_) {}
 
 export default models.Hub || model("Hub", HubSchema);
-
