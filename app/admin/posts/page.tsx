@@ -94,7 +94,7 @@ const PostsPage = () => {
           <TableHeader>
             <TableRow>
               <TableHead>Title</TableHead>
-              <TableHead className="hidden md:inline">Category</TableHead>
+              <TableHead className="hidden">Category</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Actions</TableHead>
@@ -103,7 +103,9 @@ const PostsPage = () => {
           <TableBody>
             {filtered.map((post) => (
               <TableRow key={post._id}>
-                <TableCell className="w-full md:w-1/2">{post.title}</TableCell>
+                <TableCell className="w-full truncate max-w-2xs">
+                  {post.title}
+                </TableCell>
                 <TableCell className="hidden md:block">
                   {post.category}
                 </TableCell>
@@ -120,8 +122,8 @@ const PostsPage = () => {
                         });
                         setPosts((p) =>
                           p.map((x) =>
-                            x._id === post._id ? { ...x, status: val } : x,
-                          ),
+                            x._id === post._id ? { ...x, status: val } : x
+                          )
                         );
                       } catch {
                         // ignore
