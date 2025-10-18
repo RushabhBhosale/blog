@@ -47,13 +47,13 @@ const themeStyles: Record<
   },
 };
 
-type Params = { slug: string };
+type Params = any;
 
 export function generateStaticParams(): Params[] {
   return travelStories.map((story) => ({ slug: story.slug }));
 }
 
-export function generateMetadata({ params }: { params: Params }): Metadata {
+export function generateMetadata({ params }: any): Metadata {
   const story = travelStories.find((item) => item.slug === params.slug);
   if (!story) {
     return { title: "Travel Story" };
