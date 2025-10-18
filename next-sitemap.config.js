@@ -5,5 +5,6 @@ module.exports = {
   sitemapSize: 7000,
   changefreq: "daily",
   priority: 0.7,
+  exclude: ["/admin", "/admin/**", "/signin", "/signup"],
   additionalSitemaps: ["https://dailysparks.in/server-sitemap.xml"],
 };
