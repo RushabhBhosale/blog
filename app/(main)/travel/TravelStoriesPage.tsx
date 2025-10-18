@@ -2,117 +2,97 @@ import Image from "next/image";
 import Link from "next/link";
 import type { TravelStory, TravelStoryLayout } from "@/lib/travelStories";
 
-const layoutTokens: Record<
+const themeStyles: Record<
   TravelStoryLayout,
   {
-    wrapper: string;
-    imageWrapper: string;
-    imageClass: string;
-    accentDot: string;
+    badge: string;
+    border: string;
+    accent: string;
+    dot: string;
   }
 > = {
   coastal: {
-    wrapper:
-      "md:grid md:grid-cols-12 gap-8 md:gap-10 p-6 sm:p-10 md:p-12 bg-gradient-to-br from-white via-sky-50 to-blue-100 border border-sky-100/60 rounded-[2.5rem] shadow-lg shadow-sky-200/30",
-    imageWrapper:
-      "md:col-span-5 lg:col-span-4 relative overflow-hidden rounded-[2rem] ring-4 ring-sky-200/40",
-    imageClass: "object-cover",
-    accentDot: "bg-sky-300",
+    badge: "bg-sky-100 text-sky-700",
+    border: "border-sky-200",
+    accent: "text-sky-800",
+    dot: "bg-sky-400",
   },
   zen: {
-    wrapper:
-      "md:grid md:grid-cols-12 gap-8 md:gap-12 p-6 sm:p-10 md:p-12 bg-gradient-to-br from-white via-emerald-50 to-lime-100 border border-emerald-100/60 rounded-[3rem] shadow-xl shadow-emerald-100/40",
-    imageWrapper:
-      "md:col-span-5 lg:col-span-5 relative overflow-hidden rounded-[3rem] ring-4 ring-emerald-200/40 order-last md:order-first",
-    imageClass: "object-cover saturate-110",
-    accentDot: "bg-emerald-400",
+    badge: "bg-emerald-100 text-emerald-700",
+    border: "border-emerald-200",
+    accent: "text-emerald-700",
+    dot: "bg-emerald-400",
   },
   expedition: {
-    wrapper:
-      "md:grid md:grid-cols-12 gap-8 md:gap-12 p-6 sm:p-10 md:p-12 bg-gradient-to-br from-slate-950 via-slate-900 to-stone-900 border border-white/10 rounded-[2.75rem] shadow-2xl shadow-black/40 text-slate-100",
-    imageWrapper:
-      "md:col-span-6 lg:col-span-5 relative overflow-hidden rounded-[2.5rem] ring-4 ring-white/10",
-    imageClass: "object-cover brightness-110",
-    accentDot: "bg-amber-400",
+    badge: "bg-amber-100 text-amber-700",
+    border: "border-amber-200",
+    accent: "text-amber-700",
+    dot: "bg-amber-500",
   },
 };
 
 function TravelStoryCard({ story }: { story: TravelStory }) {
-  const layout = layoutTokens[story.theme.layout];
+  const theme = themeStyles[story.theme.layout];
+  const previewHighlights = story.highlights.slice(0, 3);
 
   return (
-    <article className={layout.wrapper}>
-      <div
-        className={`${layout.imageWrapper} aspect-[4/3] shadow-lg shadow-black/10`}
-      >
+    <article
+      className={`flex flex-col gap-6 rounded-3xl border bg-card p-6 shadow-sm sm:p-8 md:flex-row md:items-stretch ${theme.border}`}
+    >
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl md:w-72">
         <Image
           src={story.coverImage}
           alt={story.coverImageAlt}
           fill
-          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 45vw, 90vw"
-          className={layout.imageClass}
+          className="object-cover"
+          sizes="(min-width: 1024px) 320px, (min-width: 768px) 50vw, 92vw"
           priority
         />
-        <span
-          className={`absolute top-4 left-4 h-3 w-3 rounded-full ${layout.accentDot}`}
-        />
       </div>
-      <div className="md:col-span-7 lg:col-span-8 flex flex-col gap-6">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-            My Travel Story
-          </p>
-          <h2 className="mt-3 text-2xl sm:text-3xl md:text-4xl font-semibold">
-            {story.title}
-          </h2>
-          <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
-            <span
-              className={`px-3 py-1 rounded-full ${story.theme.chipBackground} ${story.theme.chipText}`}
-            >
+
+      <div className="flex flex-1 flex-col gap-5">
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <span className={`rounded-full px-3 py-1 ${theme.badge}`}>
               {story.location}
             </span>
-            <span
-              className={`px-3 py-1 rounded-full ${story.theme.chipBackground} ${story.theme.chipText}`}
-            >
+            <span className={`rounded-full px-3 py-1 ${theme.badge}`}>
               {story.dateRange}
             </span>
           </div>
+          <h2 className="text-2xl font-semibold text-foreground sm:text-3xl">
+            {story.title}
+          </h2>
+          <p className="text-sm text-muted-foreground sm:text-base">
+            {story.intro}
+          </p>
         </div>
-        <p className="text-base leading-relaxed text-muted-foreground max-w-2xl">
-          {story.intro}
-        </p>
-        <div className="grid gap-4 sm:grid-cols-3">
-          {story.highlights.slice(0, 3).map((highlight) => (
-            <div
-              key={highlight.title}
-              className={`rounded-2xl border ${story.theme.border} ${story.theme.cardBackground} p-4 shadow-sm backdrop-blur md:hover:-translate-y-1 md:hover:shadow-lg transition`}
-            >
-              <p className="text-sm font-semibold text-foreground mb-1">
-                {highlight.title}
-              </p>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {highlight.description}
-              </p>
-              {highlight.accent && (
-                <p className="mt-2 text-xs uppercase tracking-wide text-foreground/60">
-                  {highlight.accent}
+
+        <ul className="space-y-3 text-sm text-muted-foreground">
+          {previewHighlights.map((highlight) => (
+            <li key={highlight.title} className="flex gap-3">
+              <div>
+                <p className="font-medium text-foreground">{highlight.title}</p>
+                <p className="text-sm text-muted-foreground">
+                  {highlight.description}
                 </p>
-              )}
-            </div>
+              </div>
+            </li>
           ))}
-        </div>
-        <div className="flex flex-wrap items-center gap-3 mt-auto">
+        </ul>
+
+        <div className="flex flex-wrap gap-3 pt-1">
           <Link
             href={`/travel/${story.slug}`}
-            className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-2 text-sm font-medium text-background transition hover:-translate-y-0.5 hover:shadow-lg"
+            className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition hover:-translate-y-0.5 hover:bg-foreground/90"
           >
-            Read the itinerary →
+            Read itinerary
           </Link>
           <Link
             href={`/travel/${story.slug}`}
-            className="text-sm font-medium text-foreground/70 hover:text-foreground"
+            className={`inline-flex items-center text-sm font-medium ${theme.accent} hover:underline`}
           >
-            View gallery
+            View full story
           </Link>
         </div>
       </div>
@@ -126,29 +106,28 @@ export default function TravelStoriesPage({
   stories: TravelStory[];
 }) {
   return (
-    <div className="relative bg-gradient-to-b from-background via-background/70 to-background pb-16">
-      <section className="relative overflow-hidden py-16 sm:py-20">
-        <div className="absolute inset-x-0 -top-32 h-64 bg-gradient-to-b from-primary/10 via-primary/5 to-transparent blur-3xl" />
-        <div className="relative mx-auto flex max-w-6xl flex-col gap-6 px-4 text-center">
-          <span className="mx-auto w-fit rounded-full bg-primary/10 px-5 py-2 text-xs font-semibold uppercase tracking-[0.4em] text-primary">
-            Travel Stories
+    <main className="bg-background pb-16">
+      <section className="border-b border-border bg-muted/40 py-14">
+        <div className="mx-auto flex max-w-4xl flex-col gap-4 px-4 text-center sm:gap-5">
+          <span className="text-xs font-semibold uppercase tracking-[0.4em] text-primary">
+            My Travel Stories
           </span>
-          <h1 className="text-3xl sm:text-5xl font-semibold text-foreground">
-            Every trip gets its own personality-packed story
+          <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">
+            Real Trips, Honest Memories
           </h1>
-          <p className="mx-auto max-w-3xl text-base sm:text-lg text-muted-foreground">
-            A living archive of itineraries, hidden gems, and photo journals
-            from around the globe. Each journey is curated with custom layouts,
-            moods, and highlights so no two stories feel the same.
+          <p className="text-sm text-muted-foreground sm:text-base">
+            These aren’t guides or itineraries — they’re personal stories from
+            the places I’ve actually been. Each trip captures the feeling, the
+            people, and the little moments that made it unforgettable.
           </p>
         </div>
       </section>
 
-      <section className="mx-auto flex max-w-6xl flex-col gap-12 px-4">
+      <section className="mx-auto mt-12 flex max-w-5xl flex-col gap-10 px-4 sm:gap-12">
         {stories.map((story) => (
           <TravelStoryCard key={story.slug} story={story} />
         ))}
       </section>
-    </div>
+    </main>
   );
 }

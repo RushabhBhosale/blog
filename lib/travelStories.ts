@@ -15,7 +15,7 @@ export type TravelStoryHighlight = {
 
 export type TravelStoryGalleryImage = {
   src: string;
-  alt: string;
+  alt?: string;
   emphasis?: "wide" | "tall" | "square";
 };
 
@@ -84,8 +84,7 @@ export const travelStoryThemes: Record<TravelStoryLayout, TravelStoryTheme> = {
   },
   expedition: {
     layout: "expedition",
-    heroBackground:
-      "bg-gradient-to-br from-orange-50 via-white to-amber-200",
+    heroBackground: "bg-gradient-to-br from-orange-50 via-white to-amber-200",
     accentGradient:
       "bg-gradient-to-r from-amber-300 via-orange-300 to-rose-400",
     accentText: "text-amber-900",
@@ -99,143 +98,184 @@ export const travelStoryThemes: Record<TravelStoryLayout, TravelStoryTheme> = {
 
 export const travelStories: TravelStory[] = [
   {
-    slug: "aegean-sunsets-santorini",
-    title: "Aegean Sunsets & Cycladic Charm",
-    location: "Santorini, Greece",
-    dateRange: "May 2024",
+    slug: "nainital-jim-corbett",
+    title: "Nainital & Jim Corbett",
+    location: "Nainital, Uttarakhand",
+    dateRange: "Feb 2023",
     intro:
-      "A five-day escape perched along Santorini's volcanic caldera, chasing cotton candy sunsets, village-to-village hikes, and the island's freshest flavors.",
-    coverImage:
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80",
+      "A six day college trip to Nainital, Jim corbetts jungle safari, boat ride in the Nainital lake, snow view by cable car, shopping at mall road",
+    coverImage: "/trip/nainital/nainital.jpeg",
     coverImageAlt: "Sunset over white and blue domed buildings in Santorini",
     heroQuote: {
       text: "Every cliffside corner felt like a painted postcard waiting to be mailed home.",
       attribution: "Journal entry – Day 3, Oia",
     },
     quickFacts: [
-      { label: "Base", value: "Fira Old Town" },
-      { label: "Travel Crew", value: "Rushabh + 2 best friends" },
-      { label: "Trip Focus", value: "Slow mornings & golden-hour adventures" },
+      { label: "Base", value: "Rudrapur, Nainital & Corbett" },
+      { label: "Travel Crew", value: "Khalsa College Students" },
+      { label: "Trip Focus", value: "Adventure, Nature & College Memories" },
     ],
     highlights: [
       {
-        title: "Blue Dome Sunrise",
+        title: "Boating at Naini Lake",
         description:
-          "Claimed a quiet perch above the Three Bells of Fira at 6:10 am to watch pastel light wash the caldera.",
-        accent: "Sunrise playlist: Yann Tiersen & local church bells",
+          "Tranquil morning boat rides surrounded by mist-covered hills and reflections of the old temples around the lake.",
+        accent: "Perfect start to Nainital mornings",
       },
       {
-        title: "Caldera Sailing",
+        title: "Snow View by Cable Car",
         description:
-          "A catamaran day cruise with hidden hot springs and grilled seafood onboard as the sky went tangerine.",
+          "An aerial ride to witness snow-capped Himalayan peaks — followed by local shopping at Mall Road and Bhotia Market.",
       },
       {
-        title: "Wine Cave Dinner",
+        title: "Jim Corbett Jungle Safari",
         description:
-          "Seven-course tasting inside an 18th-century cave winery. Favorite pairing: Assyrtiko with tomato keftedes.",
+          "A thrilling open-gypsy safari through the dense forests of Corbett, spotting deer, elephants, and exotic birds.",
       },
     ],
     itinerary: [
       {
         dayLabel: "Day 1",
-        title: "Cliffside Check-In",
+        title: "Departure from Mumbai",
         description:
-          "Arrived in Fira, settled into the cave suite, and wandered cobblestone alleys before a sunset dinner at Naoussa.",
+          "Reported at Mumbai Central by 3:00 PM and boarded the Tejas Rajdhani Express for Delhi. Overnight train journey filled with anticipation and college chatter.",
         highlights: [
-          "Sunset table overlooking the caldera",
-          "Local dessert: galaktoboureko",
+          "Train: 12953 Tejas Rajdhani Express",
+          "Departure: 5:10 PM from Mumbai Central",
         ],
       },
       {
         dayLabel: "Day 2",
-        title: "Hike Fira → Oia",
+        title: "Delhi to Rudrapur",
         description:
-          "Four-hour coastal hike with breezy pauses in Imerovigli. Rewarded ourselves with homemade gelato at Lolita's.",
-        highlights: [
-          "Photographed Skaros Rock",
-          "Gelato flavors: pistachio + lemon",
-        ],
+          "Arrived in Delhi and continued the journey by bus to Rudrapur with a pit stop for lunch at Shiva Dhaba, Garh-Mukteshwar. Checked into Sonia Resort by afternoon and relaxed through the evening.",
+        highlights: ["Lunch at Shiva Dhaba", "Evening at Sonia Resort"],
       },
       {
         dayLabel: "Day 3",
-        title: "Sail the Caldera",
+        title: "Industrial Visit & Nainital Arrival",
         description:
-          "Catamaran cruise to Nea Kameni's hot springs and sunset swim near Amoudi Bay with a seafood grill onboard.",
-        highlights: [
-          "Jumped from the boat at golden hour",
-          "Best bite: grilled octopus",
-        ],
+          "Morning industrial visit followed by a scenic 2-hour drive to Nainital. Checked into the hotel, enjoyed music and dinner with the group.",
+        highlights: ["Industrial visit near Rudrapur", "DJ night at Nainital"],
       },
       {
         dayLabel: "Day 4",
-        title: "Megalochori & Wine",
+        title: "Exploring Nainital",
         description:
-          "Explored Megalochori's bougainvillea lanes, then wine tasting inside a candlelit cave cellar.",
+          "Started with a peaceful boating session on Naini Lake, rode the cable car to Snow View Point, and ended the day shopping at Mall Road and Bhotia Market.",
         highlights: [
-          "New favorite wine: Nykteri",
-          "Paired with fava bean purée",
+          "Boating at Naini Lake",
+          "Snow View by cable car",
+          "Shopping spree at Mall Road",
         ],
       },
       {
         dayLabel: "Day 5",
-        title: "Volcanic Beach Day",
+        title: "Drive to Jim Corbett",
         description:
-          "Relaxed on Perissa's black sands, paddle boarded, and wrapped the trip with a sunset from Oia Castle.",
+          "Morning drive from Nainital to Corbett Park. After lunch, embarked on a jungle safari — an unforgettable adventure through the forest trails.",
+        highlights: ["Check-in at Samsara Resort", "Evening jungle safari"],
+      },
+      {
+        dayLabel: "Day 6",
+        title: "Return Journey Begins",
+        description:
+          "Early breakfast and departure for Delhi. Lunch stop at Shiva Dhaba, then boarded the Sampark Kranti Express for Mumbai.",
         highlights: [
-          "Collected smooth volcanic stones",
-          "Farewell dinner: moussaka & baklava",
+          "Train: 12908 Sampark Kranti Express",
+          "Departure: 4:30 PM from Delhi",
         ],
+      },
+      {
+        dayLabel: "Day 7",
+        title: "Arrival in Mumbai",
+        description:
+          "Breakfast and lunch aboard the train before reaching Mumbai by 9:00 AM — trip concluded with stories, laughter, and hundreds of photos.",
+        highlights: ["Arrival: 9:00 AM at Mumbai Central"],
       },
     ],
     signatureMoments: [
       {
-        heading: "Secret Sunrise Terrace",
+        heading: "Evening at Mall Road",
         description:
-          "A friendly cafe owner shared a hidden terrace above his rooftop. We watched the island wake up with freddo espressos in hand.",
-        image:
-          "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+          "The group wandered through cozy cafés and souvenir shops as the town lit up with warm yellow streetlights reflecting on the wet pavement.",
+        image: "/trip/nainital/eve.jpeg",
         layout: "left",
       },
       {
-        heading: "Tomato Heaven",
+        heading: "Safari Morning in Corbett",
         description:
-          "Discovered that Santorini cherry tomatoes taste like sunshine. Joined a farm-to-table workshop and made the crispiest tomato fritters.",
-        image:
-          "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?auto=format&fit=crop&w=1200&q=80",
+          "The chill of dawn, jeep engines humming, and the thrill of spotting wildlife amidst fog-draped sal trees — pure adventure.",
+        image: "/trip/nainital/safari.jpeg",
         layout: "right",
       },
       {
-        heading: "Postcard Hour in Oia",
+        heading: "Cable Car to the Clouds",
         description:
-          "Timed the sunset at the castle ruins, sketching the skyline instead of taking photos for a change.",
-        image:
-          "https://images.unsplash.com/photo-1506086679524-493c64fdfaa6?auto=format&fit=crop&w=1200&q=80",
+          "From the top of Snow View Point, the Himalayas stood like painted giants — a breathtaking view that silenced everyone for a moment.",
+        image: "/trip/nainital/cable.jpg",
         layout: "full",
       },
     ],
     gallery: [
       {
-        src: "https://images.unsplash.com/photo-1470246973918-29a93221c455?auto=format&fit=crop&w=1200&q=80",
-        alt: "Catamaran sailing along Santorini's caldera",
+        src: "/trip/nainital/gallery/1.jpeg",
+        alt: "Nainital",
         emphasis: "wide",
       },
       {
-        src: "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=800&q=80",
-        alt: "Breakfast table with sea view",
+        src: "/trip/nainital/gallery/2.jpeg",
+        alt: "Nainital",
         emphasis: "square",
       },
       {
-        src: "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?auto=format&fit=crop&w=800&q=80",
-        alt: "Santorini wine tasting setup",
+        src: "/trip/nainital/gallery/3.jpeg",
+        alt: "Nainital",
         emphasis: "tall",
       },
       {
-        src: "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=1200&q=80",
-        alt: "Sunset over Oia",
+        src: "/trip/nainital/gallery/4.jpeg",
+        alt: "Nainital",
         emphasis: "wide",
       },
+      {
+        src: "/trip/nainital/gallery/5.jpeg",
+        alt: "Nainital",
+        emphasis: "square",
+      },
+      {
+        src: "/trip/nainital/gallery/6.jpeg",
+        alt: "Nainital",
+        emphasis: "tall",
+      },
+      {
+        src: "/trip/nainital/gallery/7.jpeg",
+        alt: "Nainital",
+        emphasis: "wide",
+      },
+      {
+        src: "/trip/nainital/gallery/8.jpeg",
+        alt: "Nainital",
+        emphasis: "square",
+      },
+      {
+        src: "/trip/nainital/gallery/9.jpeg",
+        alt: "Nainital",
+        emphasis: "tall",
+      },
+      {
+        src: "/trip/nainital/gallery/10.jpeg",
+        alt: "Nainital",
+        emphasis: "wide",
+      },
+      {
+        src: "/trip/nainital/gallery/11.jpeg",
+        alt: "Nainital",
+        emphasis: "square",
+      },
     ],
-    theme: travelStoryThemes.coastal,
+
+    theme: travelStoryThemes.coastal, // optionally replace with "expedition" for mountain feel
   },
   {
     slug: "kyoto-temple-trails",
