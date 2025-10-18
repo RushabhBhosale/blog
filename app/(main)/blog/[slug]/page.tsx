@@ -16,8 +16,10 @@ const SITE = "https://dailysparks.in";
 const canonicalFor = (blog?: any) => {
   if (blog?.hub?.slug && blog?.category) {
     return new URL(
-      `/blogs/${encodeURIComponent(blog.category)}/${encodeURIComponent(blog.hub.slug)}/${encodeURIComponent(blog.slug)}`,
-      SITE,
+      `/blogs/${encodeURIComponent(blog.category)}/${encodeURIComponent(
+        blog.hub.slug
+      )}/${encodeURIComponent(blog.slug)}`,
+      SITE
     ).toString();
   }
   const slug = blog?.slug || "";
@@ -34,38 +36,40 @@ const getBlogBySlug = cache(async (slug: string) => {
     .lean();
 });
 
-const getRelatedBlogs = cache(async (slug: string, category: string, tagList: string[]) => {
-  await dbReady;
-  return BlogM.aggregate([
-    {
-      $match: {
-        slug: { $ne: slug },
-        $or: [
-          ...(category ? ([{ category }] as any[]) : []),
-          ...(tagList.length ? [{ tags: { $in: tagList } }] : []),
-        ],
+const getRelatedBlogs = cache(
+  async (slug: string, category: string, tagList: string[]) => {
+    await dbReady;
+    return BlogM.aggregate([
+      {
+        $match: {
+          slug: { $ne: slug },
+          $or: [
+            ...(category ? ([{ category }] as any[]) : []),
+            ...(tagList.length ? [{ tags: { $in: tagList } }] : []),
+          ],
+        },
       },
-    },
-    {
-      $addFields: {
-        tagMatches: tagList.length
-          ? { $size: { $setIntersection: ["$tags", tagList] } }
-          : 0,
-        catBonus: category
-          ? { $cond: [{ $eq: ["$category", category] }, 1, 0] }
-          : 0,
+      {
+        $addFields: {
+          tagMatches: tagList.length
+            ? { $size: { $setIntersection: ["$tags", tagList] } }
+            : 0,
+          catBonus: category
+            ? { $cond: [{ $eq: ["$category", category] }, 1, 0] }
+            : 0,
+        },
       },
-    },
-    {
-      $addFields: {
-        score: { $add: [{ $multiply: ["$tagMatches", 3] }, "$catBonus"] },
+      {
+        $addFields: {
+          score: { $add: [{ $multiply: ["$tagMatches", 3] }, "$catBonus"] },
+        },
       },
-    },
-    { $sort: { score: -1, createdAt: -1 } },
-    { $limit: 6 },
-    { $project: { content: 0 } },
-  ]);
-});
+      { $sort: { score: -1, createdAt: -1 } },
+      { $limit: 6 },
+      { $project: { content: 0 } },
+    ]);
+  }
+);
 
 export async function generateMetadata(context: {
   params: Promise<{ slug: string }>;
@@ -80,7 +84,7 @@ export async function generateMetadata(context: {
       description: "This blog could not be found.",
       alternates: { canonical: notFoundUrl },
       metadataBase: new URL(SITE),
-      robots: { index: false, follow: false },
+      robots: { index: true, follow: true },
     };
   }
 
@@ -182,8 +186,10 @@ export default async function Blog(context: {
           isPartOf: {
             "@type": "Collection",
             url: new URL(
-              `/blogs/${encodeURIComponent(categoryName)}/${encodeURIComponent(blogData.hub.slug)}`,
-              SITE,
+              `/blogs/${encodeURIComponent(categoryName)}/${encodeURIComponent(
+                blogData.hub.slug
+              )}`,
+              SITE
             ).toString(),
             name: blogData?.hub?.title || blogData?.hub?.slug,
           },
@@ -220,8 +226,10 @@ export default async function Blog(context: {
               position: 3,
               name: blogData.hub.title || blogData.hub.slug,
               item: new URL(
-                `/blogs/${encodeURIComponent(categoryName)}/${encodeURIComponent(blogData.hub.slug)}`,
-                SITE,
+                `/blogs/${encodeURIComponent(
+                  categoryName
+                )}/${encodeURIComponent(blogData.hub.slug)}`,
+                SITE
               ).toString(),
             },
           ]
@@ -236,7 +244,9 @@ export default async function Blog(context: {
   } as const;
 
   const faqSchema =
-    blogData?.enableFaqSchema && Array.isArray(blogData?.faqs) && blogData.faqs.length
+    blogData?.enableFaqSchema &&
+    Array.isArray(blogData?.faqs) &&
+    blogData.faqs.length
       ? {
           "@type": "FAQPage",
           "@id": `${canonical}#faq`,

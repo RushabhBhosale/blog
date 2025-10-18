@@ -12,15 +12,17 @@ const SITE = "https://dailysparks.in";
 
 const canonicalFor = (category: string, hub: string, slug: string) =>
   new URL(
-    `/blogs/${encodeURIComponent(category)}/${encodeURIComponent(hub)}/${encodeURIComponent(slug)}`,
-    SITE,
+    `/blogs/${encodeURIComponent(category)}/${encodeURIComponent(
+      hub
+    )}/${encodeURIComponent(slug)}`,
+    SITE
   ).toString();
 
 async function fetchBlog(slug: string) {
   await dbReady;
   return await Blog.findOne({ slug })
     .select(
-      "title metaTitle metaDescription image content createdAt updatedAt author authorId category tags slug imageAlt likes hub status viewCount readingTimeMinutes wordCount enableFaqSchema faqs",
+      "title metaTitle metaDescription image content createdAt updatedAt author authorId category tags slug imageAlt likes hub status viewCount readingTimeMinutes wordCount enableFaqSchema faqs"
     )
     .lean();
 }
@@ -30,16 +32,21 @@ export async function generateMetadata(context: {
 }): Promise<Metadata> {
   const { category, hub, slug } = await context.params;
   const blog: any = await fetchBlog(slug);
-  if (!blog) return { robots: { index: false, follow: false } };
+  if (!blog) return { robots: { index: true, follow: true } };
   // Guard that route matches
-  const catOk = new RegExp(`^${category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i").test(
-    blog.category || "",
-  );
-  if (!catOk || blog?.hub?.slug !== hub) return { robots: { index: false, follow: false } };
+  const catOk = new RegExp(
+    `^${category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+    "i"
+  ).test(blog.category || "");
+  if (!catOk || blog?.hub?.slug !== hub)
+    return { robots: { index: true, follow: true } };
 
   const title = he.decode(blog.metaTitle || blog.title);
   const description =
-    blog.metaDescription || String(blog.content || "").replace(/<[^>]+>/g, "").slice(0, 160);
+    blog.metaDescription ||
+    String(blog.content || "")
+      .replace(/<[^>]+>/g, "")
+      .slice(0, 160);
   const canonical = canonicalFor(category, hub, slug);
   const imageAbs = blog.image?.startsWith("http")
     ? blog.image
@@ -50,8 +57,19 @@ export async function generateMetadata(context: {
     description,
     alternates: { canonical },
     metadataBase: new URL(SITE),
-    openGraph: { title, description, url: canonical, images: [{ url: imageAbs }], type: "article" },
-    twitter: { card: "summary_large_image", title, description, images: [imageAbs] },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      images: [{ url: imageAbs }],
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageAbs],
+    },
   };
 }
 
@@ -62,9 +80,10 @@ export default async function Page(context: {
   const blogData: any = await fetchBlog(slug);
   const canView = !blogData?.status || blogData?.status === "Published";
   if (!blogData || !canView) notFound();
-  const catOk = new RegExp(`^${category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i").test(
-    blogData.category || "",
-  );
+  const catOk = new RegExp(
+    `^${category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+    "i"
+  ).test(blogData.category || "");
   if (!catOk || blogData?.hub?.slug !== hub) notFound();
 
   const { htmlWithoutFaqSchema } = extractFaqSchema(blogData?.content || "");
@@ -74,7 +93,9 @@ export default async function Page(context: {
   const title = he.decode(blogData.metaTitle || blogData.title);
   const description =
     blogData.metaDescription ||
-    String(blogData.content || "").replace(/<[^>]+>/g, "").slice(0, 160);
+    String(blogData.content || "")
+      .replace(/<[^>]+>/g, "")
+      .slice(0, 160);
   const imageAbs = blogData.image?.startsWith("http")
     ? blogData.image
     : new URL(blogData.image || "/og-cover.png", SITE).toString();
@@ -104,7 +125,7 @@ export default async function Page(context: {
 
   const hubUrl = new URL(
     `/blogs/${encodeURIComponent(categoryName)}/${encodeURIComponent(hub)}`,
-    SITE,
+    SITE
   ).toString();
 
   const blogPosting = {
@@ -137,7 +158,10 @@ export default async function Page(context: {
         "@type": "ListItem",
         position: 2,
         name: categoryName,
-        item: new URL(`/blogs/${encodeURIComponent(categoryName)}`, SITE).toString(),
+        item: new URL(
+          `/blogs/${encodeURIComponent(categoryName)}`,
+          SITE
+        ).toString(),
       },
       {
         "@type": "ListItem",
@@ -150,7 +174,9 @@ export default async function Page(context: {
   } as const;
 
   const faqSchema =
-    blogData?.enableFaqSchema && Array.isArray(blogData?.faqs) && blogData.faqs.length
+    blogData?.enableFaqSchema &&
+    Array.isArray(blogData?.faqs) &&
+    blogData.faqs.length
       ? {
           "@type": "FAQPage",
           "@id": `${canonical}#faq`,
@@ -194,7 +220,11 @@ export default async function Page(context: {
           : 0,
       },
     },
-    { $addFields: { score: { $add: [{ $multiply: ["$tagMatches", 3] }, "$catBonus"] } } },
+    {
+      $addFields: {
+        score: { $add: [{ $multiply: ["$tagMatches", 3] }, "$catBonus"] },
+      },
+    },
     { $sort: { score: -1, createdAt: -1 } },
     { $limit: 6 },
     { $project: { content: 0 } },
