@@ -278,154 +278,173 @@ export const travelStories: TravelStory[] = [
     theme: travelStoryThemes.coastal, // optionally replace with "expedition" for mountain feel
   },
   {
-    slug: "kyoto-temple-trails",
-    title: "Kyoto's Lantern-Lit Autumn",
-    location: "Kyoto, Japan",
-    dateRange: "November 2023",
+    slug: "amritsar-vrindavan-mathura",
+    title: "Amritsar & Mathura",
+    location: "Punjab, Uttar Pradesh",
+    dateRange: "January 2024",
     intro:
-      "Seven mindful days of tea ceremonies, moss gardens, and after-dark temple illuminations across Kyoto's old districts.",
-    coverImage:
-      "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=1600&q=80",
-    coverImageAlt: "Autumn leaves framing a temple in Kyoto",
+      "Started from the golden temple in Amritsar tasted the chole kulcha, and continued to the temples in mathura and vridavan.",
+    coverImage: "/trip/amritsar/golden-temple.jpg",
+    coverImageAlt: "Golden-temple",
     heroQuote: {
       text: "Stillness in Kyoto is never silent — it's the hush of falling leaves and distant temple bells.",
       attribution: "Train ride notes – JR Nara Line",
     },
     quickFacts: [
-      { label: "Stay", value: "Machiya townhouse in Gion" },
-      { label: "Mood", value: "Unhurried, camera in hand" },
-      { label: "Fuel", value: "Matcha, seasonal wagashi, noodle bars" },
+      {
+        label: "Stay",
+        value: "Heritage guesthouse near Golden Temple, Amritsar",
+      },
+      { label: "Mood", value: "Spiritual, food-loving, temple-hopping" },
+      {
+        label: "Fuel",
+        value: "Chole kulcha, lassi, local sweets, street snacks",
+      },
     ],
     highlights: [
       {
-        title: "Arashiyama Dawn",
+        title: "Golden Temple",
         description:
-          "Entered the bamboo grove before sunrise, catching the light beams with almost no crowd.",
-        accent: "Soundtrack: rustling leaves + morning cicadas",
+          "Witnessed the mesmerizing Golden Temple — despite the crowd, everything was perfectly managed, and the prasad (sheera) is an absolute must-try.",
       },
       {
-        title: "Tea with a Potter",
+        title: "Wagah Border",
         description:
-          "Intimate tea ceremony hosted by a fifth-generation ceramic artist in her studio loft.",
+          "Witnessed the thrilling Wagah Border ceremony — soldiers’ precision, patriotic fervor, and the lively crowd made it an unforgettable experience.",
       },
       {
-        title: "Temple Night Walk",
+        title: "Prem Mandir & Banke Bihari",
         description:
-          "Kiyomizu-dera's autumn illumination with maple reflections shimmering in the Otowa waterfall.",
+          "The lighting at Prem Mandir was stunning, illuminating every detail of the temple and creating a truly divine atmosphere.",
+      },
+      {
+        title: "Shri Krishna Janmasthan",
+        description:
+          "Visited Lord Krishna’s birthplace in Mathura, surrounded by devotion, colorful decorations, and lively stories.",
       },
     ],
     itinerary: [
       {
         dayLabel: "Day 1",
-        title: "Gion Introductions",
+        title: "Arrival in Amritsar",
         description:
-          "Checked into the machiya, strolled Hanamikoji Street, and sampled seasonal kaiseki at Gion Tanto.",
-        highlights: [
-          "Spotted a maiko on evening rounds",
-          "First taste of yudofu",
-        ],
+          "Landed in Amritsar, checked into a guesthouse, and relaxed before the evening visit to the Golden Temple.",
+        highlights: ["Evening aarti at Golden Temple", "Tried prasad (sheera)"],
       },
       {
         dayLabel: "Day 2",
-        title: "Arashiyama & Sagano",
+        title: "Golden Temple & Local Flavors",
         description:
-          "Sunrise in the bamboo forest, then a scenic ride on the Sagano Romantic Train and river boat back.",
-        highlights: ["Hozugawa River boat ride", "Sweet potato taiyaki"],
+          "Explored the Golden Temple in the morning, walked around the Amrit Sarovar, and savored chole kulcha at a local eatery.",
+        highlights: ["Morning prayers at the temple", "Street food tasting"],
       },
       {
         dayLabel: "Day 3",
-        title: "Temple Textures",
+        title: "Wagah Border Ceremony",
         description:
-          "Explored Nanzen-ji's aqueduct, Honen-in's moss gardens, and the Philosopher's Path.",
-        highlights: ["Tasted tofu soft serve", "Sketched the aqueduct arches"],
+          "Visited the Wagah Border for the thrilling flag-lowering ceremony and soaked in the patriotic atmosphere.",
+        highlights: [
+          "Soldiers' parade precision",
+          "Cheering crowds experience",
+        ],
       },
       {
         dayLabel: "Day 4",
-        title: "Craft & Tea",
+        title: "Travel to Mathura",
         description:
-          "Met with potter Junko-san for a private tea ceremony and pottery glazing workshop.",
-        highlights: [
-          "Hand-painted a tea cup",
-          "Learned proper whisking technique",
-        ],
+          "Traveled from Amritsar to Mathura, checked into a local stay, and explored the evening markets.",
+        highlights: ["Local sweets tasting", "Evening temple stroll"],
       },
       {
         dayLabel: "Day 5",
-        title: "Nara Day Trip",
+        title: "Shri Krishna Janmasthan",
         description:
-          "Fed the bowing deer, climbed to Todaiji's giant Buddha, and sampled mochi pounded to order.",
-        highlights: [
-          "Sunset from Nara Park hill",
-          "Freshly pounded kusa mochi",
-        ],
+          "Visited Lord Krishna’s birthplace in Mathura, immersed in devotion, vibrant colors, and temple stories.",
+        highlights: ["Temple rituals", "Photography of temple architecture"],
       },
       {
         dayLabel: "Day 6",
-        title: "Kyoto After Dark",
+        title: "Prem Mandir & Banke Bihari",
         description:
-          "Lantern walk through Higashiyama, night visit to Kiyomizu-dera's light festival, and late ramen.",
-        highlights: [
-          "Bonus photo stop at Yasaka Pagoda",
-          "Ramen bowl count: 3",
-        ],
+          "Explored the illuminated Prem Mandir and experienced the divine energy at Banke Bihari Temple in Vrindavan.",
+        highlights: ["Evening aarti", "Temple lighting photography"],
       },
       {
         dayLabel: "Day 7",
-        title: "Slow Farewell",
+        title: "Vrindavan Temples",
         description:
-          "Packed souvenirs, wrote postcards from a cafe in Nishiki Market, and took the Shinkansen to Tokyo.",
-        highlights: ["Bought matcha kit", "Final treat: strawberry daifuku"],
+          "Continued temple hopping in Vrindavan, exploring lesser-known shrines and local streets.",
+        highlights: ["Interacted with locals", "Tasted street snacks"],
+      },
+      {
+        dayLabel: "Day 8",
+        title: "Return Home",
+        description:
+          "Wrapped up the trip, packed souvenirs, and traveled back home from Vrindavan via Mathura.",
+        highlights: ["Bought local handicrafts", "Reflected on the journey"],
       },
     ],
     signatureMoments: [
       {
-        heading: "Tea Ceremony with Junko-san",
-        description:
-          "She taught us that the bowl should feel like a warm handshake. Left with clay on my sleeves and a new appreciation for quiet rituals.",
-        image:
-          "https://images.unsplash.com/photo-1506080174650-98fcb78b44b4?auto=format&fit=crop&w=1200&q=80",
+        heading: "Golden Temple",
+        description: "A morning at the golden temple",
+        image: "/trip/amritsar/gallery/1.jpg",
         layout: "left",
-      },
-      {
-        heading: "Lantern Glow in Higashiyama",
-        description:
-          "Walked the preserved streets under lantern light, the scent of incense and kinako wafting through narrow alleys.",
-        image:
-          "https://images.unsplash.com/photo-1459213599465-03ab6a4d5931?auto=format&fit=crop&w=1200&q=80",
-        layout: "right",
-      },
-      {
-        heading: "Philosopher's Path Reflections",
-        description:
-          "Spent an afternoon journaling beside the canal while red leaves floated past.",
-        image:
-          "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80",
-        layout: "full",
       },
     ],
     gallery: [
       {
-        src: "https://images.unsplash.com/photo-1568084300946-2ba200057a03?auto=format&fit=crop&w=1200&q=80",
-        alt: "Kyoto bamboo forest",
+        src: "/trip/amritsar/gallery/1.jpg",
+        alt: "Amritsar trip photo",
         emphasis: "tall",
       },
       {
-        src: "https://images.unsplash.com/photo-1526481280695-3c5aa1fd1739?auto=format&fit=crop&w=1200&q=80",
-        alt: "Tea ceremony setup",
+        src: "/trip/amritsar/gallery/2.jpg",
+        alt: "Amritsar trip photo",
         emphasis: "square",
       },
       {
-        src: "https://images.unsplash.com/photo-1470753937643-efeb931202a9?auto=format&fit=crop&w=1200&q=80",
-        alt: "Fushimi Inari shrine",
+        src: "/trip/amritsar/gallery/3.jpg",
+        alt: "Amritsar trip photo",
         emphasis: "wide",
       },
       {
-        src: "https://images.unsplash.com/photo-1503448701467-9ca81f0b3597?auto=format&fit=crop&w=1200&q=80",
-        alt: "Nara deer at sunset",
+        src: "/trip/amritsar/gallery/4.jpg",
+        alt: "Amritsar trip photo",
+        emphasis: "wide",
+      },
+      {
+        src: "/trip/amritsar/gallery/5.jpg",
+        alt: "Amritsar trip photo",
+        emphasis: "tall",
+      },
+      {
+        src: "/trip/amritsar/gallery/6.jpg",
+        alt: "Amritsar trip photo",
+        emphasis: "square",
+      },
+      {
+        src: "/trip/amritsar/gallery/7.jpg",
+        alt: "Amritsar trip photo",
+        emphasis: "wide",
+      },
+      {
+        src: "/trip/amritsar/gallery/8.jpg",
+        alt: "Amritsar trip photo",
+        emphasis: "wide",
+      },
+      {
+        src: "/trip/amritsar/gallery/9.jpg",
+        alt: "Amritsar trip photo",
+        emphasis: "wide",
+      },
+      {
+        src: "/trip/amritsar/gallery/10.jpg",
+        alt: "Amritsar trip photo",
         emphasis: "wide",
       },
     ],
-    theme: travelStoryThemes.zen,
+    theme: travelStoryThemes.expedition,
   },
   {
     slug: "patagonia-basecamp-chile",
