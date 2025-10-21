@@ -1,4 +1,4 @@
-export type TravelStoryLayout = "coastal" | "zen" | "expedition";
+export type TravelStoryLayout = "coastal" | "zen" | "expedition" | "cultural";
 
 export type TravelStoryItineraryItem = {
   dayLabel: string;
@@ -93,6 +93,17 @@ export const travelStoryThemes: Record<TravelStoryLayout, TravelStoryTheme> = {
     galleryShape: "rounded-[2.75rem]",
     chipBackground: "bg-amber-50",
     chipText: "text-amber-700",
+  },
+  cultural: {
+    layout: "cultural",
+    heroBackground: "bg-gradient-to-br from-rose-50 via-white to-yellow-100",
+    accentGradient: "bg-gradient-to-r from-pink-300 via-rose-300 to-yellow-400",
+    accentText: "text-rose-900",
+    cardBackground: "bg-white shadow-sm",
+    border: "border-rose-200",
+    galleryShape: "rounded-[2.25rem]",
+    chipBackground: "bg-rose-50",
+    chipText: "text-rose-700",
   },
 };
 
@@ -447,130 +458,203 @@ export const travelStories: TravelStory[] = [
     theme: travelStoryThemes.expedition,
   },
   {
-    slug: "patagonia-basecamp-chile",
-    title: "Windswept Patagonia Basecamp",
-    location: "Torres del Paine, Chile",
+    slug: "mathura-and-vrindavan",
+    title: "Mathura & Vrindavan",
+    location: "Mathura, Uttar Pradesh",
     dateRange: "February 2023",
     intro:
-      "A rugged expedition across Patagonia's granite towers and turquoise lakes, chasing condors by day and southern stars by night.",
-    coverImage:
-      "https://images.unsplash.com/photo-1548783307-f63adc78c5f6?auto=format&fit=crop&w=1600&q=80",
-    coverImageAlt: "Hiker overlooking Torres del Paine",
+      "A short but soulful getaway with friends exploring Mathura and Vrindavan — where devotion meets vibrant colors, temple chants, and sweet chaos.",
+    coverImage: "/trip/mathura/gallery/13.jpeg",
+    coverImageAlt: "Evening view of Prem Mandir illuminated in lights",
     heroQuote: {
-      text: "The wind roared like a jet engine, yet every sunrise softened the skyline in pastel blues.",
-      attribution: "Camp journal – Torres Camp Italiano",
+      text: "The sound of temple bells, the glow of diyas, and endless stories of Krishna — every corner felt alive.",
+      attribution: "Trip journal – Vrindavan nights",
     },
     quickFacts: [
-      { label: "Route", value: "W Trek + Grey Glacier extension" },
-      { label: "Crew", value: "Rushabh + guide + 6 trekkers" },
-      { label: "Essentials", value: "Layers, trekking poles, matte de coca" },
+      { label: "Crew", value: "Rushabh + friends" },
+      { label: "Stay", value: "Local guesthouse near Prem Mandir" },
+      { label: "Fuel", value: "Chole bhature, lassi, and endless sweets" },
     ],
     highlights: [
       {
-        title: "Base of the Towers",
+        title: "Prem Mandir",
         description:
-          "4:30 am headlamp start to catch sunrise turning the towers fiery orange.",
-        accent: "Wind gusts hit 70 km/h at the mirador",
+          "The temple looked magical at night, glowing in colorful lights that made every marble carving stand out beautifully.",
+        accent: "Best visited after sunset for the light show",
       },
       {
-        title: "Grey Glacier Kayak",
+        title: "Iskcon Temple",
         description:
-          "Paddled past floating blue icebergs with calving thunder echoing across the water.",
+          "Experienced the divine chaos of the crowd and the rhythmic chants echoing through the temple — pure devotion everywhere.",
       },
       {
-        title: "Milky Way Bonfire",
+        title: "Shri Krishna Janmasthan",
         description:
-          "Starry sky photography workshop followed by sharing stories around the campfire.",
+          "Visited the birthplace of Lord Krishna, surrounded by stories, devotion, and colors that bring Mathura to life.",
+      },
+      {
+        title: "Radha Rani Temple, Barsana",
+        description:
+          "Climbed the steps of Barsana’s Radha Rani Temple with laughter and selfies — rewarded with a stunning panoramic view.",
       },
     ],
     itinerary: [
       {
         dayLabel: "Day 1",
-        title: "Basecamp Briefings",
+        title: "Arrival in Mathura",
         description:
-          "Arrival in Puerto Natales, gear check, and first taste of king crab empanadas.",
-        highlights: ["Met trekking team", "Sunset stroll along the fjord"],
-      },
-      {
-        dayLabel: "Day 2",
-        title: "Torres Ascent",
-        description:
-          "Tough climb to the Torres base with glacial lagoon picnic and frosty toes.",
-        highlights: ["70 km/h winds", "Lagoon dip (very brief)"],
-      },
-      {
-        dayLabel: "Day 3",
-        title: "Valle del Francés",
-        description:
-          "Crossed hanging bridges with views of Paine Grande avalanches rumbling in the distance.",
-        highlights: ["Avalanche spotting", "Mate tea under lenga trees"],
-      },
-      {
-        dayLabel: "Day 4",
-        title: "Grey Glacier",
-        description:
-          "Kayaked around electric blue icebergs and trekked across crevasse fields with crampons.",
+          "Checked into our stay, grabbed some local snacks, and explored the busy streets around the Krishna Janmasthan temple.",
         highlights: [
-          "Sipped whisky with glacier ice",
-          "Witnessed a calving wall",
+          "Visited Krishna Janmasthan",
+          "Evening walk through local markets",
         ],
       },
       {
-        dayLabel: "Day 5",
-        title: "Paine Grande to Pueblo",
+        dayLabel: "Day 2",
+        title: "Vrindavan Exploration",
         description:
-          "Boat across Lago Pehoé, farewell asado, and stargazing bonfire.",
-        highlights: ["Milky Way in full glow", "Shared stories with gauchos"],
+          "Started early with Banke Bihari Temple, then spent the evening soaking in the lights and devotion at Prem Mandir.",
+        highlights: ["Prem Mandir night view", "Temple chants and aarti"],
+      },
+      {
+        dayLabel: "Day 3",
+        title: "Barsana Day Trip",
+        description:
+          "Took a trip to Barsana to visit Radha Rani Temple and enjoy the scenic views from the hilltop.",
+        highlights: ["Climb to the temple", "Panoramic views of Barsana town"],
+      },
+      {
+        dayLabel: "Day 4",
+        title: "Chill & Return",
+        description:
+          "Relaxed in the morning, shopped for souvenirs, and ended the trip with some last-minute street food before heading home.",
+        highlights: ["Lassi break", "Bought local sweets"],
       },
     ],
     signatureMoments: [
       {
-        heading: "Glacier Blue Hour",
+        heading: "Prem Mandir Nights",
         description:
-          "The ice glowed neon as clouds rolled in. The guide had us sit in silence for 5 minutes — pure, icy magic.",
-        image:
-          "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+          "The lighting at Prem Mandir was unreal — colors changing every minute, reflecting off the marble carvings like magic.",
+        image: "/trip/mathura/prem-mandir.jpeg",
         layout: "left",
       },
       {
-        heading: "Camp Conversations",
+        heading: "Boat Ride in Varanasi",
         description:
-          "Ended most days trading trek stories under a tarp while the wind howled like distant thunder.",
-        image:
-          "https://images.unsplash.com/photo-1458442310124-dde6edb43d10?auto=format&fit=crop&w=1200&q=80",
-        layout: "right",
-      },
-      {
-        heading: "Summit Silence",
-        description:
-          "The moment the towers lit up in burnt orange, everyone fell silent. Pure awe.",
-        image:
-          "https://images.unsplash.com/photo-1493815793585-d94ccbc86df0?auto=format&fit=crop&w=1200&q=80",
-        layout: "full",
+          "Took an evening boat ride along the ghats of Varanasi and witnessed the mesmerizing Ganga Aarti — a calm yet powerful experience.",
+        image: "/trip/mathura/boat.jpeg",
+        layout: "left",
       },
     ],
     gallery: [
       {
-        src: "https://images.unsplash.com/photo-1493815793585-d94ccbc86df0?auto=format&fit=crop&w=1200&q=80",
-        alt: "Sunrise hitting Torres del Paine",
-        emphasis: "wide",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
-        alt: "Backpacker on trail",
-        emphasis: "tall",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1516570161787-2fd917215a3d?auto=format&fit=crop&w=1200&q=80",
-        alt: "Glacier kayaking",
+        src: "/trip/mathura/gallery/18.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
         emphasis: "square",
       },
       {
-        src: "https://images.unsplash.com/photo-1517256064527-09c73fc73e41?auto=format&fit=crop&w=1200&q=80",
-        alt: "Night sky over camp",
+        src: "/trip/mathura/gallery/19.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
+        emphasis: "wide",
+      },
+      {
+        src: "/trip/mathura/gallery/20.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
+        emphasis: "tall",
+      },
+      {
+        src: "/trip/mathura/gallery/17.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
+        emphasis: "tall",
+      },
+      {
+        src: "/trip/mathura/gallery/21.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
+        emphasis: "tall",
+      },
+      {
+        src: "/trip/mathura/gallery/1.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
+        emphasis: "tall",
+      },
+      {
+        src: "/trip/mathura/gallery/2.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
+        emphasis: "tall",
+      },
+      {
+        src: "/trip/mathura/gallery/3.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
+        emphasis: "square",
+      },
+      {
+        src: "/trip/mathura/gallery/4.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
+        emphasis: "wide",
+      },
+      {
+        src: "/trip/mathura/gallery/5.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
+        emphasis: "tall",
+      },
+      {
+        src: "/trip/mathura/gallery/6.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
+        emphasis: "square",
+      },
+      {
+        src: "/trip/mathura/gallery/7.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
+        emphasis: "wide",
+      },
+      {
+        src: "/trip/mathura/gallery/8.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
+        emphasis: "tall",
+      },
+      {
+        src: "/trip/mathura/gallery/9.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
+        emphasis: "square",
+      },
+      {
+        src: "/trip/mathura/gallery/10.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
+        emphasis: "wide",
+      },
+      {
+        src: "/trip/mathura/gallery/11.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
+        emphasis: "tall",
+      },
+      {
+        src: "/trip/mathura/gallery/12.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
+        emphasis: "square",
+      },
+      {
+        src: "/trip/mathura/gallery/13.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
+        emphasis: "wide",
+      },
+      {
+        src: "/trip/mathura/gallery/14.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
+        emphasis: "tall",
+      },
+      {
+        src: "/trip/mathura/gallery/15.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
+        emphasis: "square",
+      },
+      {
+        src: "/trip/mathura/gallery/16.jpeg",
+        alt: "Mathura and Vrindavan trip photo",
         emphasis: "wide",
       },
     ],
-    theme: travelStoryThemes.expedition,
+
+    theme: travelStoryThemes.cultural,
   },
 ];

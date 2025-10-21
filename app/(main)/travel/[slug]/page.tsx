@@ -35,7 +35,7 @@ const themeStyles: Record<
     accent: "text-emerald-700",
     timeline: "border-emerald-200",
     dot: "bg-emerald-400",
-    muted: "text-emerald-700/80",
+    muted: "text-slate-600",
   },
   expedition: {
     badge: "bg-amber-100 text-amber-700",
@@ -43,6 +43,14 @@ const themeStyles: Record<
     accent: "text-amber-700",
     timeline: "border-amber-200",
     dot: "bg-amber-500",
+    muted: "text-slate-600",
+  },
+  cultural: {
+    badge: "bg-rose-100 text-rose-700",
+    border: "border-rose-200",
+    accent: "text-rose-800",
+    timeline: "border-rose-200",
+    dot: "bg-rose-500",
     muted: "text-slate-600",
   },
 };

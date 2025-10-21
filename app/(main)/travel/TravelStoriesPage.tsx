@@ -29,6 +29,12 @@ const themeStyles: Record<
     accent: "text-amber-700",
     dot: "bg-amber-500",
   },
+  cultural: {
+    badge: "bg-rose-100 text-rose-700",
+    border: "border-rose-200",
+    accent: "text-rose-800",
+    dot: "bg-rose-500",
+  },
 };
 
 function TravelStoryCard({ story }: { story: TravelStory }) {
