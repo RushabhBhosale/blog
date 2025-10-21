@@ -461,7 +461,7 @@ export const travelStories: TravelStory[] = [
     slug: "mathura-and-vrindavan",
     title: "Mathura & Vrindavan",
     location: "Mathura, Uttar Pradesh",
-    dateRange: "February 2023",
+    dateRange: "March 2025",
     intro:
       "A short but soulful getaway with friends exploring Mathura and Vrindavan — where devotion meets vibrant colors, temple chants, and sweet chaos.",
     coverImage: "/trip/mathura/gallery/13.jpeg",
@@ -656,5 +656,186 @@ export const travelStories: TravelStory[] = [
     ],
 
     theme: travelStoryThemes.cultural,
+  },
+  {
+    slug: "hampi-family-trip",
+    title: "Hampi",
+    location: "Hampi, Karnataka",
+    dateRange: "October 2025",
+    intro:
+      "Spent 3 magical days exploring the ruins, temples, and boulder landscapes of Hampi with family. North and South Hampi both offered stunning sights and unforgettable memories, including the legendary Anjanadri Temple, the birthplace of Hanuman.",
+    coverImage: "/trip/hampi/hampi.webp",
+    coverImageAlt: "Vittala Temple",
+    heroQuote: {
+      text: "Exploring Hampi is like walking through history — every stone tells a story of an ancient empire.",
+      attribution: "Family travel notes",
+    },
+    quickFacts: [
+      { label: "Stay", value: "Riverside guesthouse near Hampi Bazaar" },
+      { label: "Mood", value: "Adventurous, cultural, relaxed" },
+      { label: "Fuel", value: "Local thali, banana chips, coconut water" },
+    ],
+    highlights: [
+      {
+        title: "Vittala Temple & Stone Chariot",
+        description:
+          "Marvelled at the intricate carvings and the iconic stone chariot. The musical pillars were fascinating and fun to explore with the kids.",
+      },
+      {
+        title: "Virupaksha Temple",
+        description:
+          "Visited the majestic Virupaksha Temple, witnessed morning rituals, and admired the colorful temple decorations.",
+      },
+      {
+        title: "Matanga Hill Sunset",
+        description:
+          "Hiked Matanga Hill early morning to catch the sunset. Stunning panoramic views of Hampi’s ruins and the river valley.",
+      },
+      {
+        title: "Royal Enclosure & Lotus Mahal",
+        description:
+          "Explored the royal enclosure, stepped into Lotus Mahal, and enjoyed learning about the Vijayanagara empire’s architecture.",
+      },
+      {
+        title: "Anjanadri Temple",
+        description:
+          "Climbed up to the Anjanadri Temple, the legendary birthplace of Hanuman, enjoying scenic views and a peaceful spiritual experience.",
+      },
+      {
+        title: "Hampi Bazaar & Local Streets",
+        description:
+          "Strolled through Hampi Bazaar, bought souvenirs, tasted banana chips, and interacted with local vendors.",
+      },
+    ],
+    itinerary: [
+      {
+        dayLabel: "Day 1",
+        title: "Arrival & North Hampi Temples",
+        description:
+          "Arrived in Hampi, checked into a riverside guesthouse, and started exploring North Hampi temples.",
+        highlights: [
+          "Virupaksha Temple morning rituals",
+          "Hampi Bazaar stroll",
+          "Evening visit to Achyutaraya Temple",
+        ],
+      },
+      {
+        dayLabel: "Day 2",
+        title: "Vittala Temple & Royal Enclosure",
+        description:
+          "Spent the day exploring Vittala Temple complex and the Royal Enclosure, appreciating the intricate carvings and history.",
+        highlights: [
+          "Stone Chariot & Musical Pillars at Vittala Temple",
+          "Lotus Mahal & Elephant Stables",
+          "Photography around royal ruins",
+        ],
+      },
+      {
+        dayLabel: "Day 3",
+        title: "South Hampi, Anjanadri Temple & Matanga Hill",
+        description:
+          "Visited the southern boulder landscape, temples, and hiked Matanga Hill. Climbed to Anjanadri Temple, the birthplace of Hanuman, and explored nearby Hanuman statues and scenic viewpoints.",
+        highlights: [
+          "Hazara Rama Temple visit",
+          "Sasivekalu Ganesha & Kadalekalu Ganesha",
+          "Anjanadri Temple climb and Hanuman statue",
+          "Matanga Hill sunrise & sunset",
+        ],
+      },
+    ],
+    signatureMoments: [
+      {
+        heading: "Stone Chariot",
+        description:
+          "Family photo beside Hampi’s iconic stone chariot at Vittala Temple",
+        image: "/trip/hampi/stone.jpg",
+        layout: "left",
+      },
+      {
+        heading: "Matanga Hill Sunset",
+        description: "Watching the sunset together over Hampi’s ruins",
+        image: "/trip/hampi/matanga.jpg",
+        layout: "right",
+      },
+      {
+        heading: "Anjanadri Temple",
+        description: "Climbed to the legendary birthplace of Hanuman",
+        image: "/trip/hampi/anjanadri.jpeg",
+        layout: "left",
+      },
+    ],
+    gallery: [
+      {
+        src: "/trip/hampi/gallery/1.jpg",
+        alt: "Hampi trip photo",
+        emphasis: "wide",
+      },
+      {
+        src: "/trip/hampi/gallery/2.jpg",
+        alt: "Hampi trip photo",
+        emphasis: "tall",
+      },
+      {
+        src: "/trip/hampi/gallery/3.jpg",
+        alt: "Hampi trip photo",
+        emphasis: "square",
+      },
+      {
+        src: "/trip/hampi/gallery/4.jpg",
+        alt: "Hampi trip photo",
+        emphasis: "wide",
+      },
+      {
+        src: "/trip/hampi/gallery/5.jpg",
+        alt: "Hampi trip photo",
+        emphasis: "wide",
+      },
+      {
+        src: "/trip/hampi/gallery/6.jpg",
+        alt: "Hampi trip photo",
+        emphasis: "square",
+      },
+      {
+        src: "/trip/hampi/gallery/7.jpg",
+        alt: "Hampi trip photo",
+        emphasis: "wide",
+      },
+      {
+        src: "/trip/hampi/gallery/8.jpg",
+        alt: "Hampi trip photo",
+        emphasis: "wide",
+      },
+      {
+        src: "/trip/hampi/gallery/9.jpg",
+        alt: "Hampi trip photo",
+        emphasis: "tall",
+      },
+      {
+        src: "/trip/hampi/gallery/10.jpg",
+        alt: "Hampi trip photo",
+        emphasis: "tall",
+      },
+      {
+        src: "/trip/hampi/gallery/11.jpeg",
+        alt: "Hampi trip photo",
+        emphasis: "wide",
+      },
+      {
+        src: "/trip/hampi/gallery/12.jpeg",
+        alt: "Hampi trip photo",
+        emphasis: "square",
+      },
+      {
+        src: "/trip/hampi/gallery/13.jpeg",
+        alt: "Hampi trip photo",
+        emphasis: "wide",
+      },
+      {
+        src: "/trip/hampi/gallery/14.jpeg",
+        alt: "Hampi trip photo",
+        emphasis: "wide",
+      },
+    ],
+    theme: travelStoryThemes.zen,
   },
 ];

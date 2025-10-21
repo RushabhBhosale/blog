@@ -16,7 +16,7 @@ type ItineraryOverviewProps = {
   theme: ThemeClasses;
 };
 
-const COLLAPSED_ITEMS = 3;
+const COLLAPSED_ITEMS = 2;
 
 export default function ItineraryOverview({
   itinerary,
