@@ -20,8 +20,10 @@ export async function GET(req: NextRequest) {
 
     const users = await User.find(
       {},
-      "name email role isActive canAutoPublish createdAt",
-    ).sort({ createdAt: -1 });
+      "name email username imageUrl role isActive canAutoPublish createdAt",
+    )
+      .sort({ createdAt: -1 })
+      .lean();
     return NextResponse.json({ users }, { status: 200 });
   } catch (error) {
     console.error("Error fetching users", error);

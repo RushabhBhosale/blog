@@ -20,6 +20,13 @@ import {
 } from "@/components/ui/select";
 import slugify from "slugify";
 import { extractFaqSchema, type FaqItem } from "@/lib/faq-schema";
+
+type AuthorOption = {
+  id: string;
+  name: string;
+  email: string;
+  username?: string;
+};
 type ListItem = {
   title: string;
   url?: string;
@@ -39,6 +46,8 @@ const AdminEditBlogPage = () => {
   const [imageUrl, setImageUrl] = useState("");
   const [imageAlt, setImageAlt] = useState("");
   const [author, setAuthor] = useState("");
+  const [authorId, setAuthorId] = useState("");
+  const [authors, setAuthors] = useState<AuthorOption[]>([]);
   const [newSlug, setNewSlug] = useState("");
   const [slugLocked, setSlugLocked] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -66,9 +75,10 @@ const AdminEditBlogPage = () => {
 
   const fetchData = async () => {
     try {
-      const [catRes, blogRes] = await Promise.all([
+      const [catRes, blogRes, usersRes] = await Promise.all([
         axiosClient.get("/category"),
         axiosClient.get(`/blog/${slug}`),
+        axiosClient.get("/user").catch(() => ({ data: { users: [] } })),
       ]);
 
       setCategories(catRes.data.category || []);
@@ -79,6 +89,16 @@ const AdminEditBlogPage = () => {
         router.push("/admin/posts");
         return;
       }
+
+      const mappedAuthors: AuthorOption[] = (usersRes.data?.users || []).map(
+        (u: any) => ({
+          id: u._id,
+          name: u.name || u.username || u.email,
+          email: u.email,
+          username: u.username,
+        }),
+      );
+      setAuthors(mappedAuthors);
 
       setTitle(blog.title);
       setCategory(blog.category);
@@ -103,6 +123,7 @@ const AdminEditBlogPage = () => {
       setContent(htmlWithoutFaqSchema);
       setImageAlt(blog.imageAlt || "");
       setAuthor(blog.author);
+      setAuthorId(blog.authorId || "");
       setSlugLocked(true);
       setNewSlug(blog.slug || "");
       // list schema
@@ -196,7 +217,15 @@ const AdminEditBlogPage = () => {
 
     setLoading(true);
     const editorContent = window.localStorage.getItem("html-content") || "";
-    if (!title || !category || !editorContent || !tags.length || !imageUrl) {
+    const authorName = author.trim();
+    if (
+      !title ||
+      !category ||
+      !editorContent ||
+      !tags.length ||
+      !imageUrl ||
+      (!authorId && !authorName)
+    ) {
       toast.error("Please fill all the required fields");
       setLoading(false);
       return;
@@ -217,7 +246,8 @@ const AdminEditBlogPage = () => {
 
     try {
       await axiosClient.put(`/blog/${slug}`, {
-        author,
+        author: authorName,
+        authorId: authorId || undefined,
         title,
         category,
         content: editorContent,
@@ -298,6 +328,64 @@ const AdminEditBlogPage = () => {
             ))}
           </SelectContent>
         </Select>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-muted-foreground">
+              Assign author
+            </label>
+            <Select
+              value={authorId || "custom"}
+              onValueChange={(val) => {
+                if (val === "custom") {
+                  setAuthorId("");
+                  return;
+                }
+                setAuthorId(val);
+                const match = authors.find((a) => a.id === val);
+                if (match) {
+                  setAuthor(match.name);
+                }
+              }}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select author" />
+              </SelectTrigger>
+              <SelectContent>
+                {authors.map((option) => (
+                  <SelectItem key={option.id} value={option.id}>
+                    {option.name}
+                    {option.username ? ` • @${option.username}` : ""}
+                  </SelectItem>
+                ))}
+                <SelectItem value="custom">Custom author</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Pick a registered writer or choose custom to credit an external
+              contributor.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-muted-foreground">
+              Author display name
+            </label>
+            <Input
+              type="text"
+              value={author}
+              onChange={(e) => setAuthor(e.target.value)}
+              disabled={Boolean(authorId)}
+              placeholder="Display name"
+              required={!authorId}
+            />
+            {authorId ? (
+              <p className="text-xs text-muted-foreground">
+                Display name comes from the selected user. Switch to custom to
+                override.
+              </p>
+            ) : null}
+          </div>
+        </div>
 
         <div>
           <div className="flex flex-wrap gap-2 mb-2">

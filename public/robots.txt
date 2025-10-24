@@ -1,9 +1,6 @@
-# *
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /api/
 
-# Host
-Host: https://dailysparks.in/
-
-# Sitemaps
 Sitemap: https://dailysparks.in/sitemap.xml

@@ -26,25 +26,40 @@ export async function generateMetadata({
   params: any;
 }): Promise<Metadata> {
   await dbReady;
+  const slugParam = String(params.slug || "");
+  const usernameCandidate = slugParam.toLowerCase();
+  const profileUser: any = await User.findOne({
+    username: usernameCandidate,
+  })
+    .select("name headline bio imageUrl")
+    .lean();
   const re = authorRegexFromSlug(params.slug);
   const oneBlog: any = await Blog.findOne({ author: re })
     .select("author authorId")
     .lean();
-  const name = oneBlog?.author || params.slug.replace(/-/g, " ");
+  const name =
+    profileUser?.name || oneBlog?.author || params.slug.replace(/-/g, " ");
   const canonical = new URL(
     `/author/${encodeURIComponent(params.slug)}`,
     SITE
   ).toString();
   return {
     title: `${name} — Author at DailySparks`,
-    description: `Explore articles by ${name} on DailySparks.`,
+    description:
+      profileUser?.bio?.slice(0, 154) ||
+      `Explore articles by ${name} on DailySparks.`,
     alternates: { canonical },
     metadataBase: new URL(SITE),
     openGraph: {
       title: `${name} — Author at DailySparks`,
-      description: `Explore articles by ${name} on DailySparks.`,
+      description:
+        profileUser?.bio?.slice(0, 154) ||
+        `Explore articles by ${name} on DailySparks.`,
       url: canonical,
       type: "profile",
+      ...(profileUser?.imageUrl
+        ? { images: [{ url: profileUser.imageUrl }] }
+        : {}),
     },
   };
 }
@@ -52,19 +67,35 @@ export async function generateMetadata({
 export default async function AuthorPage({ params }: { params: any }) {
   const { slug } = params;
   await dbReady;
-  const re = authorRegexFromSlug(slug);
-  const blogs = await Blog.find({ author: re })
-    .sort({ createdAt: -1 })
-    .select(
-      "title slug image imageAlt category author authorId createdAt status hub",
-    )
-    .lean();
+  const usernameCandidate = String(slug || "").toLowerCase();
+  let user: any = await User.findOne({
+    username: usernameCandidate,
+  }).lean();
 
-  let user: any = null;
-  if (blogs.length) {
-    user = await User.findById(blogs[0].authorId).lean();
+  let blogs: any[] = [];
+
+  if (user) {
+    blogs = await Blog.find({ authorId: user._id?.toString?.() })
+      .sort({ createdAt: -1 })
+      .select(
+        "title slug image imageAlt category author authorId createdAt status hub",
+      )
+      .lean();
+  } else {
+    const re = authorRegexFromSlug(slug);
+    blogs = await Blog.find({ author: re })
+      .sort({ createdAt: -1 })
+      .select(
+        "title slug image imageAlt category author authorId createdAt status hub",
+      )
+      .lean();
+    if (blogs.length) {
+      user = await User.findById(blogs[0].authorId).lean();
+    }
   }
-  const displayName = blogs[0]?.author || slug.replace(/-/g, " ");
+
+  const displayName =
+    user?.name || blogs[0]?.author || slug.replace(/-/g, " ");
   const canonical = new URL(
     `/author/${encodeURIComponent(slug)}`,
     SITE
@@ -76,6 +107,48 @@ export default async function AuthorPage({ params }: { params: any }) {
   const categories = Array.from(
     new Set(blogs.map((b: any) => b.category))
   ).sort();
+
+  const website = user?.website || "";
+  const headline = user?.headline || "Author at DailySparks";
+  const bio = user?.bio || "";
+  const location = user?.location || "";
+  const rawSocials: Record<string, string> = user?.socials || {};
+
+  const normalizeSocialUrl = (key: string, value: string) => {
+    if (!value) return null;
+    const trimmed = value.trim();
+    if (!trimmed.length) return null;
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    const handle = trimmed.replace(/^@/, "");
+    switch (key) {
+      case "twitter":
+        return `https://twitter.com/${handle}`;
+      case "linkedin":
+        return `https://www.linkedin.com/in/${handle}`;
+      case "github":
+        return `https://github.com/${handle}`;
+      case "instagram":
+        return `https://instagram.com/${handle}`;
+      case "youtube":
+        return `https://youtube.com/${handle}`;
+      default:
+        return trimmed;
+    }
+  };
+
+  const socialEntries = Object.entries(rawSocials)
+    .map(([key, value]) => {
+      const url = normalizeSocialUrl(key, value);
+      return url ? ([key, url] as const) : null;
+    })
+    .filter(Boolean) as Array<readonly [string, string]>;
+
+  const canonicalWebsite =
+    website && /^https?:\/\//i.test(website)
+      ? website
+      : website
+        ? `https://${website.replace(/^https?:\/\//i, "")}`
+        : "";
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
@@ -91,6 +164,10 @@ export default async function AuthorPage({ params }: { params: any }) {
                 name: displayName,
                 url: canonical,
                 ...(imageUrl ? { image: imageUrl } : {}),
+                ...(location ? { address: { "@type": "PostalAddress", addressLocality: location } } : {}),
+                ...(canonicalWebsite ? { sameAs: [canonicalWebsite, ...socialEntries.map(([, url]) => url)] } : socialEntries.length
+                  ? { sameAs: socialEntries.map(([, url]) => url) }
+                  : {}),
               },
               {
                 "@type": "BreadcrumbList",
@@ -146,7 +223,20 @@ export default async function AuthorPage({ params }: { params: any }) {
           <h1 className="text-3xl md:text-4xl font-bold text-foreground">
             {displayName}
           </h1>
-          <p className="text-muted-foreground mt-1">Author at DailySparks</p>
+          <p className="text-muted-foreground mt-1">{headline}</p>
+          {location ? (
+            <p className="text-sm text-muted-foreground mt-1">{location}</p>
+          ) : null}
+          {canonicalWebsite ? (
+            <p className="mt-2 text-sm">
+              <Link
+                href={canonicalWebsite}
+                className="text-primary hover:underline"
+              >
+                {canonicalWebsite.replace(/^https?:\/\//, "")}
+              </Link>
+            </p>
+          ) : null}
           <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mt-3">
             <span>
               {postCount} {postCount === 1 ? "post" : "posts"}
@@ -170,6 +260,26 @@ export default async function AuthorPage({ params }: { params: any }) {
               ))}
             </div>
           )}
+          {bio ? (
+            <p className="mt-4 max-w-2xl text-sm text-muted-foreground leading-relaxed">
+              {bio}
+            </p>
+          ) : null}
+          {socialEntries.length ? (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {socialEntries.map(([key, url]) => (
+                <Link
+                  key={key}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-medium rounded-full border border-border px-3 py-1 text-primary hover:bg-primary/10"
+                >
+                  {key.charAt(0).toUpperCase() + key.slice(1)}
+                </Link>
+              ))}
+            </div>
+          ) : null}
         </div>
       </header>
 

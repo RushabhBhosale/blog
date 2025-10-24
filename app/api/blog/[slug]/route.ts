@@ -1,5 +1,6 @@
 import "@/lib/db"; // initialize DB once per server instance
 import blog from "@/models/blog";
+import User from "@/models/user";
 import { NextResponse } from "next/server";
 import slugify from "slugify";
 import {
@@ -74,9 +75,30 @@ export async function PUT(
       hub,
       format,
       language,
+      authorId,
     } = await req.json();
 
-    if (!title || !content || !image || !author || !category) {
+    const incomingAuthorId =
+      typeof authorId === "string" && authorId.trim().length
+        ? authorId.trim()
+        : "";
+    let resolvedAuthor =
+      typeof author === "string" && author.trim().length ? author.trim() : "";
+
+    if (incomingAuthorId) {
+      const authorUser = await User.findById(incomingAuthorId).select(
+        "name email",
+      );
+      if (!authorUser) {
+        return NextResponse.json(
+          { error: "Selected author not found" },
+          { status: 400 },
+        );
+      }
+      resolvedAuthor = authorUser.name || authorUser.email || resolvedAuthor;
+    }
+
+    if (!title || !content || !image || !category || !resolvedAuthor) {
       return NextResponse.json(
         {
           error: "Please provide all the required fields",
@@ -132,7 +154,7 @@ export async function PUT(
       tags,
       image,
       imageAlt,
-      author,
+      author: resolvedAuthor,
       category,
       metaTitle,
       metaDescription,
@@ -141,6 +163,9 @@ export async function PUT(
       enableListSchema: shouldEnableList,
       listItems: shouldEnableList ? sanitizedListItems : [],
     };
+    if (incomingAuthorId) {
+      set.authorId = incomingAuthorId;
+    }
     if (hub && typeof hub === "object") {
       set.hub = { slug: hub.slug, title: hub.title };
     }

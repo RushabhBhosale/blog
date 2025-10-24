@@ -6,6 +6,13 @@ import { Menu, X, Plus, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/utils/useAuth";
 import { usePathname } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 export default function BlogNavbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,8 +23,66 @@ export default function BlogNavbar() {
       .toLowerCase()
       .replace(/[^a-z0-9]+/gi, "-")
       .replace(/^-+|-+$/g, "");
-  const authorSlug = toSlug(user?.name || user?.email || "");
+  const authorSlug = user?.username
+    ? user.username
+    : toSlug(user?.name || user?.email || "");
   const pathname = usePathname();
+  const avatarUrl = user?.imageUrl?.trim();
+  const getInitial = (value?: string | null) => {
+    const trimmed = value?.trim?.();
+    return trimmed ? trimmed.charAt(0).toUpperCase() : null;
+  };
+  const fallbackInitial =
+    getInitial(user?.name) || getInitial(user?.email) || "U";
+  const renderAvatarButton = () => (
+    <Button
+      variant="outline"
+      aria-label="Account menu"
+      className={`h-10 w-10 shrink-0 overflow-hidden rounded-full border-gray-300 p-0 text-sm font-medium text-gray-600 transition ${
+        avatarUrl ? "" : "bg-gray-100"
+      }`}
+    >
+      {avatarUrl ? (
+        <img
+          src={avatarUrl}
+          alt={user?.name || user?.email || "User avatar"}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <span className="uppercase">{fallbackInitial}</span>
+      )}
+    </Button>
+  );
+  const accountMenuItems = (
+    <>
+      <DropdownMenuItem asChild>
+        <Link href={authorSlug ? `/author/${authorSlug}` : "/"}>My posts</Link>
+      </DropdownMenuItem>
+      <DropdownMenuItem asChild>
+        <Link href="/profile">Profile</Link>
+      </DropdownMenuItem>
+      <DropdownMenuItem asChild>
+        <Link href="/blog/add">
+          <div className="flex items-center justify-between w-full">
+            <span>New post</span>
+            <Plus className="w-4 h-4" />
+          </div>
+        </Link>
+      </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem
+        onSelect={(event) => {
+          event.preventDefault();
+          signOut();
+        }}
+      >
+        <div className="flex items-center gap-2 text-destructive">
+          <LogOut className="w-4 h-4" />
+          Sign out
+        </div>
+      </DropdownMenuItem>
+    </>
+  );
 
   const categories = [
     { name: "Home", href: "/home" },
@@ -81,31 +146,14 @@ export default function BlogNavbar() {
           {/* Desktop Auth */}
           <div className="hidden lg:flex items-center space-x-3">
             {isAuthenticated ? (
-              <>
-                <Link href={authorSlug ? `/author/${authorSlug}` : "/"}>
-                  <Button size="sm" variant="outline" className="text-gray-700">
-                    My Posts
-                  </Button>
-                </Link>
-                <Link href="/blog/add">
-                  <Button
-                    size="sm"
-                    className="bg-primary hover:bg-primary/90 text-white"
-                  >
-                    <Plus className="w-4 h-4 mr-1" />
-                    New Post
-                  </Button>
-                </Link>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={signOut}
-                  className="text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                >
-                  <LogOut className="w-4 h-4 mr-1" />
-                  Sign Out
-                </Button>
-              </>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  {renderAvatarButton()}
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  {accountMenuItems}
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <Link href="/signin">
                 <Button
@@ -120,13 +168,40 @@ export default function BlogNavbar() {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden p-2 rounded-md hover:bg-gray-50 text-gray-600"
-          >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          {/* Mobile Actions */}
+          <div className="lg:hidden flex items-center gap-2">
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  {renderAvatarButton()}
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  {accountMenuItems}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link href="/signin">
+                <Button
+                  size="icon"
+                  variant="outline"
+                  aria-label="Sign in"
+                  className="h-10 w-10 border-gray-300 text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                >
+                  <User className="w-4 h-4" />
+                </Button>
+              </Link>
+            )}
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-2 rounded-md hover:bg-gray-50 text-gray-600"
+            >
+              {isOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation: slide-in from right with backdrop */}
@@ -147,91 +222,150 @@ export default function BlogNavbar() {
                 isOpen ? "translate-x-0" : "translate-x-full"
               }`}
             >
-              <div className="flex items-center justify-between p-4 border-b">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">DS</span>
+              <div className="flex h-full flex-col">
+                <div className="flex items-center justify-between border-b p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                      DS
+                    </div>
+                    <span className="font-semibold text-gray-900">
+                      Daily Sparks
+                    </span>
                   </div>
-                  <span className="font-semibold">Daily Sparks</span>
+                  <div className="flex items-center gap-3">
+                    <button
+                      aria-label="Close menu"
+                      onClick={() => setIsOpen(false)}
+                      className="p-2 rounded-md hover:bg-gray-50 text-gray-600"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
-                <button
-                  aria-label="Close menu"
-                  onClick={() => setIsOpen(false)}
-                  className="p-2 rounded-md hover:bg-gray-50 text-gray-600"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
 
-              <div className="h-[calc(100vh-64px)] overflow-y-auto">
-                <nav className="p-3">
-                  <p className="px-3 pb-2 text-xs uppercase tracking-wide text-muted-foreground">
-                    Browse
-                  </p>
-                  <ul className="space-y-1">
-                    {categories.map((cat) => (
-                      <li key={cat.name}>
-                        <Link
-                          href={cat.href}
-                          className={`block rounded-lg px-3 py-2 text-sm font-medium transition ${
-                            pathname === cat.href
-                              ? "bg-primary/10 text-primary border border-primary/30"
-                              : "text-gray-700 hover:bg-gray-50"
-                          }`}
-                          onClick={() => setIsOpen(false)}
-                        >
-                          {cat.name}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </nav>
-
-                <div className="mx-3 my-2 border-t border-gray-200" />
-
-                <div className="p-3 space-y-2">
+                <div className="flex-1 overflow-y-auto bg-white">
                   {isAuthenticated ? (
-                    <>
+                    <div className="border-b px-4 py-5">
                       <Link
-                        href={authorSlug ? `/author/${authorSlug}` : "/"}
+                        href="/profile"
                         onClick={() => setIsOpen(false)}
+                        className="flex items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-primary/40 hover:bg-primary/5"
                       >
-                        <Button
-                          variant="outline"
-                          className="w-full justify-start"
-                        >
-                          My Posts
-                        </Button>
+                        <div className="h-10 w-10 overflow-hidden rounded-full bg-gray-100">
+                          {avatarUrl ? (
+                            <img
+                              src={avatarUrl}
+                              alt="User avatar"
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <span className="flex h-full w-full items-center justify-center text-sm font-semibold uppercase text-gray-600">
+                              {fallbackInitial}
+                            </span>
+                          )}
+                        </div>
+                        <span>View profile</span>
                       </Link>
-                      <Link href="/blog/add" onClick={() => setIsOpen(false)}>
-                        <Button className="w-full justify-start">
-                          <Plus className="w-4 h-4 mr-2" />
-                          New Post
-                        </Button>
-                      </Link>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start text-gray-700 hover:bg-gray-50"
-                        onClick={() => {
-                          signOut();
-                          setIsOpen(false);
-                        }}
-                      >
-                        <LogOut className="w-4 h-4 mr-2" />
-                        Sign Out
-                      </Button>
-                    </>
+                    </div>
                   ) : (
-                    <Link href="/signin" onClick={() => setIsOpen(false)}>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start"
-                      >
-                        <User className="w-4 h-4 mr-2" />
-                        Sign In
-                      </Button>
-                    </Link>
+                    <div className="border-b px-4 py-5">
+                      <Link href="/signin" onClick={() => setIsOpen(false)}>
+                        <Button className="w-full">Sign In</Button>
+                      </Link>
+                    </div>
                   )}
+
+                  <nav className="px-4 py-6 space-y-6">
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                        Browse
+                      </p>
+                      <ul className="mt-3 space-y-1.5">
+                        {categories.map((cat) => (
+                          <li key={cat.name}>
+                            <Link
+                              href={cat.href}
+                              className={`flex items-center justify-between rounded-lg border border-transparent px-4 py-3 text-sm font-medium transition ${
+                                pathname === cat.href
+                                  ? "bg-primary/10 text-primary border-primary/40"
+                                  : "text-gray-700 hover:bg-gray-50"
+                              }`}
+                              onClick={() => setIsOpen(false)}
+                            >
+                              {cat.name}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {isAuthenticated && (
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                          Account
+                        </p>
+                        <ul className="mt-3 space-y-1.5">
+                          <li>
+                            <Link
+                              href={authorSlug ? `/author/${authorSlug}` : "/"}
+                              onClick={() => setIsOpen(false)}
+                              className="flex items-center justify-between rounded-lg border border-transparent px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                            >
+                              My posts
+                            </Link>
+                          </li>
+                          <li>
+                            <Link
+                              href="/profile"
+                              onClick={() => setIsOpen(false)}
+                              className="flex items-center justify-between rounded-lg border border-transparent px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                            >
+                              Profile
+                            </Link>
+                          </li>
+                          <li>
+                            <Link
+                              href="/blog/add"
+                              onClick={() => setIsOpen(false)}
+                              className="flex items-center justify-between rounded-lg border border-transparent px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                            >
+                              <span>New post</span>
+                              <Plus className="w-4 h-4" />
+                            </Link>
+                          </li>
+                          <li>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                signOut();
+                                setIsOpen(false);
+                              }}
+                              className="flex w-full items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-destructive transition hover:bg-destructive/10"
+                            >
+                              <LogOut className="w-4 h-4" />
+                              Sign Out
+                            </button>
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+
+                    {!isAuthenticated && (
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                          Account
+                        </p>
+                        <Link
+                          href="/signin"
+                          onClick={() => setIsOpen(false)}
+                          className="mt-3 flex items-center justify-center rounded-lg border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-primary/40 hover:bg-primary/5"
+                        >
+                          <User className="w-4 h-4 mr-2" />
+                          Sign In
+                        </Link>
+                      </div>
+                    )}
+                  </nav>
                 </div>
               </div>
             </div>
