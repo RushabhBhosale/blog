@@ -178,9 +178,7 @@ export default async function AuthorPage({ params }: { params: any }) {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {blogs.map((b: any) => {
-            const href = b?.hub?.slug && b?.category
-              ? `/blogs/${encodeURIComponent(b.category)}/${encodeURIComponent(b.hub.slug)}/${encodeURIComponent(b.slug)}`
-              : `/blog/${encodeURIComponent(b.slug)}`;
+            const href = `/blog/${encodeURIComponent(b.slug)}`;
             const badge = String(b.status || "");
             const badgeCls =
               badge === "Published"

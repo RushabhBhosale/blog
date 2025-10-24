@@ -43,9 +43,7 @@ export default async function HubPage(context: {
         {posts.map((p: any) => (
           <li key={p.slug}>
             <Link
-              href={`/blogs/${encodeURIComponent(
-                p.category
-              )}/${encodeURIComponent(hub)}/${encodeURIComponent(p.slug)}`}
+              href={`/blog/${encodeURIComponent(p.slug)}`}
               className="underline"
             >
               {p.title}

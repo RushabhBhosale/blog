@@ -14,15 +14,8 @@ export const revalidate = 60;
 const SITE = "https://dailysparks.in";
 
 const canonicalFor = (blog?: any) => {
-  if (blog?.hub?.slug && blog?.category) {
-    return new URL(
-      `/blogs/${encodeURIComponent(blog.category)}/${encodeURIComponent(
-        blog.hub.slug
-      )}/${encodeURIComponent(blog.slug)}`,
-      SITE
-    ).toString();
-  }
-  const slug = blog?.slug || "";
+  const slug =
+    blog && typeof blog === "object" ? blog?.slug || "" : String(blog || "");
   return new URL(`/blog/${encodeURIComponent(slug)}`, SITE).toString();
 };
 

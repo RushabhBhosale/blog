@@ -25,11 +25,7 @@ const CommentsSection = dynamic(
 const SITE = "https://dailysparks.in";
 
 function pathFor(blog: BlogInterface & { hub?: any }) {
-  return (blog as any)?.hub?.slug && blog.category
-    ? `/blogs/${encodeURIComponent(blog.category)}/${encodeURIComponent(
-        (blog as any).hub.slug!
-      )}/${encodeURIComponent(blog.slug || "")}`
-    : `/blog/${encodeURIComponent(blog.slug || "")}`;
+  return `/blog/${encodeURIComponent(blog.slug || "")}`;
 }
 
 function pickRelated(related: BlogInterface[], category?: string, count = 2) {
@@ -173,11 +169,6 @@ function readingTimeFromBlog(blog: Props["blogDetail"]) {
 }
 
 function canonicalPath(blog: Props["blogDetail"]) {
-  if (blog.hub?.slug && blog.category) {
-    return `/blogs/${encodeURIComponent(blog.category)}/${encodeURIComponent(
-      blog.hub.slug
-    )}/${encodeURIComponent(blog.slug || "")}`;
-  }
   return `/blog/${encodeURIComponent(blog.slug || "")}`;
 }
 
@@ -461,13 +452,7 @@ export default function BlogDetailsPage({
           {relatedAllBlogs.length ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-3">
               {relatedAllBlogs.map((b) => {
-                const path = (b as any)?.hub?.slug
-                  ? `/blogs/${encodeURIComponent(
-                      b.category
-                    )}/${encodeURIComponent(
-                      (b as any).hub.slug
-                    )}/${encodeURIComponent(b.slug || "")}`
-                  : `/blog/${b.slug}`;
+                const path = pathFor(b as any);
                 return (
                   <Link
                     key={b._id}

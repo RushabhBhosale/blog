@@ -42,14 +42,7 @@ const formatDate = (dateStr?: string) => {
   });
 };
 
-const blogUrl = (blog: BlogInterface) => {
-  if ((blog as any)?.hub?.slug && blog.category) {
-    return `/blogs/${encodeURIComponent(blog.category)}/${encodeURIComponent(
-      (blog as any).hub.slug!,
-    )}/${encodeURIComponent(blog.slug || "")}`;
-  }
-  return `/blog/${blog.slug}`;
-};
+const blogUrl = (blog: BlogInterface) => `/blog/${blog.slug}`;
 
 export default function CategoryPage({ allblogs, category }: Props) {
   const blogs = allblogs ?? [];

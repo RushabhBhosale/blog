@@ -105,12 +105,7 @@ export default function HomePage({ allblogs, miniSparks }: Props) {
     </div>
   );
 
-  const blogUrl = (b: BlogInterface) =>
-    (b as any)?.hub?.slug && b.category
-      ? `/blogs/${encodeURIComponent(b.category)}/${encodeURIComponent(
-          (b as any).hub.slug!
-        )}/${encodeURIComponent(b.slug || "")}`
-      : `/blog/${b.slug}`;
+  const blogUrl = (b: BlogInterface) => `/blog/${b.slug}`;
 
   const CardSm = ({ b }: { b: BlogInterface }) => (
     <Link href={blogUrl(b)} className="group h-full">
@@ -167,7 +162,7 @@ export default function HomePage({ allblogs, miniSparks }: Props) {
         <main className="space-y-14">
           {spotlight && (
             <section>
-              <Link href={`/blog/${spotlight.slug}`} className="block">
+              <Link href={blogUrl(spotlight)} className="block">
                 <article className="relative overflow-hidden rounded-2xl border border-border bg-card">
                   <div className="relative w-full aspect-[3/2] md:aspect-[16/6]">
                     <Image

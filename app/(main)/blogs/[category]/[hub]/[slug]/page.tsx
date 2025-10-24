@@ -10,13 +10,8 @@ import BlogDetailsPage from "@/app/(main)/blog/[slug]/BlogDetailsPage";
 
 const SITE = "https://dailysparks.in";
 
-const canonicalFor = (category: string, hub: string, slug: string) =>
-  new URL(
-    `/blogs/${encodeURIComponent(category)}/${encodeURIComponent(
-      hub
-    )}/${encodeURIComponent(slug)}`,
-    SITE
-  ).toString();
+const canonicalFor = (slug: string) =>
+  new URL(`/blog/${encodeURIComponent(slug)}`, SITE).toString();
 
 async function fetchBlog(slug: string) {
   await dbReady;
@@ -47,7 +42,7 @@ export async function generateMetadata(context: {
     String(blog.content || "")
       .replace(/<[^>]+>/g, "")
       .slice(0, 160);
-  const canonical = canonicalFor(category, hub, slug);
+  const canonical = canonicalFor(slug);
   const imageAbs = blog.image?.startsWith("http")
     ? blog.image
     : new URL(blog.image || "/og-default.jpg", SITE).toString();
@@ -89,7 +84,7 @@ export default async function Page(context: {
   const { htmlWithoutFaqSchema } = extractFaqSchema(blogData?.content || "");
   blogData.content = htmlWithoutFaqSchema;
 
-  const canonical = canonicalFor(category, hub, slug);
+  const canonical = canonicalFor(slug);
   const title = he.decode(blogData.metaTitle || blogData.title);
   const description =
     blogData.metaDescription ||
