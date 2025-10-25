@@ -12,7 +12,7 @@ const AdminNavbar = ({
   const { user, signOut } = useAuth();
   const router = useRouter();
   return (
-    <header className="bg-card shadow-2xl/5 rounded-2xl md:mt-2 md:mr-2 px-6 lg:px-8 py-2 sticky top-0 z-30">
+    <header className="bg-card shadow-2xl/5 rounded-2xl md:mt-2 md:mr-2 px-6 lg:px-8 py-2 z-30">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-6">
           <button
