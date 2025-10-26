@@ -48,11 +48,14 @@ export default function AboutPage() {
           About Daily Sparks
         </h1>
         <p className="mt-4 text-lg leading-7 text-muted-foreground">
-          I’m <span className="font-medium">Rushabh Bhosale</span> — a software
-          developer who writes about the things I use and love: TV series,
-          anime, travel, and practical tech. Daily Sparks is where I publish
-          clear, useful posts that help you decide what to watch, where to go,
-          and what to buy.
+          I’m{" "}
+          <span className="font-medium">
+            <a href="http://rushabh.in">Rushabh Bhosale</a>
+          </span>{" "}
+          — a software developer who writes about the things I use and love: TV
+          series, anime, travel, and practical tech. Daily Sparks is where I
+          publish clear, useful posts that help you decide what to watch, where
+          to go, and what to buy.
         </p>
       </section>
 
