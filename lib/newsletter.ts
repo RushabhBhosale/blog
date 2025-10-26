@@ -38,15 +38,15 @@ export async function notifySubscribersOfNewBlog(blog: {
   const fullBase = baseUrl?.startsWith("http")
     ? baseUrl
     : baseUrl
-      ? `https://${baseUrl}`
-      : "";
+    ? `https://${baseUrl}`
+    : "";
   const blogUrl = `${fullBase}/blog/${blog.slug}`;
 
   const results = await Promise.allSettled(
     subscribers.map((s) =>
       sendMail({
         to: s.email,
-        subject: `New post: ${blog.title}`,
+        subject: blog.title,
         html: renderNewBlogHtml({
           blog,
           blogUrl,
@@ -54,8 +54,8 @@ export async function notifySubscribersOfNewBlog(blog: {
           baseUrl: fullBase,
         }),
         text: `A new blog post is live: ${blog.title}\n${blogUrl}\n\nUnsubscribe: ${fullBase}/api/newsletter/unsubscribe/${s.token}`,
-      }),
-    ),
+      })
+    )
   );
   const sent = results.filter((r) => r.status === "fulfilled").length;
   return { sent, total: subscribers.length };
@@ -80,8 +80,16 @@ function renderNewBlogHtml({
   return `
   <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; line-height:1.6; color:#0f172a">
     <h2 style="margin:0 0 12px">New post is live: ${escapeHtml(blog.title)}</h2>
-    <p style="margin:0 0 16px">${blog.category ? `<strong>${escapeHtml(blog.category)}</strong> · ` : ""}${blog.author ? `${escapeHtml(blog.author)}` : ""}</p>
-    ${blog.image ? `<img src="${blog.image}" alt="${escapeHtml(blog.title)}" style="max-width:100%; border-radius:8px; margin: 8px 0 16px"/>` : ""}
+    <p style="margin:0 0 16px">${
+      blog.category ? `<strong>${escapeHtml(blog.category)}</strong> · ` : ""
+    }${blog.author ? `${escapeHtml(blog.author)}` : ""}</p>
+    ${
+      blog.image
+        ? `<img src="${blog.image}" alt="${escapeHtml(
+            blog.title
+          )}" style="max-width:100%; border-radius:8px; margin: 8px 0 16px"/>`
+        : ""
+    }
     <p><a href="${blogUrl}" style="display:inline-block; background:#111827; color:#fff; padding:10px 16px; border-radius:8px; text-decoration:none">Read post</a></p>
     <hr style="border:0;border-top:1px solid #e5e7eb; margin:20px 0"/>
     <p style="color:#6b7280; font-size:12px">You’re receiving this because you subscribed to updates. <a href="${unsubscribe}">Unsubscribe</a></p>
