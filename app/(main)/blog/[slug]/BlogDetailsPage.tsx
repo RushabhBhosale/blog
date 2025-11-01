@@ -161,7 +161,7 @@ export default function BlogDetailsPage({
           aria-label="Breadcrumb"
           className="text-sm text-muted-foreground -mb-2"
         >
-          <ol className="flex items-center gap-1 flex-wrap">
+          <ol className="flex items-center gap-1 flex-nowrap overflow-x-auto no-scrollbar">
             <li className="flex items-center">
               <Link href="/" className="hover:underline">
                 Home
@@ -211,7 +211,7 @@ export default function BlogDetailsPage({
 
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div className="md:mb-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-            <span className="px-2 py-1 bg-card/50 rounded-full">
+            <span className="hidden md:block px-2 py-1 bg-card/50 rounded-full">
               {blogDetail.category}
             </span>
             <Link
@@ -227,7 +227,7 @@ export default function BlogDetailsPage({
               By {blogDetail.author}
             </Link>
             <span>{new Date(blogDetail.createdAt!).toLocaleDateString()}</span>
-            <span>• {readingTime} min read</span>
+            <span className="hidden md:block">• {readingTime} min read</span>
             <ViewCounter
               slug={blogDetail.slug || ""}
               initialViews={blogDetail.viewCount || 0}
