@@ -40,7 +40,7 @@ export async function notifySubscribersOfNewBlog(blog: {
     : "";
   const blogUrl = `${fullBase}/blog/${blog.slug}`;
 
-  const subject = `New on Daily Sparks: ${blog.title}`;
+  const subject = `${blog.title}`;
   const results = await Promise.allSettled(
     subscribers.map((s) => {
       const html = renderNewBlogHtml({

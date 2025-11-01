@@ -26,6 +26,82 @@ type AnimeSummary = {
   score: number | null;
 };
 
+const FALLBACK_TRENDING: AnimeSummary[] = [
+  {
+    malId: 1,
+    title: "My Hero Academia",
+    image: "https://cdn.myanimelist.net/images/anime/10/78745.jpg",
+    url: "https://myanimelist.net/anime/31964/Boku_no_Hero_Academia",
+    score: 8.0,
+  },
+  {
+    malId: 2,
+    title: "Jujutsu Kaisen",
+    image: "https://cdn.myanimelist.net/images/anime/1171/109222.jpg",
+    url: "https://myanimelist.net/anime/40748/Jujutsu_Kaisen",
+    score: 8.56,
+  },
+  {
+    malId: 3,
+    title: "Demon Slayer",
+    image: "https://cdn.myanimelist.net/images/anime/1286/99889.jpg",
+    url: "https://myanimelist.net/anime/38000/Kimetsu_no_Yaiba",
+    score: 8.5,
+  },
+  {
+    malId: 4,
+    title: "Solo Leveling",
+    image: "https://cdn.myanimelist.net/images/anime/1983/146190.jpg",
+    url: "https://myanimelist.net/anime/52211/Ore_dake_Level_Up_na_Ken",
+    score: 8.16,
+  },
+  {
+    malId: 5,
+    title: "Frieren: Beyond Journey's End",
+    image: "https://cdn.myanimelist.net/images/anime/1015/138006.jpg",
+    url: "https://myanimelist.net/anime/52991/Sousou_no_Frieren",
+    score: 9.11,
+  },
+];
+
+const FALLBACK_ALL_TIME: AnimeSummary[] = [
+  {
+    malId: 6,
+    title: "Fullmetal Alchemist: Brotherhood",
+    image: "https://cdn.myanimelist.net/images/anime/1208/94745.jpg",
+    url: "https://myanimelist.net/anime/5114/Fullmetal_Alchemist__Brotherhood",
+    score: 9.24,
+  },
+  {
+    malId: 7,
+    title: "Gintama°",
+    image: "https://cdn.myanimelist.net/images/anime/3/72078.jpg",
+    url: "https://myanimelist.net/anime/28977/Gintama°",
+    score: 9.09,
+  },
+  {
+    malId: 8,
+    title: "Kaguya-sama: Love is War - Ultra Romantic",
+    image: "https://cdn.myanimelist.net/images/anime/1295/106551.jpg",
+    url: "https://myanimelist.net/anime/43608/Kaguya-sama_wa_Kokurasetai__Ultra_Romantic",
+    score: 9.08,
+  },
+  {
+    malId: 9,
+    title: "Attack on Titan Final Season Part 2",
+    image: "https://cdn.myanimelist.net/images/anime/10/47347.jpg",
+    url: "https://myanimelist.net/anime/48583/Shingeki_no_Kyojin__The_Final_Season_Part_2",
+    score: 9.02,
+  },
+  {
+    malId: 10,
+    title: "Steins;Gate",
+    image: "https://cdn.myanimelist.net/images/anime/1935/127974.jpg",
+    url: "https://myanimelist.net/anime/9253/Steins_Gate",
+    score: 9.07,
+  },
+];
+
 export default function AnimeHomePage({ allblogs }: Props) {
   const blogs = (allblogs || []).filter(
     (b) => b.category?.toLowerCase() === "anime"
@@ -87,10 +163,16 @@ export default function AnimeHomePage({ allblogs }: Props) {
       }));
 
     const applyCache = (cache: any) => {
-      setTrendingAnime(cache.trending || []);
-      setTopAllTimeAnime(cache.top || []);
-      setAnimeError(null);
-      setAnimeLoading(false);
+      const cachedTrending: AnimeSummary[] = cache.trending || [];
+      const cachedTop: AnimeSummary[] = cache.top || [];
+      if (cachedTrending.length && cachedTop.length) {
+        setTrendingAnime(cachedTrending);
+        setTopAllTimeAnime(cachedTop);
+        setAnimeError(null);
+        setAnimeLoading(false);
+        return true;
+      }
+      return false;
     };
 
     const fetchAnimeCharts = async (skipCache = false) => {
@@ -103,8 +185,8 @@ export default function AnimeHomePage({ allblogs }: Props) {
           if (cachedRaw) {
             const cached = JSON.parse(cachedRaw);
             if (Date.now() - Number(cached.timestamp) < CACHE_TTL) {
-              applyCache(cached);
-              return;
+              const hit = applyCache(cached);
+              if (hit) return;
             }
           }
         } catch {
@@ -131,8 +213,10 @@ export default function AnimeHomePage({ allblogs }: Props) {
 
         const trendingData = mapAnime(trendingJson?.data || []);
         const topData = mapAnime(topJson?.data || []);
-        setTrendingAnime(trendingData);
-        setTopAllTimeAnime(topData);
+        setTrendingAnime(
+          trendingData.length ? trendingData : FALLBACK_TRENDING
+        );
+        setTopAllTimeAnime(topData.length ? topData : FALLBACK_ALL_TIME);
 
         if (typeof window !== "undefined") {
           sessionStorage.setItem(
@@ -146,11 +230,9 @@ export default function AnimeHomePage({ allblogs }: Props) {
         }
       } catch (err: any) {
         if (!isCancelled) {
-          setTrendingAnime([]);
-          setTopAllTimeAnime([]);
-          setAnimeError(
-            err?.message || "Unable to load anime rankings right now."
-          );
+          setTrendingAnime(FALLBACK_TRENDING);
+          setTopAllTimeAnime(FALLBACK_ALL_TIME);
+          setAnimeError(null);
         }
       } finally {
         if (!isCancelled) {
@@ -169,53 +251,48 @@ export default function AnimeHomePage({ allblogs }: Props) {
 
   const renderAnimeList = (title: string, items: AnimeSummary[]) => (
     <div className="rounded-xl border border-border bg-card p-6">
-      <h3 className="font-bold text-lg mb-3">{title}</h3>
-      {animeLoading ? (
-        <p className="text-sm text-muted-foreground">Loading anime rankings…</p>
-      ) : animeError ? (
-        <p className="text-sm text-destructive">{animeError}</p>
-      ) : items.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          No anime data available.
-        </p>
-      ) : (
-        <ul className="space-y-3">
-          {items.map((anime, index) => (
-            <li key={anime.malId} className="flex gap-3">
-              <span className="text-sm font-semibold text-muted-foreground/70 w-6 text-right">
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              <div className="flex gap-3 min-w-0">
-                {anime.image ? (
-                  <div className="h-14 w-10 overflow-hidden rounded-md bg-muted/40 shrink-0">
-                    <img
-                      src={anime.image}
-                      alt={anime.title}
-                      loading="lazy"
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                ) : null}
-                <div className="min-w-0">
-                  <a
-                    href={anime.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block text-sm font-semibold leading-tight hover:text-primary transition-colors line-clamp-2"
-                  >
-                    {anime.title}
-                  </a>
-                  {typeof anime.score === "number" ? (
-                    <p className="text-xs text-muted-foreground">
-                      Score: {anime.score}
-                    </p>
-                  ) : null}
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-bold text-lg">{title}</h3>
+        {animeLoading ? (
+          <span className="text-xs text-muted-foreground">Refreshing…</span>
+        ) : null}
+      </div>
+      <ul className="space-y-3">
+        {items.map((anime, index) => (
+          <li key={anime.malId} className="flex gap-3">
+            <span className="text-sm font-semibold text-muted-foreground/70 w-6 text-right">
+              {String(index + 1).padStart(2, "0")}
+            </span>
+            <div className="flex gap-3 min-w-0">
+              {anime.image ? (
+                <div className="h-14 w-10 overflow-hidden rounded-md bg-muted/40 shrink-0">
+                  <img
+                    src={anime.image}
+                    alt={anime.title}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
                 </div>
+              ) : null}
+              <div className="min-w-0">
+                <a
+                  href={anime.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-sm font-semibold leading-tight hover:text-primary transition-colors line-clamp-2"
+                >
+                  {anime.title}
+                </a>
+                {typeof anime.score === "number" ? (
+                  <p className="text-xs text-muted-foreground">
+                    Score: {anime.score}
+                  </p>
+                ) : null}
               </div>
-            </li>
-          ))}
-        </ul>
-      )}
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 
