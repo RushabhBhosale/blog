@@ -6,9 +6,9 @@ import Blog from "@/models/blog";
 import MiniSpark from "@/models/minispark";
 
 export const metadata: Metadata = {
-  title: "Daily Sparks – Fresh Ideas, Every Day",
+  title: "Daily Sparks – Anime Reviews & Watchlists",
   description:
-    "From anime sagas to the latest tech trends and travel escapes across the globe — discover stories that spark inspiration, knowledge, and adventure.",
+    "Deep dives, reviews, and curated watchlists from the anime world. Discover hidden gems and iconic series — handpicked and written by a true fan.",
   alternates: {
     canonical: "https://dailysparks.in/",
   },
