@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -18,6 +18,14 @@ type BlogInterface = {
 
 type Props = { allblogs: BlogInterface[] };
 
+type AnimeSummary = {
+  malId: number;
+  title: string;
+  image: string;
+  url: string;
+  score: number | null;
+};
+
 export default function AnimeHomePage({ allblogs }: Props) {
   const blogs = (allblogs || []).filter(
     (b) => b.category?.toLowerCase() === "anime"
@@ -34,6 +42,10 @@ export default function AnimeHomePage({ allblogs }: Props) {
 
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [animeLoading, setAnimeLoading] = useState(true);
+  const [animeError, setAnimeError] = useState<string | null>(null);
+  const [trendingAnime, setTrendingAnime] = useState<AnimeSummary[]>([]);
+  const [topAllTimeAnime, setTopAllTimeAnime] = useState<AnimeSummary[]>([]);
 
   const subscribe = async () => {
     const v = email.trim();
@@ -53,6 +65,160 @@ export default function AnimeHomePage({ allblogs }: Props) {
     }
   };
 
+  useEffect(() => {
+    let isCancelled = false;
+    const CACHE_KEY = "anime-charts-cache-v1";
+    const CACHE_TTL = 1000 * 60 * 30; // 30 minutes
+
+    const mapAnime = (items: any[]): AnimeSummary[] =>
+      items.slice(0, 10).map((entry: any) => ({
+        malId: entry.mal_id,
+        title: entry.title,
+        image:
+          entry?.images?.webp?.image_url ??
+          entry?.images?.jpg?.large_image_url ??
+          entry?.images?.jpg?.image_url ??
+          "",
+        url: entry.url,
+        score:
+          typeof entry.score === "number"
+            ? Number(entry.score.toFixed(2))
+            : null,
+      }));
+
+    const applyCache = (cache: any) => {
+      setTrendingAnime(cache.trending || []);
+      setTopAllTimeAnime(cache.top || []);
+      setAnimeError(null);
+      setAnimeLoading(false);
+    };
+
+    const fetchAnimeCharts = async (skipCache = false) => {
+      if (!skipCache) {
+        try {
+          const cachedRaw =
+            typeof window !== "undefined"
+              ? sessionStorage.getItem(CACHE_KEY)
+              : null;
+          if (cachedRaw) {
+            const cached = JSON.parse(cachedRaw);
+            if (Date.now() - Number(cached.timestamp) < CACHE_TTL) {
+              applyCache(cached);
+              return;
+            }
+          }
+        } catch {
+          /* ignore cache parse errors */
+        }
+      }
+
+      setAnimeLoading(true);
+      setAnimeError(null);
+      try {
+        const [trendingRes, topRes] = await Promise.all([
+          fetch("https://api.jikan.moe/v4/top/anime?filter=airing&limit=5"),
+          fetch("https://api.jikan.moe/v4/top/anime?limit=5"),
+        ]);
+
+        if (!trendingRes.ok || !topRes.ok) {
+          throw new Error("Failed to load anime rankings");
+        }
+
+        const trendingJson = await trendingRes.json();
+        const topJson = await topRes.json();
+
+        if (isCancelled) return;
+
+        const trendingData = mapAnime(trendingJson?.data || []);
+        const topData = mapAnime(topJson?.data || []);
+        setTrendingAnime(trendingData);
+        setTopAllTimeAnime(topData);
+
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem(
+            CACHE_KEY,
+            JSON.stringify({
+              timestamp: Date.now(),
+              trending: trendingData,
+              top: topData,
+            })
+          );
+        }
+      } catch (err: any) {
+        if (!isCancelled) {
+          setTrendingAnime([]);
+          setTopAllTimeAnime([]);
+          setAnimeError(
+            err?.message || "Unable to load anime rankings right now."
+          );
+        }
+      } finally {
+        if (!isCancelled) {
+          setAnimeLoading(false);
+        }
+      }
+    };
+
+    fetchAnimeCharts();
+
+    return () => {
+      isCancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const renderAnimeList = (title: string, items: AnimeSummary[]) => (
+    <div className="rounded-xl border border-border bg-card p-6">
+      <h3 className="font-bold text-lg mb-3">{title}</h3>
+      {animeLoading ? (
+        <p className="text-sm text-muted-foreground">Loading anime rankings…</p>
+      ) : animeError ? (
+        <p className="text-sm text-destructive">{animeError}</p>
+      ) : items.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          No anime data available.
+        </p>
+      ) : (
+        <ul className="space-y-3">
+          {items.map((anime, index) => (
+            <li key={anime.malId} className="flex gap-3">
+              <span className="text-sm font-semibold text-muted-foreground/70 w-6 text-right">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <div className="flex gap-3 min-w-0">
+                {anime.image ? (
+                  <div className="h-14 w-10 overflow-hidden rounded-md bg-muted/40 shrink-0">
+                    <img
+                      src={anime.image}
+                      alt={anime.title}
+                      loading="lazy"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                ) : null}
+                <div className="min-w-0">
+                  <a
+                    href={anime.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-sm font-semibold leading-tight hover:text-primary transition-colors line-clamp-2"
+                  >
+                    {anime.title}
+                  </a>
+                  {typeof anime.score === "number" ? (
+                    <p className="text-xs text-muted-foreground">
+                      Score: {anime.score}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+
   const hero = blogs[0];
   const topPicks = blogs.slice(1, 4);
   const mainFeatured = blogs[4];
@@ -61,8 +227,6 @@ export default function AnimeHomePage({ allblogs }: Props) {
   const allOther = blogs.slice(15);
 
   const blogUrl = (b: BlogInterface) => `/blog/${b.slug}`;
-  console.log("sdhcv", hero);
-
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -233,6 +397,10 @@ export default function AnimeHomePage({ allblogs }: Props) {
                 </button>
               </div>
 
+              {renderAnimeList("Top 5 Trending Anime", trendingAnime)}
+
+              {renderAnimeList("Top 5 Anime of All Time", topAllTimeAnime)}
+
               {/* Recommended */}
               {recommendations.length > 0 && (
                 <div>
@@ -280,7 +448,7 @@ export default function AnimeHomePage({ allblogs }: Props) {
               </div>
 
               {/* Additional Content */}
-              {allOther.length > 0 && (
+              {/* {allOther.length > 0 && (
                 <div>
                   <h3 className="font-bold text-lg mb-4">Quick Reads</h3>
                   <div className="space-y-4">
@@ -316,7 +484,7 @@ export default function AnimeHomePage({ allblogs }: Props) {
                     ))}
                   </div>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         </section>
