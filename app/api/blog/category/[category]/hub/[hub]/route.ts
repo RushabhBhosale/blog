@@ -10,7 +10,6 @@ export async function GET(_: Request, { params }: { params: any }) {
       "i"
     ),
     "hub.slug": hub,
-    status: { $ne: "Hide" },
   })
     .sort({ createdAt: -1 })
     .select("title slug category hub")

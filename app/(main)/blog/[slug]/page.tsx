@@ -64,20 +64,24 @@ const getRelatedBlogs = cache(
   }
 );
 
-export async function generateMetadata(context: {
-  params: Promise<{ slug: string }>;
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
 }): Promise<Metadata> {
-  const params = await context.params;
-  const blog = (await getBlogBySlug(params.slug)) as any;
+  const blog: any = await getBlogBySlug(params.slug);
 
-  if (!blog) {
+  const canView =
+    !blog?.status || blog?.status === "Published" || blog?.status === "Hide";
+
+  if (!blog || !canView) {
     const notFoundUrl = canonicalFor(params.slug);
     return {
       title: "Blog Not Found",
       description: "This blog could not be found.",
       alternates: { canonical: notFoundUrl },
       metadataBase: new URL(SITE),
-      robots: { index: true, follow: true },
+      robots: { index: false, follow: true },
     };
   }
 
@@ -95,6 +99,7 @@ export async function generateMetadata(context: {
     description,
     alternates: { canonical },
     metadataBase: new URL(SITE),
+    robots: { index: true, follow: true },
     openGraph: {
       title,
       description,
@@ -116,7 +121,10 @@ export default async function Blog(context: {
 }) {
   const { slug } = await context.params;
   const blogData: any = await getBlogBySlug(slug);
-  const canView = !blogData?.status || blogData?.status === "Published";
+  const canView =
+    !blogData?.status ||
+    blogData?.status === "Published" ||
+    blogData?.status === "Hide";
   if (!blogData || !canView) {
     return <div>Blog not found</div>;
   }

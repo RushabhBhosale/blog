@@ -27,14 +27,27 @@ export async function generateMetadata(context: {
 }): Promise<Metadata> {
   const { category, hub, slug } = await context.params;
   const blog: any = await fetchBlog(slug);
-  if (!blog) return { robots: { index: true, follow: true } };
+  const canonical = canonicalFor(slug);
+
+  const baseNoIndex = {
+    title: "Blog Not Found",
+    description: "This blog could not be found.",
+    alternates: { canonical },
+    metadataBase: new URL(SITE),
+    robots: { index: false, follow: true },
+  } as const;
+
+  if (!blog) return baseNoIndex;
+
+  const canView = !blog.status || String(blog.status) === "Published";
+  if (!canView) return baseNoIndex;
+
   // Guard that route matches
   const catOk = new RegExp(
     `^${category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
     "i"
   ).test(blog.category || "");
-  if (!catOk || blog?.hub?.slug !== hub)
-    return { robots: { index: true, follow: true } };
+  if (!catOk || blog?.hub?.slug !== hub) return baseNoIndex;
 
   const title = he.decode(blog.metaTitle || blog.title);
   const description =
@@ -42,7 +55,6 @@ export async function generateMetadata(context: {
     String(blog.content || "")
       .replace(/<[^>]+>/g, "")
       .slice(0, 160);
-  const canonical = canonicalFor(slug);
   const imageAbs = blog.image?.startsWith("http")
     ? blog.image
     : new URL(blog.image || "/og-default.jpg", SITE).toString();
@@ -52,6 +64,7 @@ export async function generateMetadata(context: {
     description,
     alternates: { canonical },
     metadataBase: new URL(SITE),
+    robots: { index: true, follow: true },
     openGraph: {
       title,
       description,
