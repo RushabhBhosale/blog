@@ -136,7 +136,11 @@ export default function BlogNavbar() {
                   {accountMenuItems}
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : null}
+            ) : (
+              <Link href="/signin">
+                <Button>Sign in</Button>
+              </Link>
+            )}
           </div>
 
           <div className="lg:hidden flex items-center gap-2">
@@ -149,6 +153,11 @@ export default function BlogNavbar() {
                   {accountMenuItems}
                 </DropdownMenuContent>
               </DropdownMenu>
+            )}
+            {!isAuthenticated && (
+              <Link href="/signin">
+                <Button size="sm">Sign in</Button>
+              </Link>
             )}
             <button
               onClick={() => setIsOpen(!isOpen)}
