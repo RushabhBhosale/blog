@@ -28,6 +28,7 @@ export async function sendMail(opts: {
   subject: string;
   html: string;
   text?: string;
+  headers?: Record<string, string>;
 }) {
   const transporter = getTransporter();
   if (!transporter) return { skipped: true };
