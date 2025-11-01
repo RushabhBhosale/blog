@@ -18,7 +18,7 @@ export const revalidate = 60;
 
 export default async function Blogs() {
   await dbReady;
-  const blogs = await Blog.find()
+  const blogs = await Blog.find({ status: { $ne: "Hide" } })
     .select("-content")
     .sort({ createdAt: -1 })
     .lean();

@@ -3,6 +3,7 @@ import { model, models, Schema } from "mongoose";
 const categorySchema = new Schema(
   {
     title: { type: String, required: true },
+    isHidden: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

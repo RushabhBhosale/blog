@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, KeyboardEvent } from "react";
+import { useState, useEffect, KeyboardEvent, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
@@ -33,7 +33,7 @@ const SLUG_OPTIONS = { lower: true, strict: true, trim: true } as const;
 export default function AddBlogPage() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<[]>([]);
   const [content, setContent] = useState("");
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -66,11 +66,18 @@ export default function AddBlogPage() {
     const fetchCategories = async () => {
       try {
         const res = await axios.get("/api/category");
-        setCategories(res.data.category || []);
+        const all = res.data.category || [];
+
+        const filtered = all.filter((cat: any) =>
+          cat.title?.toLowerCase().startsWith("ani")
+        );
+
+        setCategories(filtered);
       } catch (err) {
         console.error("Error fetching categories", err);
       }
     };
+
     fetchCategories();
   }, []);
 
@@ -82,8 +89,15 @@ export default function AddBlogPage() {
         return;
       }
       try {
-        const res = await axios.get(`/api/hub?category=${encodeURIComponent(category)}`);
-        setHubs((res.data?.hubs || []).map((h: any) => ({ slug: h.slug, title: h.title })));
+        const res = await axios.get(
+          `/api/hub?category=${encodeURIComponent(category)}`
+        );
+        setHubs(
+          (res.data?.hubs || []).map((h: any) => ({
+            slug: h.slug,
+            title: h.title,
+          }))
+        );
       } catch (err) {
         console.error("Error fetching hubs", err);
         setHubs([]);
@@ -138,7 +152,7 @@ export default function AddBlogPage() {
 
   const updateFaq = (index: number, field: keyof FaqItem, value: string) => {
     setFaqs((prev) =>
-      prev.map((faq, i) => (i === index ? { ...faq, [field]: value } : faq)),
+      prev.map((faq, i) => (i === index ? { ...faq, [field]: value } : faq))
     );
   };
 
@@ -162,13 +176,18 @@ export default function AddBlogPage() {
     }
   };
 
+  const visibleCategories = useMemo(
+    () => categories.filter((cat: any) => !cat.isHidden),
+    [categories]
+  );
+
   const updateListItem = (
     index: number,
     field: keyof ListItem,
-    value: string,
+    value: string
   ) => {
     setListItems((prev) =>
-      prev.map((it, i) => (i === index ? { ...it, [field]: value } : it)),
+      prev.map((it, i) => (i === index ? { ...it, [field]: value } : it))
     );
   };
 
@@ -183,7 +202,7 @@ export default function AddBlogPage() {
     setListItems((prev) =>
       prev.length <= 1
         ? [{ title: "", url: "", description: "", image: "" }]
-        : prev.filter((_, i) => i !== index),
+        : prev.filter((_, i) => i !== index)
     );
   };
 
@@ -222,8 +241,12 @@ export default function AddBlogPage() {
         try {
           await axios.post(
             "/api/hub",
-            { title: hubTitle || hubSlug, slug: slugify(hubSlug, SLUG_OPTIONS), category },
-            { withCredentials: true },
+            {
+              title: hubTitle || hubSlug,
+              slug: slugify(hubSlug, SLUG_OPTIONS),
+              category,
+            },
+            { withCredentials: true }
           );
         } catch (err) {
           console.warn("Hub creation failed or already exists", err);
@@ -255,10 +278,13 @@ export default function AddBlogPage() {
             }))
             .filter((i) => i.title),
           hub: hubSlug
-            ? { slug: slugify(hubSlug, SLUG_OPTIONS), title: hubTitle || hubSlug }
+            ? {
+                slug: slugify(hubSlug, SLUG_OPTIONS),
+                title: hubTitle || hubSlug,
+              }
             : undefined,
         },
-        { withCredentials: true },
+        { withCredentials: true }
       );
 
       router.push("/");
@@ -322,11 +348,17 @@ export default function AddBlogPage() {
             <SelectValue placeholder="Select category" />
           </SelectTrigger>
           <SelectContent>
-            {categories.map((cat) => (
-              <SelectItem key={cat._id} value={cat.title}>
-                {cat.title}
+            {categories.length === 0 ? (
+              <SelectItem disabled value="1">
+                Loading categories...
               </SelectItem>
-            ))}
+            ) : (
+              visibleCategories.map((cat: any) => (
+                <SelectItem key={cat._id} value={cat.title}>
+                  {cat.title}
+                </SelectItem>
+              ))
+            )}
           </SelectContent>
         </Select>
 
@@ -362,7 +394,11 @@ export default function AddBlogPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button type="button" variant="outline" onClick={() => setCreatingHub(true)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setCreatingHub(true)}
+                >
                   Create hub
                 </Button>
               </div>
@@ -389,12 +425,23 @@ export default function AddBlogPage() {
                       try {
                         await axios.post(
                           "/api/hub",
-                          { title: hubTitle || hubSlug, slug: slugify(hubSlug, SLUG_OPTIONS), category },
-                          { withCredentials: true },
+                          {
+                            title: hubTitle || hubSlug,
+                            slug: slugify(hubSlug, SLUG_OPTIONS),
+                            category,
+                          },
+                          { withCredentials: true }
                         );
                         // refresh list
-                        const res = await axios.get(`/api/hub?category=${encodeURIComponent(category)}`);
-                        setHubs((res.data?.hubs || []).map((h: any) => ({ slug: h.slug, title: h.title })));
+                        const res = await axios.get(
+                          `/api/hub?category=${encodeURIComponent(category)}`
+                        );
+                        setHubs(
+                          (res.data?.hubs || []).map((h: any) => ({
+                            slug: h.slug,
+                            title: h.title,
+                          }))
+                        );
                         setCreatingHub(false);
                       } catch (err) {
                         console.error("Failed to create hub", err);
@@ -403,7 +450,11 @@ export default function AddBlogPage() {
                   >
                     Save hub
                   </Button>
-                  <Button type="button" variant="ghost" onClick={() => setCreatingHub(false)}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setCreatingHub(false)}
+                  >
                     Cancel
                   </Button>
                 </div>

@@ -48,7 +48,7 @@ export default async function Home() {
   return (
     <HomePage
       allblogs={JSON.parse(JSON.stringify(blogs))}
-      miniSparks={JSON.parse(JSON.stringify(minis))}
+      // miniSparks={JSON.parse(JSON.stringify(minis))}
     />
   );
 }

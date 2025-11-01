@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, KeyboardEvent } from "react";
+import { useState, useEffect, KeyboardEvent, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import axiosClient from "@/lib/axiosclient";
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,9 @@ const AdminEditBlogPage = () => {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [content, setContent] = useState("");
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<
+    Array<{ _id: string; title: string; isHidden?: boolean }>
+  >([]);
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [imageUrl, setImageUrl] = useState("");
@@ -212,6 +214,15 @@ const AdminEditBlogPage = () => {
         : prev.filter((_, i) => i !== index),
     );
 
+  const categoryOptions = useMemo(() => {
+    const visible = categories.filter((cat) => !cat.isHidden);
+    if (!category) return visible;
+    const alreadyVisible = visible.some((cat) => cat.title === category);
+    if (alreadyVisible) return visible;
+    const current = categories.find((cat) => cat.title === category);
+    return current ? [...visible, current] : visible;
+  }, [categories, category]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -321,7 +332,7 @@ const AdminEditBlogPage = () => {
             <SelectValue placeholder="Select category" />
           </SelectTrigger>
           <SelectContent>
-            {categories.map((cat) => (
+            {categoryOptions.map((cat) => (
               <SelectItem key={cat._id} value={cat.title}>
                 {cat.title}
               </SelectItem>

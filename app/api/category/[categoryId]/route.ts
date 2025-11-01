@@ -44,19 +44,30 @@ export async function PUT(
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
     const { categoryId } = await context.params;
-    const { title } = await req.json();
+    const body = await req.json();
+    const payload: Record<string, any> = {};
 
-    if (!categoryId || !title) {
-      return NextResponse.json({
-        error: "Please provide all the required fields",
-      });
+    if (typeof body?.title === "string") {
+      const title = body.title.trim();
+      if (title) {
+        payload.title = title;
+      }
+    }
+
+    if (typeof body?.isHidden === "boolean") {
+      payload.isHidden = body.isHidden;
+    }
+
+    if (!categoryId || Object.keys(payload).length === 0) {
+      return NextResponse.json(
+        { error: "Please provide fields to update" },
+        { status: 400 },
+      );
     }
 
     const foundCategory = await category.findByIdAndUpdate(
       categoryId,
-      {
-        title,
-      },
+      payload,
       { new: true },
     );
     if (!foundCategory) {

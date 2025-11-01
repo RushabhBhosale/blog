@@ -36,6 +36,7 @@ const getRelatedBlogs = cache(
       {
         $match: {
           slug: { $ne: slug },
+          status: { $ne: "Hide" },
           $or: [
             ...(category ? ([{ category }] as any[]) : []),
             ...(tagList.length ? [{ tags: { $in: tagList } }] : []),
@@ -64,15 +65,12 @@ const getRelatedBlogs = cache(
   }
 );
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string };
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: any): Promise<Metadata> {
   const blog: any = await getBlogBySlug(params.slug);
 
-  const canView =
-    !blog?.status || blog?.status === "Published" || blog?.status === "Hide";
+  const status = blog?.status ? String(blog.status) : "";
+  const isHidden = status === "Hide";
+  const canView = !!blog && (!status || status === "Published" || isHidden);
 
   if (!blog || !canView) {
     const notFoundUrl = canonicalFor(params.slug);
@@ -99,7 +97,7 @@ export async function generateMetadata({
     description,
     alternates: { canonical },
     metadataBase: new URL(SITE),
-    robots: { index: true, follow: true },
+    robots: { index: !isHidden, follow: true },
     openGraph: {
       title,
       description,
@@ -121,10 +119,9 @@ export default async function Blog(context: {
 }) {
   const { slug } = await context.params;
   const blogData: any = await getBlogBySlug(slug);
+  const status = blogData?.status ? String(blogData.status) : "";
   const canView =
-    !blogData?.status ||
-    blogData?.status === "Published" ||
-    blogData?.status === "Hide";
+    !!blogData && (!status || status === "Published" || status === "Hide");
   if (!blogData || !canView) {
     return <div>Blog not found</div>;
   }

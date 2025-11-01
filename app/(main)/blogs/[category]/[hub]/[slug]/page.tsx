@@ -39,7 +39,9 @@ export async function generateMetadata(context: {
 
   if (!blog) return baseNoIndex;
 
-  const canView = !blog.status || String(blog.status) === "Published";
+  const status = blog?.status ? String(blog.status) : "";
+  const isHidden = status === "Hide";
+  const canView = !status || status === "Published" || isHidden;
   if (!canView) return baseNoIndex;
 
   // Guard that route matches
@@ -64,7 +66,7 @@ export async function generateMetadata(context: {
     description,
     alternates: { canonical },
     metadataBase: new URL(SITE),
-    robots: { index: true, follow: true },
+    robots: { index: !isHidden, follow: true },
     openGraph: {
       title,
       description,
@@ -86,7 +88,9 @@ export default async function Page(context: {
 }) {
   const { category, hub, slug } = await context.params;
   const blogData: any = await fetchBlog(slug);
-  const canView = !blogData?.status || blogData?.status === "Published";
+  const status = blogData?.status ? String(blogData.status) : "";
+  const canView =
+    !status || status === "Published" || status === "Hide";
   if (!blogData || !canView) notFound();
   const catOk = new RegExp(
     `^${category.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
@@ -212,6 +216,7 @@ export default async function Page(context: {
     {
       $match: {
         slug: { $ne: slug },
+        status: { $ne: "Hide" },
         $or: [
           ...(categoryName ? ([{ category: categoryName }] as any[]) : []),
           ...(tagList.length ? [{ tags: { $in: tagList } }] : []),

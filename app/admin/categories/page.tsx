@@ -14,7 +14,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-type Category = { _id: string; title: string; createdAt: string };
+type Category = {
+  _id: string;
+  title: string;
+  createdAt: string;
+  isHidden?: boolean;
+};
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -43,6 +48,22 @@ export default function CategoriesPage() {
       setTitle("");
     } catch (e: any) {
       toast.error(e?.response?.data?.error || "Failed to add category");
+    }
+  };
+
+  const toggleVisibility = async (cat: Category) => {
+    try {
+      await axiosClient.put(`/category/${cat._id}`, {
+        isHidden: !cat?.isHidden,
+      });
+      await fetchCategories();
+      toast.success(
+        `${cat.title} is now ${cat.isHidden ? "visible" : "hidden"}.`,
+      );
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.error || "Failed to update visibility";
+      toast.error(message);
     }
   };
 
@@ -101,6 +122,7 @@ export default function CategoriesPage() {
         <TableHeader>
           <TableRow>
             <TableHead>Title</TableHead>
+            <TableHead>Visibility</TableHead>
             <TableHead className="hidden md:table-cell">Created</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -110,6 +132,26 @@ export default function CategoriesPage() {
             <TableRow key={c._id}>
               <TableCell>
                 <InlineEdit value={c.title} onSave={(v) => update(c._id, v)} />
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`rounded-full px-2 py-1 text-xs font-semibold ${
+                      c.isHidden
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-emerald-100 text-emerald-700"
+                    }`}
+                  >
+                    {c.isHidden ? "Hidden" : "Shown"}
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => toggleVisibility(c)}
+                  >
+                    {c.isHidden ? "Show" : "Hide"}
+                  </Button>
+                </div>
               </TableCell>
               <TableCell className="hidden md:table-cell">
                 {new Date(c.createdAt).toLocaleDateString()}

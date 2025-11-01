@@ -29,7 +29,10 @@ export async function POST(req: NextRequest) {
     } catch {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
-    const { title } = await req.json();
+    const body = await req.json();
+    const title = String(body?.title || "").trim();
+    const isHidden =
+      typeof body?.isHidden === "boolean" ? body.isHidden : false;
 
     if (!title) {
       return NextResponse.json({ error: "Title is required" }, { status: 400 });
@@ -37,6 +40,7 @@ export async function POST(req: NextRequest) {
 
     const createdCategory = await category.create({
       title,
+      isHidden,
     });
 
     return NextResponse.json({ category: createdCategory }, { status: 201 });
