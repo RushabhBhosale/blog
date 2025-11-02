@@ -43,6 +43,10 @@ export async function GET(request: Request) {
   body.set("code", code);
   body.set("redirect_uri", MAL_REDIRECT_URI ?? "");
   body.set("code_verifier", code_verifier);
+  console.info("[MAL/callback] Exchanging code", {
+    verifierSample: code_verifier.slice(0, 8),
+    redirectUri: MAL_REDIRECT_URI,
+  });
 
   const res = await fetch("https://myanimelist.net/v1/oauth2/token", {
     method: "POST",
