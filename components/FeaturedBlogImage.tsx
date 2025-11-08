@@ -15,12 +15,10 @@ export default function FeaturedBlogImage({
   useEffect(() => {
     const fetchUrl = async () => {
       const url = await getVercelBlobImageUrl(blobUrl);
-      console.log("dd", url, blobUrl);
       setImageUrl(url);
     };
     fetchUrl();
   }, [blobUrl]);
-  console.log("ia", imageUrl);
 
   if (!imageUrl) return null;
 

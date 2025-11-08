@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { formatPostDate } from "@/lib/date-format";
 
 type BlogInterface = {
   _id: string;
@@ -103,18 +104,12 @@ const FALLBACK_ALL_TIME: AnimeSummary[] = [
 ];
 
 export default function AnimeHomePage({ allblogs }: Props) {
-  const blogs = (allblogs || []).filter(
-    (b) => b.category?.toLowerCase() === "anime"
+  const targetCategories = ["anime", "anime-reviews"];
+  const blogs = (allblogs || []).filter((b) =>
+    targetCategories.includes((b.category || "").toLowerCase().trim()),
   );
 
-  const fmt = (d?: string) =>
-    d
-      ? new Date(d).toLocaleDateString(undefined, {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        })
-      : "";
+  const fmt = (d?: string) => formatPostDate(d);
 
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);

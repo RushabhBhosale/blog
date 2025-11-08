@@ -37,17 +37,14 @@ export default function SignInPage() {
         toast.success(res.data.message || "User login successful");
         fetchUser();
         if (res.data.role === "user") {
-          console.log("hddkd");
           router.push("/home");
         } else {
-          console.log("hdddddd");
           router.push("/admin");
         }
       }
     } catch (err: any) {
-      console.log("dshg", err);
       toast.error(
-        err.response.data.error || "Error logging user. Something went wrong",
+        err.response.data.error || "Error logging user. Something went wrong"
       );
       setError(err.response?.data?.error || "Something went wrong");
     } finally {

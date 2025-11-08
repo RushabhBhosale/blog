@@ -34,7 +34,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchUser = async () => {
     try {
       const res = await axios.get("/api/auth/me", { withCredentials: true });
-      console.log("sjs", res?.data?.user);
       setUser(res?.data?.user || null);
     } catch (err) {
       console.error("Error fetching user:", err);

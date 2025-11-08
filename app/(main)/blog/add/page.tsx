@@ -58,9 +58,7 @@ export default function AddBlogPage() {
   const router = useRouter();
   const { user, isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    console.log("ys", user);
-  }, [user]);
+  useEffect(() => {}, [user]);
 
   useEffect(() => {
     const fetchCategories = async () => {

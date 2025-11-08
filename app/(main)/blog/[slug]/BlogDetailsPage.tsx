@@ -4,6 +4,7 @@ import Link from "next/link";
 import { BlogInterface } from "../../home/page";
 import ViewCounter from "@/components/blog/ViewCounter";
 import { prepareArticleContent, TocItem } from "@/lib/article-content";
+import { formatPostDate } from "@/lib/date-format";
 import BlogActionsBar from "./BlogActionsBar";
 import CommentsSection from "@/components/blog/CommentsSection";
 
@@ -32,14 +33,7 @@ const readingTimeFromBlog = (blog: Props["blogDetail"]) => {
 
 const canonicalPath = (blog: Props["blogDetail"]) => `/blog/${encodeURIComponent(blog.slug || "")}`;
 
-const formatDate = (value?: string) =>
-  value
-    ? new Date(value).toLocaleDateString(undefined, {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      })
-    : "";
+const formatDate = (value?: string) => formatPostDate(value);
 
 export default function BlogDetailsPage({ blogDetail, relatedAllBlogs }: Props) {
   const readingTime = readingTimeFromBlog(blogDetail);

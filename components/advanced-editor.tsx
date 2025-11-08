@@ -65,17 +65,16 @@ const TailwindAdvancedEditor = ({
       setCharsCount(editor.storage.characterCount.words());
       window.localStorage.setItem(
         "html-content",
-        highlightCodeblocks(editor.getHTML()),
+        highlightCodeblocks(editor.getHTML())
       );
       window.localStorage.setItem("novel-content", JSON.stringify(json));
       setSaveStatus("Saved");
     },
-    500,
+    500
   );
 
   useEffect(() => {
     if (editContent) {
-      console.log("trecebe");
       setInitialContent(editContent);
     }
   }, [isEdit, editContent]);
