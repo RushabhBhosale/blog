@@ -6,17 +6,13 @@ import { AuthProvider } from "@/utils/useAuth";
 import BackToTop from "@/components/BackToTop";
 import Script from "next/script";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
-export const metadata = {
+export const metadata: Metadata = {
   metadataBase: new URL("https://dailysparks.in"),
   title: "Daily Sparks ⚡ Fresh Ideas, Every Day",
   description:
@@ -29,9 +25,7 @@ export const metadata = {
     "reviews",
     "guides",
   ],
-  alternates: {
-    canonical: "https://dailysparks.in",
-  },
+  alternates: { canonical: "https://dailysparks.in" },
   authors: [{ name: "Rushabh Bhosale" }],
   openGraph: {
     title: "Daily Sparks ⚡ Fresh Ideas, Every Day",
@@ -61,102 +55,71 @@ export const metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html suppressHydrationWarning lang="en">
-      <script
-        async
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1425611919231559"
-        crossOrigin="anonymous"
-      ></script>
-      <script
-        async
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1425611919231559"
-        crossOrigin="anonymous"
-      ></script>
-
-      <meta
-        name="google-adsense-account"
-        content="ca-pub-1425611919231559"
-      ></meta>
+      <head>
+        <meta name="google-adsense-account" content="ca-pub-1425611919231559" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
+        <link rel="preconnect" href="https://tpc.googlesyndication.com" />
+      </head>
       <body
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* Global header with search aligned to SearchAction */}
-        {/* <header className="w-full border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
-            <a href="/" className="font-semibold text-lg">DailySparks</a>
-            <form
-              action="/"
-              method="get"
-              className="ml-auto flex items-center gap-2"
-              role="search"
-              aria-label="Site search"
-            >
-              <input
-                type="search"
-                name="s"
-                placeholder="Search..."
-                className="rounded-md border border-border bg-background px-3 py-1.5 text-sm"
-              />
-              <button type="submit" className="rounded-md border px-3 py-1.5 text-sm">
-                Search
-              </button>
-            </form>
-          </div>
-        </header> */}
         <Toaster />
         <AuthProvider>{children}</AuthProvider>
         <BackToTop />
       </body>
 
       <Script
-        src="https://www.googletagmanager.com/gtag/js?id=G-PV1MX0D6C5"
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1425611919231559"
+        crossOrigin="anonymous"
         strategy="afterInteractive"
       />
-      <Script id="google-analytics" strategy="afterInteractive">
+
+      <Script
+        src="https://www.googletagmanager.com/gtag/js?id=G-PV1MX0D6C5"
+        strategy="lazyOnload"
+      />
+      <Script id="ga-init" strategy="lazyOnload">
         {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          (window.requestIdleCallback || function(cb){setTimeout(cb, 1)})(function () {
             gtag('js', new Date());
-            gtag('config', 'G-PV1MX0D6C5');
-          `}
+            gtag('config', 'G-PV1MX0D6C5', { send_page_view: true });
+          });
+        `}
       </Script>
 
-      {/* Organization + WebSite (SearchAction) JSON-LD */}
       <Script id="org-website-jsonld" type="application/ld+json">
         {JSON.stringify({
           "@context": "https://schema.org",
           "@graph": [
             {
               "@type": "Organization",
-              "@id": "https://dailysparks.com/#organization",
-              name: "DailySparks",
-              url: "https://dailysparks.com/",
+              "@id": "https://dailysparks.in/#organization",
+              name: "Daily Sparks",
+              url: "https://dailysparks.in/",
               logo: {
                 "@type": "ImageObject",
-                url: "[insert logo URL]",
+                url: "https://dailysparks.in/logo.png",
               },
-              sameAs: [
-                "[insert Twitter URL]",
-                "[insert Facebook URL]",
-                "[insert Instagram URL]",
-                "[insert LinkedIn URL]",
-                "[insert YouTube URL]",
-              ],
+              sameAs: [],
             },
             {
               "@type": "WebSite",
-              "@id": "https://dailysparks.com/#website",
-              url: "https://dailysparks.com/",
-              name: "DailySparks",
-              publisher: { "@id": "https://dailysparks.com/#organization" },
+              "@id": "https://dailysparks.in/#website",
+              url: "https://dailysparks.in/",
+              name: "Daily Sparks",
+              publisher: { "@id": "https://dailysparks.in/#organization" },
               potentialAction: {
                 "@type": "SearchAction",
-                target: "https://dailysparks.com/?s={search_term_string}",
+                target: "https://dailysparks.in/?s={search_term_string}",
                 "query-input": "required name=search_term_string",
               },
             },
