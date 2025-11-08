@@ -206,6 +206,7 @@ export default function BlogDetailsPage({
             sizes="(max-width: 768px) 100vw, 75vw"
             className="object-cover"
             priority
+            fetchPriority="high"
           />
         </div>
 

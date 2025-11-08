@@ -317,6 +317,7 @@ export default function AnimeHomePage({ allblogs }: Props) {
                     alt={hero.title}
                     fill
                     priority
+                    fetchPriority="high"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                     sizes="(min-width: 1024px) 100vw, 100vw"
                   />
