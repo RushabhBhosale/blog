@@ -105,9 +105,7 @@ const FALLBACK_ALL_TIME: AnimeSummary[] = [
 
 export default function AnimeHomePage({ allblogs }: Props) {
   const targetCategories = ["anime", "anime-reviews"];
-  const blogs = (allblogs || []).filter((b) =>
-    targetCategories.includes((b.category || "").toLowerCase().trim()),
-  );
+  const blogs = allblogs || [];
 
   const fmt = (d?: string) => formatPostDate(d);
 
