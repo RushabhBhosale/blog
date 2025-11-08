@@ -67,6 +67,14 @@ const mergeStyle = (existing: string | null, addition: string) => {
   return Array.from(set.values()).join("; ");
 };
 
+const shouldRemoveSvgLength = (value?: string | null) => {
+  if (!value) return false;
+  const trimmed = value.trim().toLowerCase();
+  if (!trimmed) return false;
+  if (trimmed === "auto") return true;
+  return false;
+};
+
 export const prepareArticleContent = (html: string) => {
   if (!html?.trim().length) {
     return { html, toc: [] as TocItem[] };
@@ -146,6 +154,14 @@ export const prepareArticleContent = (html: string) => {
     if (!node.getAttribute("decoding")) {
       node.setAttribute("decoding", "async");
     }
+  });
+
+  root.querySelectorAll("svg").forEach((node) => {
+    ["width", "height"].forEach((attr) => {
+      if (shouldRemoveSvgLength(node.getAttribute(attr))) {
+        node.removeAttribute(attr);
+      }
+    });
   });
 
   return { html: root.toString(), toc };
