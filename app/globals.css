@@ -125,6 +125,7 @@
   h5,
   h6 {
     @apply font-bold text-foreground mt-6 mb-3;
+    scroll-margin-top: 6rem;
   }
 
   p {
