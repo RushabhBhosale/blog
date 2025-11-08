@@ -5,8 +5,6 @@ const userSchema = new Schema(
     name: { type: String },
     username: {
       type: String,
-      unique: true,
-      sparse: true,
       lowercase: true,
       trim: true,
     },
@@ -32,8 +30,6 @@ const userSchema = new Schema(
   { timestamps: true },
 );
 
-try {
-  userSchema.index({ username: 1 }, { unique: true, sparse: true });
-} catch {}
+userSchema.index({ username: 1 }, { unique: true, sparse: true });
 
 export default models.User || mongoose.model("User", userSchema);

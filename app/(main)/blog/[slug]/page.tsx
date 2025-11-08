@@ -9,7 +9,7 @@ import he from "he";
 import { cache } from "react";
 import { extractFaqSchema } from "@/lib/faq-schema";
 
-export const revalidate = 60;
+export const revalidate = 600;
 
 const SITE = "https://dailysparks.in";
 
