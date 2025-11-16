@@ -8,6 +8,7 @@ import Script from "next/script";
 import he from "he";
 import { cache } from "react";
 import { extractFaqSchema } from "@/lib/faq-schema";
+import { notFound } from "next/navigation";
 
 export const revalidate = 600;
 
@@ -123,7 +124,7 @@ export default async function Blog(context: {
   const canView =
     !!blogData && (!status || status === "Published" || status === "Hide");
   if (!blogData || !canView) {
-    return <div>Blog not found</div>;
+    return notFound();
   }
 
   const { htmlWithoutFaqSchema } = extractFaqSchema(blogData?.content || "");
