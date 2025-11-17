@@ -34,8 +34,6 @@ const readingTimeFromBlog = (blog: Props["blogDetail"]) => {
 const canonicalPath = (blog: Props["blogDetail"]) => `/blog/${encodeURIComponent(blog.slug || "")}`;
 
 const formatDate = (value?: string) => formatPostDate(value);
-const blogDate = (blog: BlogInterface) =>
-  formatDate(blog.updatedAt || blog.createdAt);
 
 export default function BlogDetailsPage({ blogDetail, relatedAllBlogs }: Props) {
   const readingTime = readingTimeFromBlog(blogDetail);
@@ -115,7 +113,7 @@ export default function BlogDetailsPage({ blogDetail, relatedAllBlogs }: Props) 
             >
               By {blogDetail.author}
             </Link>
-            <span>{blogDate(blogDetail)}</span>
+            <span>{formatDate(blogDetail.createdAt)}</span>
             <span className="hidden md:block">• {readingTime} min read</span>
             <ViewCounter slug={blogDetail.slug || ""} initialViews={blogDetail.viewCount || 0} />
           </div>

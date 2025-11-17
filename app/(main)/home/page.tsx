@@ -26,7 +26,6 @@ export interface BlogInterface {
   slug?: string;
   authorId?: string;
   createdAt?: string;
-  updatedAt?: string;
   metaTitle?: string;
   metaDescription?: string;
   likes: any;
@@ -43,7 +42,7 @@ export default async function Home() {
   await dbReady;
   const blogs = await Blog.find({ status: "Published" })
     .select("-content")
-    .sort({ updatedAt: -1 })
+    .sort({ createdAt: -1 })
     .lean();
   const minis = await MiniSpark.find().sort({ createdAt: -1 }).limit(8).lean();
   return (

@@ -16,22 +16,14 @@ const BlogsPage = ({ allblogs }: Props) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
 
-  const formatDate = (blog: BlogInterface) => {
-    const dateStr = blog.updatedAt || blog.createdAt;
+  const formatDate = (dateStr?: string) => {
     if (!dateStr) return "";
     const date = new Date(dateStr);
-    if (Number.isNaN(date.getTime())) return "";
     return date.toLocaleDateString(undefined, {
       year: "numeric",
       month: "short",
       day: "numeric",
     });
-  };
-
-  const getTimestamp = (blog: BlogInterface) => {
-    const dateStr = blog.updatedAt || blog.createdAt;
-    const date = new Date(dateStr || "");
-    return Number.isNaN(date.getTime()) ? 0 : date.getTime();
   };
 
   // Get unique categories
@@ -67,9 +59,15 @@ const BlogsPage = ({ allblogs }: Props) => {
     filtered = [...filtered].sort((a, b) => {
       switch (sortBy) {
         case "newest":
-          return getTimestamp(b) - getTimestamp(a);
+          return (
+            new Date(b.createdAt || "").getTime() -
+            new Date(a.createdAt || "").getTime()
+          );
         case "oldest":
-          return getTimestamp(a) - getTimestamp(b);
+          return (
+            new Date(a.createdAt || "").getTime() -
+            new Date(b.createdAt || "").getTime()
+          );
         case "title":
           return a.title.localeCompare(b.title);
         default:
@@ -257,7 +255,7 @@ const BlogsPage = ({ allblogs }: Props) => {
                   </div>
                   <div className="absolute top-4 right-4">
                     <span className="bg-black/20 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full">
-                      {formatDate(blog)}
+                      {formatDate(blog.createdAt)}
                     </span>
                   </div>
                 </div>

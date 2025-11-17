@@ -20,13 +20,6 @@ function authorRegexFromSlug(slug: string) {
   return new RegExp(`^${pattern}$`, "i");
 }
 
-function formatBlogDate(value?: string) {
-  if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleDateString();
-}
-
 export async function generateMetadata({
   params,
 }: {
@@ -83,17 +76,17 @@ export default async function AuthorPage({ params }: { params: any }) {
 
   if (user) {
     blogs = await Blog.find({ authorId: user._id?.toString?.() })
-      .sort({ updatedAt: -1 })
+      .sort({ createdAt: -1 })
       .select(
-        "title slug image imageAlt category author authorId createdAt updatedAt status hub",
+        "title slug image imageAlt category author authorId createdAt status hub",
       )
       .lean();
   } else {
     const re = authorRegexFromSlug(slug);
     blogs = await Blog.find({ author: re })
-      .sort({ updatedAt: -1 })
+      .sort({ createdAt: -1 })
       .select(
-        "title slug image imageAlt category author authorId createdAt updatedAt status hub",
+        "title slug image imageAlt category author authorId createdAt status hub",
       )
       .lean();
     if (blogs.length) {
@@ -295,59 +288,50 @@ export default async function AuthorPage({ params }: { params: any }) {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {blogs.map((b: any) => {
-          const href = `/blog/${encodeURIComponent(b.slug)}`;
-          const badge = String(b.status || "");
-          const badgeCls =
-            badge === "Published"
-              ? "bg-emerald-100 text-emerald-700 border-emerald-200"
-              : badge === "Pending"
-              ? "bg-amber-100 text-amber-700 border-amber-200"
-              : badge === "Draft"
-              ? "bg-slate-100 text-slate-700 border-slate-200"
-              : badge === "Hide"
-              ? "bg-rose-100 text-rose-700 border-rose-200"
-              : "bg-muted text-muted-foreground border-border";
-          const blogDate = formatBlogDate(b.updatedAt || b.createdAt);
-          return (
-            <Link
-              key={b._id}
-              href={href}
-              className="group rounded-lg overflow-hidden border border-border bg-card/70 hover:shadow-md transition"
-            >
-              <div className="relative w-full h-44">
-                <Image
-                  src={b.image}
-                  alt={b.imageAlt || b.title}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover"
-                />
-                <div
-                  className={`absolute top-2 left-2 px-2 py-0.5 rounded text-[11px] border ${badgeCls}`}
-                >
-                  {badge || "—"}
+            const href = `/blog/${encodeURIComponent(b.slug)}`;
+            const badge = String(b.status || "");
+            const badgeCls =
+              badge === "Published"
+                ? "bg-emerald-100 text-emerald-700 border-emerald-200"
+                : badge === "Pending"
+                ? "bg-amber-100 text-amber-700 border-amber-200"
+                : badge === "Draft"
+                ? "bg-slate-100 text-slate-700 border-slate-200"
+                : badge === "Hide"
+                ? "bg-rose-100 text-rose-700 border-rose-200"
+                : "bg-muted text-muted-foreground border-border";
+            return (
+              <Link
+                key={b._id}
+                href={href}
+                className="group rounded-lg overflow-hidden border border-border bg-card/70 hover:shadow-md transition"
+              >
+                <div className="relative w-full h-44">
+                  <Image
+                    src={b.image}
+                    alt={b.imageAlt || b.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover"
+                  />
+                  <div className={`absolute top-2 left-2 px-2 py-0.5 rounded text-[11px] border ${badgeCls}`}>
+                    {badge || "—"}
+                  </div>
                 </div>
-              </div>
-              <div className="p-4">
-                <div className="text-xs text-muted-foreground mb-1">
-                  {b.category}
+                <div className="p-4">
+                  <div className="text-xs text-muted-foreground mb-1">
+                    {b.category}
+                  </div>
+                  <h2 className="text-base font-semibold line-clamp-2 group-hover:underline">
+                    {b.title}
+                  </h2>
+                  <div className="text-xs text-muted-foreground mt-2">
+                    By {b.author} • {new Date(b.createdAt).toLocaleDateString()}
+                  </div>
                 </div>
-                <h2 className="text-base font-semibold line-clamp-2 group-hover:underline">
-                  {b.title}
-                </h2>
-                <div className="text-xs text-muted-foreground mt-2">
-                  By {b.author}
-                  {blogDate ? (
-                    <>
-                      {" "}
-                      • {blogDate}
-                    </>
-                  ) : null}
-                </div>
-              </div>
-            </Link>
-          );
-        })}
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
