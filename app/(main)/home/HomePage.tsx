@@ -12,6 +12,7 @@ type BlogInterface = {
   category: string;
   author: string;
   createdAt: string;
+  updatedAt?: string;
   image: string;
   imageAlt?: string;
   metaDescription?: string;
@@ -108,6 +109,8 @@ export default function AnimeHomePage({ allblogs }: Props) {
   const blogs = allblogs || [];
 
   const fmt = (d?: string) => formatPostDate(d);
+  const blogDate = (blog?: BlogInterface) =>
+    fmt(blog?.updatedAt || blog?.createdAt);
 
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -332,7 +335,7 @@ export default function AnimeHomePage({ allblogs }: Props) {
                   <div className="flex items-center gap-3 text-xs sm:text-sm text-white/80">
                     <span>By {hero.author}</span>
                     <span>•</span>
-                    <span>{fmt(hero.createdAt)}</span>
+                    <span>{blogDate(hero)}</span>
                   </div>
                 </div>
               </div>
@@ -371,7 +374,7 @@ export default function AnimeHomePage({ allblogs }: Props) {
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span>{post.author}</span>
                         <span>•</span>
-                        <span>{fmt(post.createdAt)}</span>
+                        <span>{blogDate(post)}</span>
                       </div>
                     </div>
                   </Link>
@@ -402,7 +405,7 @@ export default function AnimeHomePage({ allblogs }: Props) {
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
                       <span>{post.author}</span>
                       <span>•</span>
-                      <span>{fmt(post.createdAt)}</span>
+                      <span>{blogDate(post)}</span>
                     </div>
                   </div>
                 </Link>
@@ -451,7 +454,7 @@ export default function AnimeHomePage({ allblogs }: Props) {
                   <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground">
                     <span>{mainFeatured.author}</span>
                     <span>•</span>
-                    <span>{fmt(mainFeatured.createdAt)}</span>
+                    <span>{blogDate(mainFeatured)}</span>
                   </div>
                 </Link>
               )}
@@ -475,7 +478,7 @@ export default function AnimeHomePage({ allblogs }: Props) {
                       <div className="flex items-center gap-2 text-[11px] sm:text-xs text-muted-foreground">
                         <span>{post.author}</span>
                         <span>•</span>
-                        <span>{fmt(post.createdAt)}</span>
+                        <span>{blogDate(post)}</span>
                       </div>
                     </Link>
                   ))}
@@ -535,7 +538,7 @@ export default function AnimeHomePage({ allblogs }: Props) {
                             {post.title}
                           </h4>
                           <p className="text-[11px] sm:text-xs text-muted-foreground">
-                            {post.author} • {fmt(post.createdAt)}
+                            {post.author} • {blogDate(post)}
                           </p>
                         </div>
                       </Link>
@@ -585,7 +588,7 @@ export default function AnimeHomePage({ allblogs }: Props) {
                     {post.title}
                   </h4>
                   <p className="text-[11px] sm:text-xs text-muted-foreground">
-                    {fmt(post.createdAt)}
+                    {blogDate(post)}
                   </p>
                 </Link>
               ))}

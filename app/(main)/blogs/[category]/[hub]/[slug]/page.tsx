@@ -238,7 +238,7 @@ export default async function Page(context: {
         score: { $add: [{ $multiply: ["$tagMatches", 3] }, "$catBonus"] },
       },
     },
-    { $sort: { score: -1, createdAt: -1 } },
+    { $sort: { score: -1, updatedAt: -1 } },
     { $limit: 6 },
     { $project: { content: 0 } },
   ]);

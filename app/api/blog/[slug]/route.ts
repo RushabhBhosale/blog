@@ -147,6 +147,7 @@ export async function PUT(
       );
     }
 
+    const now = new Date();
     const set: any = {
       title,
       slug: slug2,
@@ -169,7 +170,7 @@ export async function PUT(
     if (hub && typeof hub === "object") {
       set.hub = { slug: hub.slug, title: hub.title };
     }
-    const update: any = { $set: set };
+    const update: any = { $set: { ...set, updatedAt: now } };
     if (hub === null) {
       update.$unset = { hub: "" };
     }

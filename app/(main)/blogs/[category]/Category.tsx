@@ -57,7 +57,7 @@ export default function CategoryPage({ allblogs, category }: Props) {
   const categorySegment = encodeURIComponent(blogs[0]?.category || category);
   const canonicalCategoryUrl = `${SITE}/blogs/${categorySegment}`;
 
-  const latestPublished = blogs[0]?.createdAt;
+  const latestUpdated = blogs[0]?.updatedAt || blogs[0]?.createdAt;
 
   const uniqueAuthorsCount = useMemo(() => {
     const authors = new Set(
@@ -139,10 +139,10 @@ export default function CategoryPage({ allblogs, category }: Props) {
       },
       {
         label: "Updated",
-        value: formatDate(latestPublished) || "—",
+        value: formatDate(latestUpdated) || "—",
       },
     ],
-    [blogs.length, uniqueAuthorsCount, hubList.length, latestPublished],
+    [blogs.length, uniqueAuthorsCount, hubList.length, latestUpdated],
   );
 
   const jsonLd = useMemo(
@@ -192,6 +192,7 @@ export default function CategoryPage({ allblogs, category }: Props) {
   );
 
   const heroBlog = blogs[0];
+  const heroDate = heroBlog?.updatedAt || heroBlog?.createdAt;
 
   return (
     <div className="min-h-screen bg-background">
@@ -253,9 +254,7 @@ export default function CategoryPage({ allblogs, category }: Props) {
                     <span className="rounded-full bg-white/15 px-3 py-1 backdrop-blur-sm">
                       Spotlight
                     </span>
-                    {heroBlog.createdAt ? (
-                      <span>{formatDate(heroBlog.createdAt)}</span>
-                    ) : null}
+                    {heroDate ? <span>{formatDate(heroDate)}</span> : null}
                     {heroBlog.author ? <span>• {heroBlog.author}</span> : null}
                   </div>
                   <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white leading-tight max-w-3xl">
@@ -394,7 +393,7 @@ export default function CategoryPage({ allblogs, category }: Props) {
                     </div>
                     <div className="p-4 space-y-2">
                       <span className="text-xs uppercase tracking-wide text-primary">
-                        {formatDate(blog.createdAt)}
+                        {formatDate(blog.updatedAt || blog.createdAt)}
                       </span>
                       <h3 className="text-lg font-semibold text-foreground leading-snug line-clamp-2">
                         {blog.title}
@@ -442,7 +441,7 @@ export default function CategoryPage({ allblogs, category }: Props) {
                           {blog.title}
                         </h3>
                         <span className="text-xs text-muted-foreground">
-                          {formatDate(blog.createdAt)}
+                          {formatDate(blog.updatedAt || blog.createdAt)}
                         </span>
                         {Array.isArray(blog.tags) && blog.tags.length ? (
                           <div className="flex flex-wrap gap-1 pt-1">

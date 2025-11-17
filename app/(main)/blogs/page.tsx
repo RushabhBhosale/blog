@@ -20,7 +20,7 @@ export default async function Blogs() {
   await dbReady;
   const blogs = await Blog.find({ status: { $ne: "Hide" } })
     .select("-content")
-    .sort({ createdAt: -1 })
+    .sort({ updatedAt: -1 })
     .lean();
   return (
     <Suspense fallback={<div>Loading blogs...</div>}>

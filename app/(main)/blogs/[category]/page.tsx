@@ -17,6 +17,7 @@ export interface BlogInterface {
   slug?: string;
   authorId?: string;
   createdAt?: string;
+  updatedAt?: string;
   metaTitle?: string;
   metaDescription?: string;
   likes: any;
@@ -36,7 +37,7 @@ const fetchCategoryBlogs = cache(async (rawCategory: string) => {
   );
   const blogs = await Blog.find({ category: regex, status: "Published" })
     .select("-content")
-    .sort({ createdAt: -1 })
+    .sort({ updatedAt: -1 })
     .lean();
   return blogs;
 });
